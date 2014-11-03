@@ -1,0 +1,107 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "SubnetIdA": {
+      "Description": "Public Subnet to launch our NAT A into",
+      "Type": "String",
+      "MinLength": "15",
+      "MaxLength": "15",
+      "AllowedPattern": "subnet-[a-z0-9]*",
+      "ConstraintDescription": "must be a subnetid"
+    },
+    "SubnetIdB": {
+      "Description": "Public Subnet to launch our NAT B into",
+      "Type": "String",
+      "MinLength": "15",
+      "MaxLength": "15",
+      "AllowedPattern": "subnet-[a-z0-9]*",
+      "ConstraintDescription": "must be a subnetid"
+    }
+  },
+  "Resources": {
+    "NAT_Monitor_Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "arn:aws:iam::123456789012:role/NAT_Monitoring_Role",
+        "Policies": [
+          {
+            "PolicyName": "NAT_Monitor_Policy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:DescribeInstances",
+                    "ec2:CreateRoute",
+                    "ec2:ReplaceRoute",
+                    "ec2:StartInstances",
+                    "ec2:StopInstances"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "NAT_Instance_Profile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "arn:aws:iam::123456789012:instance-profile/NAT_Instance_Profile",
+        "Roles": [
+          {
+            "Ref": "NAT_Monitor_Role"
+          }
+        ]
+      }
+    },
+    "NAT_A": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "Subnet":{
+          	"Ref":"SubnetIdA"
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-1cpg3cs33wbal-us-east-1/vpc.json",
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "NAT_B": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "Subnet":{
+          	"Ref":"SubnetIdB"
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-1cpg3cs33wbal-us-east-1/vpc.json",
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Complete Environment Setup v1.0",
+  "Parameters": {
+    "CidrBlockPrefix": {
+      "Description": "CidrBlock for this VPC",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "7",
+      "Default": "10.0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "Must be the first 2 bytes of a CidrBlock"
+    }
+  },
+  "Mappings": {
+    "RegionMappings": {
+      "us-west-1": {
+        "AvailabilityZones": [
+          "us-west-1a",
+          "us-west-1b"
+        ]
+      },
+      "us-east-1": {
+        "AvailabilityZones": [
+          "us-east-1a",
+          "us-east-1c"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "Network": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "AWS::StackName"
+          },
+          "CidrBlockPrefix": {
+            "Ref": "CidrBlockPrefix"
+          },
+          "AvailabilityZones": {
+            "Fn::Join": [
+              ",",
+              {
+                "Fn::FindInMap": [
+                  "RegionMappings",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "AvailabilityZones"
+                ]
+              }
+            ]
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/network.json",
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}
