@@ -1,14 +1,25 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Private Routing Creation v1.0",
+  "Description": "Public Routing Creation v1.0",
   "Parameters": {
     "VpcId": {
-      "Description": "VPC to launch this subnet into.",
+      "Description": "VPC for this route.",
       "Type": "String",
       "MinLength": "12",
       "MaxLength": "12",
       "AllowedPattern": "vpc-[a-z0-9]*",
       "ConstraintDescription": "Must be a valid VPC id."
+    },
+    "SubnetIds": {
+      "Description": "Subnets to associate public routing.",
+      "Type": "CommaDelimitedList"
+    },    
+    "InternetGatewayId": {
+      "Description": "Id of the VPCs InternetGateway",
+      "Type": "String",
+      "MinLength": "12",
+      "MaxLength": "12",
+      "AllowedPattern":"igw-[a-z0-9]*"
     },
     "Environment": {
       "Description": "Name of the environment this VPC represents",
@@ -20,7 +31,7 @@
     }
   },
   "Resources": {
-    "PrivateRouteTable": {
+    "PublicRouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
@@ -35,12 +46,12 @@
           },
           {
             "Key": "Network",
-            "Value": "Private"
+            "Value": "Public"
           }
         ]
       }
     },
-    "PrivateRoute": {
+    "PublicRoute": {
       "Type": "AWS::EC2::Route",
       "Properties": {
         "RouteTableId": {
@@ -48,18 +59,39 @@
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "InternetGatewayId"
         }
       }
     },
-    "PrivateSubnetRouteTableAssociation": {
+    "PublicSubnetRouteTableAssociationA": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
         "SubnetId": {
-          "Ref": "PrivateSubnet"
+          "Fn::Select": [
+            "0",
+            {
+              "Ref": "SubnetIds"
+            }
+          ]
         },
         "RouteTableId": {
-          "Ref": "PrivateRouteTable"
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
+    "PublicSubnetRouteTableAssociationB": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Fn::Select": [
+            "1",
+            {
+              "Ref": "SubnetIds"
+            }
+          ]
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
         }
       }
     }

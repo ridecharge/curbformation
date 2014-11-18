@@ -31,8 +31,16 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "CidrBlockPrefix": {
-            "Ref": "CidrBlockPrefix"
+          "CidrBlock": {
+            "Fn::Join": [
+              ".",
+              [
+                {
+                  "Ref": "CidrBlockPrefix"
+                },
+                "0.0/16"
+              ]
+            ]
           }
         },
         "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc.json",
@@ -59,7 +67,54 @@
             "Ref": "AvailabilityZones"
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/subnets.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/subnets/subnets.json",
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "Routes": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "PublicSubnetIds": {
+            "Fn::GetAtt": [
+              "Subnets",
+              "Outputs.PublicSubnets"
+            ]
+          },
+          "PrivateSubnetIds": {
+            "Fn::GetAtt": [
+              "Subnets",
+              "Outputs.PrivateSubnets"
+            ]
+          },
+          "VpcId": {
+            "Fn::GetAtt": [
+              "VPC",
+              "Outputs.VpcId"
+            ]
+          },
+          "InternetGatewayId": {
+            "Fn::GetAtt": [
+              "VPC",
+              "Outputs.InternetGatewayId"
+            ]
+          },
+          "CidrBlock": {
+            "Fn::Join": [
+              ".",
+              [
+                {
+                  "Ref": "CidrBlockPrefix"
+                },
+                "0.0/16"
+              ]
+            ]
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/routes/routes.json",
         "TimeoutInMinutes": "30"
       }
     }

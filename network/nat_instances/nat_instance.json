@@ -1,0 +1,239 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "NAT Instance for Private Routing Creation v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "InstanceType": {
+      "Description": "Instance type for NAT nodes.",
+      "Type": "String",
+      "Default": "c3.large",
+      "AllowedValues": [
+        "c3.large"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    },
+    "PublicSubnet": {
+      "Type": "String"
+    },
+    "PrivateRouteTables": {
+      "Type": "CommaDelimitedList"
+    },
+    "NATRoleProfile": {
+      "Type": "String"
+    },
+    "NATSecurityGroup": {
+      "Type": "String"
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "Default": "bootstrap",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "NumberOfPings": {
+      "Description": "The number of times the health check will ping the alternate NAT Node",
+      "Type": "String",
+      "Default": "3"
+    },
+    "PingTimeout": {
+      "Description": "The number of seconds to wait for each ping response before determining that the ping has failed",
+      "Type": "String",
+      "Default": "1"
+    },
+    "WaitBetweenPings": {
+      "Description": "The number of seconds to wait between health checks",
+      "Type": "String",
+      "Default": "2"
+    },
+    "WaitForInstanceStop": {
+      "Description": "The number of seconds to wait for alternate NAT Node to stop before attempting to stop it again",
+      "Type": "String",
+      "Default": "60"
+    },
+    "WaitForInstanceStart": {
+      "Description": "The number of seconds to wait for alternate NAT Node to restart before resuming health checks again",
+      "Type": "String",
+      "Default": "300"
+    }
+  },
+  "Mappings": {
+    "Region2NATAMI": {
+      "us-east-1": {
+        "AMI": "ami-54cf5c3d"
+      },
+      "us-west-1": {
+        "AMI": "ami-b63210f3"
+      }
+    }
+  },
+  "Outputs": {
+    "InstanceId": {
+      "Value": {
+        "Ref": "NATInstance"
+      }
+    }
+  },
+  "Resources": {
+    "NATEIP": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc",
+        "InstanceId": {
+          "Ref": "NATInstance"
+        }
+      }
+    },
+    "NATInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "IamInstanceProfile": {
+          "Ref": "NATRoleProfile"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        },
+        "SourceDestCheck": "false",
+        "ImageId": {
+          "Fn::FindInMap": [
+            "Region2NATAMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            "AMI"
+          ]
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "NATSecurityGroup"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            }
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "yum update -y aws*\n",
+                ". /etc/profile.d/aws-apitools-common.sh\n",
+                "# Configure iptables\n",
+                "/sbin/iptables -t nat -A POSTROUTING -o eth0 -s 0.0.0.0/0 -j MASQUERADE\n",
+                "/sbin/iptables-save > /etc/sysconfig/iptables\n",
+                "# Configure ip forwarding and redirects\n",
+                "echo 1 >  /proc/sys/net/ipv4/ip_forward && echo 0 >  /proc/sys/net/ipv4/conf/eth0/send_redirects\n",
+                "mkdir -p /etc/sysctl.d/\n",
+                "cat <<EOF > /etc/sysctl.d/nat.conf\n",
+                "net.ipv4.ip_forward = 1\n",
+                "net.ipv4.conf.eth0.send_redirects = 0\n",
+                "EOF\n",
+                "# Download nat_monitor.sh and configure\n",
+                "cd /root\n",
+                "wget http://media.amazonwebservices.com/articles/nat_monitor_files/nat_monitor.sh\n",
+                "NAT_ID=\n",
+                "# CloudFormation should have updated the PrivateRouteTable2 by now (due to yum update), however loop to make sure\n",
+                "while [ \"$NAT_ID\" == \"\" ]; do\n",
+                "  sleep 60\n",
+                "  NAT_ID=`/opt/aws/bin/ec2-describe-route-tables ",
+                {
+                  "Fn::Select": [
+                    "1",
+                    {
+                      "Ref": "PrivateRouteTables"
+                    }
+                  ]
+                },
+                " -U https://ec2.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".amazonaws.com | grep 0.0.0.0/0 | awk '{print $2;}'`\n",
+                "  #echo `date` \"-- NAT_ID=$NAT_ID\" >> /tmp/test.log\n",
+                "done\n",
+                "# Update NAT_ID, NAT_RT_ID, and My_RT_ID\n",
+                "sed \"s/NAT_ID=/NAT_ID=$NAT_ID/g\" /root/nat_monitor.sh > /root/nat_monitor.tmp\n",
+                "sed \"s/NAT_RT_ID=/NAT_RT_ID=",
+                {
+                  "Fn::Select": [
+                    "1",
+                    {
+                      "Ref": "PrivateRouteTables"
+                    }
+                  ]
+                },
+                "/g\" /root/nat_monitor.tmp > /root/nat_monitor.sh\n",
+                "sed \"s/My_RT_ID=/My_RT_ID=",
+                {
+                  "Fn::Select": [
+                    "0",
+                    {
+                      "Ref": "PrivateRouteTables"
+                    }
+                  ]
+                },
+                "/g\" /root/nat_monitor.sh > /root/nat_monitor.tmp\n",
+                "sed \"s/EC2_URL=/EC2_URL=https:\\/\\/ec2.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".amazonaws.com",
+                "/g\" /root/nat_monitor.tmp > /root/nat_monitor.sh\n",
+                "sed \"s/Num_Pings=3/Num_Pings=",
+                {
+                  "Ref": "NumberOfPings"
+                },
+                "/g\" /root/nat_monitor.sh > /root/nat_monitor.tmp\n",
+                "sed \"s/Ping_Timeout=1/Ping_Timeout=",
+                {
+                  "Ref": "PingTimeout"
+                },
+                "/g\" /root/nat_monitor.tmp > /root/nat_monitor.sh\n",
+                "sed \"s/Wait_Between_Pings=2/Wait_Between_Pings=",
+                {
+                  "Ref": "WaitBetweenPings"
+                },
+                "/g\" /root/nat_monitor.sh > /root/nat_monitor.tmp\n",
+                "sed \"s/Wait_for_Instance_Stop=60/Wait_for_Instance_Stop=",
+                {
+                  "Ref": "WaitForInstanceStop"
+                },
+                "/g\" /root/nat_monitor.tmp > /root/nat_monitor.sh\n",
+                "sed \"s/Wait_for_Instance_Start=300/Wait_for_Instance_Start=",
+                {
+                  "Ref": "WaitForInstanceStart"
+                },
+                "/g\" /root/nat_monitor.sh > /root/nat_monitor.tmp\n",
+                "mv /root/nat_monitor.tmp /root/nat_monitor.sh\n",
+                "chmod a+x /root/nat_monitor.sh\n",
+                "echo '@reboot /root/nat_monitor.sh > /tmp/nat_monitor.log' | crontab\n",
+                "/root/nat_monitor.sh > /tmp/nat_monitor.log &\n"
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+}

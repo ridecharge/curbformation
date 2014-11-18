@@ -1,0 +1,1 @@
+for x in `find . -name "*.json"`; do echo $x; aws cloudformation validate-template --template-body file://$x | grep "ValidationError"; done

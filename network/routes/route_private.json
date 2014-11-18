@@ -1,0 +1,183 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Private Routing Creation v1.0",
+  "Parameters": {
+    "VpcId": {
+      "Description": "VPC for this route.",
+      "Type": "String",
+      "MinLength": "12",
+      "MaxLength": "12",
+      "AllowedPattern": "vpc-[a-z0-9]*",
+      "ConstraintDescription": "Must be a valid VPC id."
+    },
+    "PrivateSubnetIds": {
+      "Description": "Subnets to associate private routing.",
+      "Type": "CommaDelimitedList"
+    },
+    "PublicSubnetIds": {
+      "Description": "Subnets to create NAT Instances in.",
+      "Type": "String"
+    },
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "CidrBlock": {
+      "Description": "Cidr Address for the VPC to create the instances in.",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    }
+  },
+  "Resources": {
+    "NATInstances": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "VpcId": {
+            "Ref": "VpcId"
+          },
+          "CidrBlock": {
+            "Ref": "CidrBlock"
+          },
+          "PublicSubnetIds": {
+            "Ref": "PublicSubnetIds"
+          },
+          "PrivateRouteTables": {
+            "Fn::Join": [
+              ",",
+              [
+                {
+                  "Ref": "PrivateRouteTableA"
+                },
+                {
+                  "Ref": "PrivateRouteTableB"
+                }
+              ]
+            ]
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/nat_instances/nat_instances.json",
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "PrivateRouteA": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableB"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "InstanceId": {
+          "Fn::Select": [
+            "0",
+            {
+              "Fn::GetAtt": [
+                "NATInstances",
+                "Outputs.NATInstanceIds"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "PrivateRouteB": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableA"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "InstanceId": {
+          "Fn::Select": [
+            "1",
+            {
+              "Fn::GetAtt": [
+                "NATInstances",
+                "Outputs.NATInstanceIds"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "PrivateRouteTableA": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Private"
+          }
+        ]
+      }
+    },
+    "PrivateRouteTableB": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Private"
+          }
+        ]
+      }
+    },
+    "PrivateSubnetRouteTableAssociationA": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Fn::Select": [
+            "0",
+            {
+              "Ref": "PrivateSubnetIds"
+            }
+          ]
+        },
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableA"
+        }
+      }
+    },
+    "PrivateSubnetRouteTableAssociationB": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Fn::Select": [
+            "1",
+            {
+              "Ref": "PrivateSubnetIds"
+            }
+          ]
+        },
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableB"
+        }
+      }
+    }
+  }
+}

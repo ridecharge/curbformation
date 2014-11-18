@@ -97,7 +97,7 @@
           },
           "SubnetType": "Public"
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/subnet_pair.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/subnets/subnet_pair.json",
         "TimeoutInMinutes": "30"
       }
     },
@@ -145,7 +145,7 @@
           },
           "SubnetType": "Private"
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/subnet_pair.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/subnets/subnet_pair.json",
         "TimeoutInMinutes": "30"
       }
     }
