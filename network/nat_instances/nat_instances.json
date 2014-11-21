@@ -33,24 +33,19 @@
     }
   },
   "Outputs": {
-    "NATInstances": {
+    "NATInstanceIdA": {
       "Value": {
-        "Fn::Join": [
-          ",",
-          [
-            {
-              "Fn::GetAtt": [
-                "NATInstanceA",
-                "Outputs.InstanceId"
-              ]
-            },
-            {
-              "Fn::GetAtt": [
-                "NATInstanceB",
-                "Outputs.InstanceId"
-              ]
-            }
-          ]
+        "Fn::GetAtt": [
+          "NATInstanceA",
+          "Outputs.InstanceId"
+        ]
+      }
+    },
+    "NATInstanceIdB": {
+      "Value": {
+        "Fn::GetAtt": [
+          "NATInstanceA",
+          "Outputs.InstanceId"
         ]
       }
     }

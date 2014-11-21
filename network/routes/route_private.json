@@ -75,14 +75,9 @@
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "InstanceId": {
-          "Fn::Select": [
-            "0",
-            {
-              "Fn::GetAtt": [
-                "NATInstances",
-                "Outputs.NATInstanceIds"
-              ]
-            }
+          "Fn::GetAtt": [
+            "NATInstances",
+            "Outputs.NATInstanceIdA"
           ]
         }
       }
@@ -95,14 +90,9 @@
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "InstanceId": {
-          "Fn::Select": [
-            "1",
-            {
-              "Fn::GetAtt": [
-                "NATInstances",
-                "Outputs.NATInstanceIds"
-              ]
-            }
+          "Fn::GetAtt": [
+            "NATInstances",
+            "Outputs.NATInstanceIdB"
           ]
         }
       }
