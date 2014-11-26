@@ -43,6 +43,20 @@
         "InstanceTenancy": "default",
         "Tags": [
           {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "Environment"
+                  },
+                  "VPC"
+                ]
+              ]
+            }
+          },
+          {
             "Key": "Environment",
             "Value": {
               "Ref": "Environment"
@@ -55,6 +69,20 @@
       "Type": "AWS::EC2::InternetGateway",
       "Properties": {
         "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "Environment"
+                  },
+                  "IGW"
+                ]
+              ]
+            }
+          },
           {
             "Key": "Environment",
             "Value": {

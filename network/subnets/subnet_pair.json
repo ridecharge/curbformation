@@ -83,6 +83,23 @@
             }
           },
           {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "Environment"
+                  },
+                  {
+                    "Ref": "SubnetType"
+                  },
+                  "A"
+                ]
+              ]
+            }
+          },
+          {
             "Key": "Network",
             "Value": {
               "Ref": "SubnetType"
@@ -118,6 +135,23 @@
             "Key": "Environment",
             "Value": {
               "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "Environment"
+                  },
+                  {
+                    "Ref": "SubnetType"
+                  },
+                  "B"
+                ]
+              ]
             }
           },
           {
