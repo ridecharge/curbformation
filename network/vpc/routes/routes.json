@@ -54,7 +54,7 @@
             "Ref": "InternetGatewayId"
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/routes/route_public.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/routes/route_public.json",
         "TimeoutInMinutes": "30"
       }
     },
@@ -78,7 +78,7 @@
             "Ref": "CidrBlock"
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/routes/route_private.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/routes/route_private.json",
         "TimeoutInMinutes": "30"
       }
     }

@@ -1,0 +1,164 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "VPC Creation v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "CidrBlockPrefix": {
+      "Description": "CidrBlock for this VPC",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "7",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "Must be the first 2 bytes of a CidrBlock"
+    },
+    "AvailabilityZones": {
+      "Description": "AvailabilityZones to launch networking stacks into.",
+      "Type": "String"
+    }
+  },
+  "Outputs": {
+    "VpcId": {
+      "Value": {
+        "Ref": "VPC"
+      }
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "CidrBlockPrefix"
+              },
+              "0.0/16"
+            ]
+          ]
+        },
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            }
+          }
+        ]
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "Subnets": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "CidrBlockPrefix": {
+            "Ref": "CidrBlockPrefix"
+          },
+          "VpcId": {
+            "Ref": "VPC"
+          },
+          "AvailabilityZones": {
+            "Ref": "AvailabilityZones"
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/subnets/subnets.json",
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "Routes": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "PublicSubnetIds": {
+            "Fn::GetAtt": [
+              "Subnets",
+              "Outputs.PublicSubnets"
+            ]
+          },
+          "PrivateSubnetIds": {
+            "Fn::GetAtt": [
+              "Subnets",
+              "Outputs.PrivateSubnets"
+            ]
+          },
+          "VpcId": {
+            "Ref": "VPC"
+          },
+          "InternetGatewayId": {
+            "Ref": "InternetGateway"
+          },
+          "CidrBlock": {
+            "Fn::Join": [
+              ".",
+              [
+                {
+                  "Ref": "CidrBlockPrefix"
+                },
+                "0.0/16"
+              ]
+            ]
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/routes/routes.json",
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}

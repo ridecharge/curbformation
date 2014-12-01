@@ -63,7 +63,7 @@
             ]
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/nat_instances/nat_instances.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/nat_instances/nat_instances.json",
         "TimeoutInMinutes": "30"
       }
     },

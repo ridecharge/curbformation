@@ -96,7 +96,7 @@
             ]
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/nat_instances/nat_instance.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/nat_instances/nat_instance.json",
         "TimeoutInMinutes": "30"
       }
     },
@@ -145,7 +145,7 @@
             ]
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/nat_instances/nat_instance.json",
+        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/nat_instances/nat_instance.json",
         "TimeoutInMinutes": "30"
       }
     },
