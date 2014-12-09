@@ -1,1 +1,2 @@
+#!/bin/sh
 aws s3 sync . s3://cf-templates-curb --delete --exclude "*" --include "*.json"

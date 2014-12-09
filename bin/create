@@ -1,1 +1,2 @@
+#!/bin/sh
 aws cloudformation create-stack --stack-name $1 --template-url https://s3.amazonaws.com/cf-templates-curb/complete.json
