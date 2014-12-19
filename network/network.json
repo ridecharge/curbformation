@@ -1,34 +1,85 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Network Configuration v1.0",
+  "Description": "Network Setup v1.0",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment this VPC represents",
+      "Description": "Name of the environment these VPCs represent",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "14",
       "AllowedPattern": "[-_ a-zA-Z0-9]*",
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
-    "AvailabilityZones": {
-      "Description": "AvailabilityZones to launch networking stacks into.",
+    "NATRoleProfileId": {
       "Type": "String"
     }
   },
+  "Mappings": {
+    "RegionMappings": {
+      "us-west-1": {
+        "AvailabilityZones": [
+          "us-west-1a",
+          "us-west-1b"
+        ]
+      },
+      "us-east-1": {
+        "AvailabilityZones": [
+          "us-east-1a",
+          "us-east-1c"
+        ]
+      }
+    }
+  },
   "Resources": {
-    "VPC": {
+    "Network": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
           },
-          "CidrBlockPrefix": "10.0",
+          "NATRoleProfileId": {
+            "Ref":"NATRoleProfileId"
+          },
           "AvailabilityZones": {
-            "Ref": "AvailabilityZones"
+            "Fn::Join": [
+              ",",
+              {
+                "Fn::FindInMap": [
+                  "RegionMappings",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "AvailabilityZones"
+                ]
+              }
+            ]
+          },
+          "TemplateURLPrefix": {
+            "Fn::Join": [
+              "-",
+              [
+                "https://s3.amazonaws.com/curbformation",
+                {
+                  "Ref": "Environment"
+                },
+                "templates"
+              ]
+            ]
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/cf-templates-curb/network/vpc/vpc.json",
+        "TemplateURL": {
+          "Fn::Join": [
+            "-",
+            [
+              "https://s3.amazonaws.com/curbformation",
+              {
+                "Ref": "Environment"
+              },
+              "templates/vpcs/vpcs.json"
+            ]
+          ]
+        },
         "TimeoutInMinutes": "30"
       }
     }

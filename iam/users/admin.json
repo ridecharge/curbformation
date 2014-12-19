@@ -1,0 +1,22 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "IAM Admin User Setup v1.0",
+  "Parameters": {
+    "AdminGroup": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "iamcftest": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "Path": "/",
+        "Groups": [
+          {
+            "Ref": "AdminGroup"
+          }
+        ]
+      }
+    }
+  }
+}

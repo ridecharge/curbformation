@@ -1,2 +1,19 @@
 #!/bin/sh
-aws s3 sync . s3://cf-templates-curb --delete --exclude "*" --include "*.json"
+if [ -z "$1" ]; then
+	echo The first parameter must be an environment name.
+	exit 1
+fi
+
+if [ "curbformation" != "${PWD##*/}" ]; then
+	echo You must run this script from the curbformation root directory.
+	exit 1
+fi
+
+S3_BUCKET_URI=s3://curbformation-$1-templates
+S3_GLOBAL_BUCKET_URI=s3://curbformation-global-templates
+
+echo Syncing network templates to $S3_BUCKET_URI
+aws s3 sync ./network $S3_BUCKET_URI --delete --exclude "*" --include "*.json"
+
+echo Syncing iam templates to $S3_GLOBAL_BUCKET_URI
+aws s3 sync ./iam $S3_GLOBAL_BUCKET_URI --delete --exclude "*" --include "*.json"

@@ -1,0 +1,76 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "IAM NAT Instance Role Profile v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    }
+  },
+  "Outputs": {
+    "NATRoleProfileId": {
+      "Value": {
+        "Ref": "NATRoleProfile"
+      }
+    }
+  },
+  "Resources": {
+    "NATRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "NAT_Takeover",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:DescribeInstances",
+                    "ec2:DescribeRouteTables",
+                    "ec2:CreateRoute",
+                    "ec2:ReplaceRoute",
+                    "ec2:StartInstances",
+                    "ec2:StopInstances"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "NATRoleProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "NATRole"
+          }
+        ]
+      }
+    }
+  }
+}

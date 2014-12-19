@@ -1,2 +1,2 @@
 #!/bin/sh
-aws cloudformation update-stack --stack-name $1 --use-previous-template
+aws cloudformation update-stack --stack-name $1-$2 --template-url https://s3.amazonaws.com/curbformation-$1-templates/$2.json

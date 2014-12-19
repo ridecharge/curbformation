@@ -1,0 +1,69 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "NAT Instance for Private Routing Creation v1.0",
+  "Parameters": {
+    "VpcId": {
+      "Description": "VPC for this route.",
+      "Type": "String",
+      "MinLength": "12",
+      "MaxLength": "12",
+      "AllowedPattern": "vpc-[a-z0-9]*",
+      "ConstraintDescription": "Must be a valid VPC id."
+    },
+    "CidrBlock": {
+      "Description": "Cidr Address for the VPC to create the instances in.",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    },
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    }
+  },
+  "Outputs": {
+    "NATSecurityGroupId": {
+      "Value": {
+        "Ref": "NATSecurityGroup"
+      }
+    }
+  },
+  "Resources": {
+    "NATSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Rules for allowing access to NAT HA Nodes",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": {
+              "Ref": "CidrBlock"
+            }
+          }
+        ]
+      }
+    },
+    "NATAllowICMP": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NATSecurityGroup"
+        },
+        "IpProtocol": "icmp",
+        "FromPort": "-1",
+        "ToPort": "-1",
+        "SourceSecurityGroupId": {
+          "Ref": "NATSecurityGroup"
+        }
+      }
+    }
+  }
+}

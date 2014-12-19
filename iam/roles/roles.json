@@ -1,0 +1,36 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "IAM Role Setup v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    }
+  },
+  "Outputs": {
+    "NATRoleProfileId": {
+      "Value": {
+        "Fn::GetAtt": [
+          "NATRole",
+          "Outputs.NATRoleProfileId"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "NATRole": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": "global"
+        },
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/roles/nat_role.json",
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}

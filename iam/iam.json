@@ -1,0 +1,53 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "IAM Setup v1.0",
+  "Parameters": {},
+  "Outputs": {
+    "NATRoleProfileId": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Roles",
+          "Outputs.NATRoleProfileId"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "Users": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": "global",
+          "AdminGroup": {
+            "Fn::GetAtt": [
+              "Groups",
+              "Outputs.AdminGroup"
+            ]
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/users/users.json",
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "Groups": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": "global"
+        },
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/groups/groups.json",
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "Roles": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": "global"
+        },
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/roles/roles.json",
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}

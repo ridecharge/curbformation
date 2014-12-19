@@ -1,0 +1,214 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "NAT Instance for Private Routing Creation v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "TemplateURLPrefix": {
+      "Description": "URL prefix for this stack.",
+      "Type": "String"
+    },
+    "VpcId": {
+      "Description": "VPC for this route.",
+      "Type": "String",
+      "MinLength": "12",
+      "MaxLength": "12",
+      "AllowedPattern": "vpc-[a-z0-9]*",
+      "ConstraintDescription": "Must be a valid VPC id."
+    },
+    "CidrBlock": {
+      "Description": "Cidr Address for the VPC to create the instances in.",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    },
+    "PublicSubnetIds": {
+      "Description": "Subnets to associate public routing.",
+      "Type": "CommaDelimitedList"
+    },
+    "PrivateRouteTables": {
+      "Description": "Routes to associate private subnets.",
+      "Type": "CommaDelimitedList"
+    },
+    "NATRoleProfileId": {
+      "Type": "String"
+    }
+  },
+  "Outputs": {
+    "NATInstanceIdA": {
+      "Value": {
+        "Fn::GetAtt": [
+          "NATInstanceA",
+          "Outputs.InstanceId"
+        ]
+      }
+    },
+    "NATInstanceIdB": {
+      "Value": {
+        "Fn::GetAtt": [
+          "NATInstanceA",
+          "Outputs.InstanceId"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "NATSecurity": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "VpcId": {
+            "Ref": "VpcId"
+          },
+          "CidrBlock": {
+            "Ref": "CidrBlock"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "vpcs/nat_instances/nat_security.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "NATInstanceA": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "NATRoleProfileId": {
+            "Ref": "NATRoleProfileId"
+          },
+          "NATSecurityGroup": {
+            "Fn::GetAtt": [
+              "NATSecurity",
+              "Outputs.NATSecurityGroupId"
+            ]
+          },
+          "PublicSubnet": {
+            "Fn::Select": [
+              "0",
+              {
+                "Ref": "PublicSubnetIds"
+              }
+            ]
+          },
+          "PrivateRouteTables": {
+            "Fn::Join": [
+              ",",
+              [
+                {
+                  "Fn::Select": [
+                    "0",
+                    {
+                      "Ref": "PrivateRouteTables"
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    "1",
+                    {
+                      "Ref": "PrivateRouteTables"
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "vpcs/nat_instances/nat_instance.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "NATInstanceB": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "NATRoleProfileId": {
+            "Ref": "NATRoleProfileId"
+          },
+          "NATSecurityGroup": {
+            "Fn::GetAtt": [
+              "NATSecurity",
+              "Outputs.NATSecurityGroupId"
+            ]
+          },
+          "PublicSubnet": {
+            "Fn::Select": [
+              "1",
+              {
+                "Ref": "PublicSubnetIds"
+              }
+            ]
+          },
+          "PrivateRouteTables": {
+            "Fn::Join": [
+              ",",
+              [
+                {
+                  "Fn::Select": [
+                    "1",
+                    {
+                      "Ref": "PrivateRouteTables"
+                    }
+                  ]
+                },
+                {
+                  "Fn::Select": [
+                    "0",
+                    {
+                      "Ref": "PrivateRouteTables"
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "vpcs/nat_instances/nat_instance.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}

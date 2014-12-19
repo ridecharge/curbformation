@@ -1,0 +1,108 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "VPCs Configuration v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment these VPCs represent",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "TemplateURLPrefix": {
+      "Description": "Template URL for a VPC.",
+      "Type": "String"
+    },
+    "AvailabilityZones": {
+      "Description": "AvailabilityZones to launch networking stacks into.",
+      "Type": "String"
+    },
+    "NATRoleProfileId": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "ApplicationVPC": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "CidrBlockPrefix": "10.0",
+          "AvailabilityZones": {
+            "Ref": "AvailabilityZones"
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "NATRoleProfileId": {
+            "Ref": "NATRoleProfileId"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "vpcs/vpc.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "InfrastructureVPC": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "CidrBlockPrefix": "10.1",
+          "AvailabilityZones": {
+            "Ref": "AvailabilityZones"
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "NATRoleProfileId": {
+            "Ref": "NATRoleProfileId"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "vpcs/vpc.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "AppInfraVPCPeering": {
+      "Type": "AWS::EC2::VPCPeeringConnection",
+      "Properties": {
+        "PeerVpcId": {
+          "Fn::GetAtt": [
+            "InfrastructureVPC",
+            "Outputs.VpcId"
+          ]
+        },
+        "VpcId": {
+          "Fn::GetAtt": [
+            "ApplicationVPC",
+            "Outputs.VpcId"
+          ]
+        }
+      }
+    }
+  }
+}
