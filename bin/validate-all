@@ -1,8 +1,0 @@
-#!/bin/sh
-if [ "curbformation" != "${PWD##*/}" ]; then
-	echo You must run this script from the curbformation root directory.
-	exit 1
-fi
-
-for x in `find ./iam -name "*.json"`; do echo $x; aws cloudformation validate-template --template-body file://$x | grep "ValidationError"; done
-for x in `find ./network -name "*.json"`; do echo $x; aws cloudformation validate-template --template-body file://$x | grep "ValidationError"; done
