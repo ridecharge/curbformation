@@ -20,3 +20,4 @@ aws s3api create-bucket --bucket $GLOBAL_BUCKET_NAME
 
 bin/validate-all
 bin/sync $1
+bin/create global iam
