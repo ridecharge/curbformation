@@ -1,0 +1,22 @@
+#!/bin/sh
+if [ -z "$1" ]; then
+	echo The first parameter must be an environment name.
+	exit 1
+fi
+
+if [ "curbformation" != "${PWD##*/}" ]; then
+	echo You must run this script from the curbformation root directory.
+	exit 1
+fi
+
+GLOBAL_BUCKET_NAME=curbformation-global-templates
+BUCKET_NAME=curbformation-$1-templates
+
+echo Creating Bucket $BUCKET_NAME if it does not exists.
+aws s3api create-bucket --bucket $BUCKET_NAME
+
+echo Creating Bucket $GLOBAL_BUCKET_NAME if it does not exists.
+aws s3api create-bucket --bucket $GLOBAL_BUCKET_NAME
+
+bin/validate-all
+bin/sync $1

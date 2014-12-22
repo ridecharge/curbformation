@@ -1,0 +1,13 @@
+#!/bin/sh
+if [ -z "$1" ]; then
+	echo The first parameter must be an environment name.
+	exit 1
+fi
+
+if [ -z "$2" ]; then
+	echo The second parameter must be an template name.
+	exit 1
+fi
+
+echo Deleting stack $1-$2
+aws cloudformation delete-stack --stack-name $1-$2
