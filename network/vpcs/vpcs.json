@@ -22,6 +22,18 @@
       "Type": "String"
     }
   },
+  "Outputs": {
+    "ApplicationVPCId": {
+      "Value": {
+        "Ref": "ApplicationVPC"
+      }
+    },
+    "InfrastructureVPCId": {
+      "Value": {
+        "Ref": "InfrastructureVPC"
+      }
+    }
+  },
   "Resources": {
     "ApplicationVPC": {
       "Type": "AWS::CloudFormation::Stack",
@@ -33,6 +45,17 @@
           "CidrBlockPrefix": "10.0",
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
+          },
+          "VpcName": {
+            "Fn::Join": [
+              "-",
+              [
+                {
+                  "Ref": "Environment"
+                },
+                "ApplicationVPC"
+              ]
+            ]
           },
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
@@ -61,6 +84,17 @@
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
+          },
+          "VpcName": {
+            "Fn::Join": [
+              "-",
+              [
+                {
+                  "Ref": "Environment"
+                },
+                "InfrastructureVPC"
+              ]
+            ]
           },
           "CidrBlockPrefix": "10.1",
           "AvailabilityZones": {

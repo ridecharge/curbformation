@@ -30,6 +30,24 @@
       }
     }
   },
+  "Outputs": {
+    "ApplicationVPCId": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.ApplicationVPCId"
+        ]
+      }
+    },
+    "InfrastructureVPCId": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.InfrastructureVPCId"
+        ]
+      }
+    }
+  },
   "Resources": {
     "Network": {
       "Type": "AWS::CloudFormation::Stack",
@@ -39,7 +57,7 @@
             "Ref": "Environment"
           },
           "NATRoleProfileId": {
-            "Ref":"NATRoleProfileId"
+            "Ref": "NATRoleProfileId"
           },
           "AvailabilityZones": {
             "Fn::Join": [

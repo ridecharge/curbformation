@@ -25,6 +25,9 @@
     "NATRoleProfileId": {
       "Type": "String"
     },
+    "VpcName": {
+      "Type": "String"
+    },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
@@ -59,7 +62,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Ref": "AWS::StackName"
+              "Ref": "VpcName"
             }
           },
           {

@@ -15,7 +15,7 @@ def main(env, type):
     if type == Stack.Types.iam:
         env = 'global'
     stack = Stack(type, env)
-    stack.update()
+    print(stack.describe())
 
 if __name__ == "__main__":
     argv = sys.argv[1:]
