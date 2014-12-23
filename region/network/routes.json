@@ -4,11 +4,7 @@
   "Parameters": {
     "VpcId": {
       "Description": "VPC to launch this subnet into.",
-      "Type": "String",
-      "MinLength": "12",
-      "MaxLength": "12",
-      "AllowedPattern": "vpc-[a-z0-9]*",
-      "ConstraintDescription": "Must be a valid VPC id."
+      "Type": "AWS::EC2::VPC::Id"
     },
     "PublicSubnetIds": {
       "Description": "Subnets to associate public routing.",
@@ -19,7 +15,8 @@
       "Type": "String"
     },
     "NATRoleProfileId": {
-      "Type": "String"
+      "Type": "String",
+      "Description":"Instance Profile to allow NATs to restart each other."
     },
     "TemplateURLPrefix": {
       "Description": "URL prefix for this stack.",
@@ -68,7 +65,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/routes/route_public.json"
+              "routes/route_public.json"
             ]
           ]
         },
@@ -108,7 +105,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/routes/route_private.json"
+              "routes/route_private.json"
             ]
           ]
         },

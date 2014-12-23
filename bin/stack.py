@@ -1,65 +1,90 @@
 from enum import Enum
-from boto import cloudformation
+
 
 class Stack(object):
-
     class Types(Enum):
         iam = 1
         network = 2
-        app = 3
+        apps = 3
         infra = 4
 
     STACK_DEPENDS_ON = "STACK_DEPENDS_ON"
     STACK_INPUTS = "STACK_INPUTS"
     STACK_CAPABILITIES = "STACK_CAPABILITIES"
 
+    ENV_GLOBAL = "global"
+    TYPES_GLOBAL = [Types.iam]
+
     STACK_DEPENDENCIES = {
-        Types.network:
-        {
+        Types.network: {
             STACK_INPUTS: ["NATRoleProfileId"],
             STACK_DEPENDS_ON: [Types.iam],
             STACK_CAPABILITIES: []
         },
-        Types.iam:
-        {
+        Types.iam: {
             STACK_INPUTS: [],
             STACK_DEPENDS_ON: [],
             STACK_CAPABILITIES: ["CAPABILITY_IAM"]
+        },
+        Types.apps: {
+            STACK_INPUTS: ["ApplicationVPCId"],
+            STACK_DEPENDS_ON: [Types.network],
+            STACK_CAPABILITIES: []
         }
     }
 
-    def __init__(self, type, env, region="us-east-1"):
+    def __init__(self, cf_conn, env, stack_type, app_name=None):
+        if env == Stack.ENV_GLOBAL and stack_type not in Stack.TYPES_GLOBAL:
+            raise Exception("Global environment without global stack type ({0.name}) specified"
+                            .format(stack_type))
+
+        if stack_type not in Stack.TYPES_GLOBAL and env == Stack.ENV_GLOBAL:
+            env = Stack.ENV_GLOBAL
+            print(
+                "Warning: {0} stack passed in with non global environment.  Setting to global."
+                .format(stack_type.name))
+
         self.env = env
-        self.type = type
-        self.cf_conn = cloudformation.connect_to_region(region)
+        self.stack_type = stack_type
+        self.app_name = app_name
+
+        self.cf_conn = cf_conn
 
     def depends_on(self):
-        if self.type not in Stack.STACK_DEPENDENCIES:
+        if self.stack_type not in Stack.STACK_DEPENDENCIES:
             return None
         stack_types = Stack.STACK_DEPENDENCIES[
-            self.type][Stack.STACK_DEPENDS_ON]
+            self.stack_type][Stack.STACK_DEPENDS_ON]
         stacks = []
-        for type in stack_types:
+        for stack_type in stack_types:
             stacks.append(
-                Stack(type, 'global' if type == Stack.Types.iam else self.env))
+                Stack(self.cf_conn,
+                      Stack.ENV_GLOBAL if stack_type in Stack.TYPES_GLOBAL else self.env,
+                      stack_type
+                ))
         return stacks
 
     def capabilities(self):
-        if self.type not in Stack.STACK_DEPENDENCIES:
+        if self.stack_type not in Stack.STACK_DEPENDENCIES:
             return None
-        return Stack.STACK_DEPENDENCIES[self.type][Stack.STACK_CAPABILITIES]
+        return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_CAPABILITIES]
 
     def inputs(self):
-        if self.type not in Stack.STACK_DEPENDENCIES:
+        if self.stack_type not in Stack.STACK_DEPENDENCIES:
             return None
-        return Stack.STACK_DEPENDENCIES[self.type][Stack.STACK_INPUTS]
+        return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS]
 
     def stack_name(self):
-        return self.env + "-" + self.type.name
+        if self.app_name:
+            return "{0.env}-{0.app_name}".format(self)
+        return "{0.env}-{0.stack_type.name}".format(self)
 
     def template_uri(self):
-        return "https://s3.amazonaws.com/curbformation-" + \
-            self.env + "-templates/" + self.type.name + ".json"
+        if self.app_name:
+            return "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}/" \
+                   "{0.app_name}.json".format(self)
+        return "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}.json" \
+            .format(self)
 
     def params(self):
         if not self.depends_on():
@@ -79,12 +104,23 @@ class Stack(object):
         return params
 
     def describe(self):
+        print("Describing...")
         return self.cf_conn.describe_stacks(self.stack_name())[0]
 
     def create(self):
+        print("Creating...")
         return self.cf_conn.create_stack(
-            self.stack_name(), None, self.template_uri(), self.params(), None, None, 30, self.capabilities())
+            self.stack_name(),
+            None,
+            self.template_uri(),
+            self.params(),
+            capabilities=self.capabilities())
 
     def update(self):
+        print("Updating...")
         return self.cf_conn.update_stack(
-            self.stack_name(), None, self.template_uri(), self.params(), None, None, 30, self.capabilities())
+            self.stack_name(),
+            None,
+            self.template_uri(),
+            self.params(),
+            capabilities=self.capabilities())

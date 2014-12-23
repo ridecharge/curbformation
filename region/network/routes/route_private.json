@@ -4,11 +4,7 @@
   "Parameters": {
     "VpcId": {
       "Description": "VPC for this route.",
-      "Type": "String",
-      "MinLength": "12",
-      "MaxLength": "12",
-      "AllowedPattern": "vpc-[a-z0-9]*",
-      "ConstraintDescription": "Must be a valid VPC id."
+      "Type": "AWS::EC2::VPC::Id"
     },
     "PrivateSubnetIds": {
       "Description": "Subnets to associate private routing.",
@@ -36,7 +32,8 @@
       "Type": "String"
     },
     "NATRoleProfileId": {
-      "Type": "String"
+      "Type": "String",
+      "Description":"Instance Profile to allow NATs to restart each other."
     }
   },
   "Resources": {
@@ -60,7 +57,7 @@
             "Ref": "TemplateURLPrefix"
           },
           "NATRoleProfileId": {
-            "Ref":"NATRoleProfileId"
+            "Ref": "NATRoleProfileId"
           },
           "PrivateRouteTables": {
             "Fn::Join": [
@@ -83,7 +80,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/nat_instances/nat_instances.json"
+              "nat_instances.json"
             ]
           ]
         },

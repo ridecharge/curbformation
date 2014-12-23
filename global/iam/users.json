@@ -23,7 +23,7 @@
             "Ref": "AdminGroup"
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/users/admin.json",
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/users/admin.json",
         "TimeoutInMinutes": "30"
       }
     }

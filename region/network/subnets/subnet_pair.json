@@ -20,11 +20,7 @@
     },
     "VpcId": {
       "Description": "VPC to launch this subnet into.",
-      "Type": "String",
-      "MinLength": "12",
-      "MaxLength": "12",
-      "AllowedPattern": "vpc-[a-z0-9]*",
-      "ConstraintDescription": "Must be a valid VPC id."
+      "Type": "AWS::EC2::VPC::Id"
     },
     "SubnetType": {
       "Description": "Public or Private for the Network tag",

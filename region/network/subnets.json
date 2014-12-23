@@ -25,11 +25,7 @@
     },
     "VpcId": {
       "Description": "VPC to launch this subnet into.",
-      "Type": "String",
-      "MinLength": "12",
-      "MaxLength": "12",
-      "AllowedPattern": "vpc-[a-z0-9]*",
-      "ConstraintDescription": "Must be a valid VPC id."
+      "Type": "AWS::EC2::VPC::Id"
     },
     "AvailabilityZones": {
       "Description": "AvailabilityZone to launch this subnet into.",
@@ -108,7 +104,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/subnets/subnet_pair.json"
+              "subnets/subnet_pair.json"
             ]
           ]
         },
@@ -166,7 +162,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/subnets/subnet_pair.json"
+              "subnets/subnet_pair.json"
             ]
           ]
         },

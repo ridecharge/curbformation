@@ -1,0 +1,134 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Security Group Setup v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment these VPCs represent",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "ApplicationName": {
+      "Type": "String"
+    },
+    "VpcId": {
+      "Description": "VPC for this security groups.",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "LoadBalancerPort": {
+      "Type": "Number",
+      "AllowedValues": [
+        "80",
+        "443"
+      ]
+    }
+  },
+  "Outputs": {
+    "DatabaseSecurityGroup": {
+      "Value": {
+        "Ref": "DatabaseSecurityGroup"
+      }
+    },
+    "InstanceSecurityGroup": {
+      "Value": {
+        "Ref": "InstanceSecurityGroup"
+      }
+    },
+    "LoadBalancerSecurityGroup": {
+      "Value": {
+        "Ref": "LoadBalancerSecurityGroup"
+      }
+    }
+  },
+  "Resources": {
+    "DatabaseSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Application Database Security Group",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "5432",
+            "ToPort": "5432",
+            "SourceSecurityGroupId": {"Ref": "InstanceSecurityGroup"}
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Role",
+            "Value": "Database Security"
+          },
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Application",
+            "Value": {"Ref": "ApplicationName"}
+          }
+        ],
+        "VpcId": {"Ref": "VpcId"}
+      }
+    },
+    "InstanceSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Application Cluster Security Group",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "8080",
+            "ToPort": "8080",
+            "SourceSecurityGroupId": {"Ref": "LoadBalancerSecurityGroup"}
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Role",
+            "Value": "Database Security"
+          },
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Application",
+            "Value": {"Ref": "ApplicationName"}
+          }
+        ],
+        "VpcId": {"Ref": "VpcId"}
+      }
+    },
+    "LoadBalancerSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Application ELB Security Group",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": {"Ref": "LoadBalancerPort"},
+            "ToPort": {"Ref": "LoadBalancerPort"}
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Role",
+            "Value": "LoadBalancer Security"
+          },
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Application",
+            "Value": {"Ref": "ApplicationName"}
+          }
+        ],
+        "VpcId": {"Ref": "VpcId"}
+      }
+    }
+  }
+}

@@ -19,18 +19,41 @@
       "Type": "String"
     },
     "NATRoleProfileId": {
-      "Type": "String"
+      "Type": "String",
+      "Description": "Instance Profile to allow NATs to restart each other."
     }
   },
   "Outputs": {
     "ApplicationVPCId": {
       "Value": {
-        "Ref": "ApplicationVPC"
+        "Fn::GetAtt": [
+          "ApplicationVPC",
+          "Outputs.VpcId"
+        ]
       }
     },
     "InfrastructureVPCId": {
       "Value": {
-        "Ref": "InfrastructureVPC"
+        "Fn::GetAtt": [
+          "InfrastructureVPC",
+          "Outputs.VpcId"
+        ]
+      }
+    },
+    "ApplicationVPCPrivateSubnetIds": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ApplicationVPC",
+          "Outputs.PrivateSubnetIds"
+        ]
+      }
+    },
+    "InfrastructureVPCPrivateSubnetIds": {
+      "Value": {
+        "Fn::GetAtt": [
+          "InfrastructureVPC",
+          "Outputs.PrivateSubnetIds"
+        ]
       }
     }
   },

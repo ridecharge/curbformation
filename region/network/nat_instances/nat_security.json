@@ -4,11 +4,7 @@
   "Parameters": {
     "VpcId": {
       "Description": "VPC for this route.",
-      "Type": "String",
-      "MinLength": "12",
-      "MaxLength": "12",
-      "AllowedPattern": "vpc-[a-z0-9]*",
-      "ConstraintDescription": "Must be a valid VPC id."
+      "Type": "AWS::EC2::VPC::Id"
     },
     "CidrBlock": {
       "Description": "Cidr Address for the VPC to create the instances in.",

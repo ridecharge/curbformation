@@ -1,0 +1,83 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Database Setup v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment these VPCs represent",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "AllocatedStorage": {
+      "Type": "Number",
+      "Default": "300"
+    },
+    "DBInstanceClass": {
+      "Type": "String",
+      "Default": "m3.medium"
+    },
+    "DBName": {
+      "Type": "String"
+    },
+    "Engine": {
+      "Type": "String",
+      "Default": "postgres"
+    },
+    "EngineVersion": {
+      "Type": "String",
+      "Default": "9.3.5"
+    },
+    "MasterUsername": {
+      "Type": "String",
+      "Default": "rdsroot"
+    },
+    "MasterUserPassword": {
+      "Type": "String",
+      "NoEcho": "true"
+    },
+    "MultiAZ": {
+      "Type": "String",
+      "Default": "true"
+    },
+    "DatabaseSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup::Id"
+    }
+  },
+  "Resources": {
+    "Database": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "AllocatedStorage": {"Ref": "AllocatedStorage"},
+        "DBInstanceClass": {"Ref": "DBInstanceClass"},
+        "DBName": {"Ref": "DBName"},
+        "DBInstanceIdentifier": {
+          "Fn::Join": [
+            "-",
+            [
+              {"Ref": "Environment"},
+              {"Ref": "DBName"}
+            ]
+          ]
+        },
+        "Engine": {"Ref": "Engine"},
+        "EngineVersion": {"Ref": "EngineVersion"},
+        "MasterUsername": {"Ref": "MasterUsername"},
+        "MasterPassword": {"Ref": "MasterUserPassword"}
+        "MultiAZ": {"Ref": "MultiAZ"},
+        "VPCSecurityGroups": {"Ref": "DatabaseSecurityGroup"},
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Role",
+            "Value": "Primary"
+          }
+        ]
+      }
+    }
+  }
+}

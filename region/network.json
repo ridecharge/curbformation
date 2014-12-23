@@ -11,7 +11,8 @@
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
     "NATRoleProfileId": {
-      "Type": "String"
+      "Type": "String",
+      "Description":"Instance Profile to allow NATs to restart each other."
     }
   },
   "Mappings": {
@@ -44,6 +45,22 @@
         "Fn::GetAtt": [
           "Network",
           "Outputs.InfrastructureVPCId"
+        ]
+      }
+    },
+    "InfrastructureVPCPrivateSubnetIds": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.InfrastructureVPCPrivateSubnetIds"
+        ]
+      }
+    },
+    "ApplicationVPCPrivateSubnetIds": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.ApplicationVPCPrivateSubnetIds"
         ]
       }
     }
@@ -81,7 +98,7 @@
                 {
                   "Ref": "Environment"
                 },
-                "templates"
+                "templates/network"
               ]
             ]
           }
@@ -94,7 +111,7 @@
               {
                 "Ref": "Environment"
               },
-              "templates/vpcs/vpcs.json"
+              "templates/network/vpcs.json"
             ]
           ]
         },

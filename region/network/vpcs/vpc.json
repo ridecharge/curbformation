@@ -23,7 +23,8 @@
       "Type": "String"
     },
     "NATRoleProfileId": {
-      "Type": "String"
+      "Type": "String",
+      "Description": "Instance Profile to allow NATs to restart each other."
     },
     "VpcName": {
       "Type": "String"
@@ -37,6 +38,14 @@
     "VpcId": {
       "Value": {
         "Ref": "VPC"
+      }
+    },
+    "PrivateSubnetIds": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Subnets",
+          "Outputs.PrivateSubnets"
+        ]
       }
     }
   },
@@ -135,7 +144,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/subnets/subnets.json"
+              "subnets.json"
             ]
           ]
         },
@@ -171,7 +180,7 @@
             "Ref": "InternetGateway"
           },
           "NATRoleProfileId": {
-            "Ref":"NATRoleProfileId"
+            "Ref": "NATRoleProfileId"
           },
           "CidrBlock": {
             "Fn::Join": [
@@ -192,7 +201,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/routes/routes.json"
+              "routes.json"
             ]
           ]
         },

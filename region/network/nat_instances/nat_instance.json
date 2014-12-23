@@ -20,13 +20,14 @@
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
     "PublicSubnet": {
-      "Type": "String"
+      "Type": "AWS::EC2::Subnet::Id"
     },
     "PrivateRouteTables": {
       "Type": "CommaDelimitedList"
     },
     "NATRoleProfileId": {
-      "Type": "String"
+      "Type": "String",
+      "Description": "Instance Profile to allow NATs to restart each other."
     },
     "NATSecurityGroup": {
       "Type": "String"

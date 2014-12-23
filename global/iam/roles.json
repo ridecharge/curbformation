@@ -28,7 +28,7 @@
         "Parameters": {
           "Environment": "global"
         },
-        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/roles/nat_role.json",
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/roles/nat_role.json",
         "TimeoutInMinutes": "30"
       }
     }

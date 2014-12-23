@@ -25,7 +25,7 @@
             ]
           }
         },
-        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/users/users.json",
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/users.json",
         "TimeoutInMinutes": "30"
       }
     },
@@ -35,7 +35,7 @@
         "Parameters": {
           "Environment": "global"
         },
-        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/groups/groups.json",
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/groups.json",
         "TimeoutInMinutes": "30"
       }
     },
@@ -45,7 +45,7 @@
         "Parameters": {
           "Environment": "global"
         },
-        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/roles/roles.json",
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/roles.json",
         "TimeoutInMinutes": "30"
       }
     }

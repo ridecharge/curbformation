@@ -16,11 +16,7 @@
     },
     "VpcId": {
       "Description": "VPC for this route.",
-      "Type": "String",
-      "MinLength": "12",
-      "MaxLength": "12",
-      "AllowedPattern": "vpc-[a-z0-9]*",
-      "ConstraintDescription": "Must be a valid VPC id."
+      "Type": "AWS::EC2::VPC::Id"
     },
     "CidrBlock": {
       "Description": "Cidr Address for the VPC to create the instances in.",
@@ -29,14 +25,15 @@
     },
     "PublicSubnetIds": {
       "Description": "Subnets to associate public routing.",
-      "Type": "CommaDelimitedList"
+      "Type": "List<AWS::EC2::Subnet::Id>"
     },
     "PrivateRouteTables": {
       "Description": "Routes to associate private subnets.",
       "Type": "CommaDelimitedList"
     },
     "NATRoleProfileId": {
-      "Type": "String"
+      "Type": "String",
+      "Description":"Instance Profile to allow NATs to restart each other."
     }
   },
   "Outputs": {
@@ -79,7 +76,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/nat_instances/nat_security.json"
+              "nat_instances/nat_security.json"
             ]
           ]
         },
@@ -141,7 +138,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/nat_instances/nat_instance.json"
+              "nat_instances/nat_instance.json"
             ]
           ]
         },
@@ -203,7 +200,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/nat_instances/nat_instance.json"
+              "nat_instances/nat_instance.json"
             ]
           ]
         },

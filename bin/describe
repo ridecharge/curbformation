@@ -11,11 +11,7 @@ def usage():
 
 
 def main(env, type):
-    # hacky figure out what to do w/ global Types
-    if type == Stack.Types.iam:
-        env = 'global'
-    stack = Stack(type, env)
-    print(stack.describe())
+    print(Stack(type, env).describe())
 
 if __name__ == "__main__":
     argv = sys.argv[1:]

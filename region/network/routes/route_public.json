@@ -4,22 +4,18 @@
   "Parameters": {
     "VpcId": {
       "Description": "VPC for this route.",
-      "Type": "String",
-      "MinLength": "12",
-      "MaxLength": "12",
-      "AllowedPattern": "vpc-[a-z0-9]*",
-      "ConstraintDescription": "Must be a valid VPC id."
+      "Type": "AWS::EC2::VPC::Id"
     },
     "SubnetIds": {
       "Description": "Subnets to associate public routing.",
       "Type": "CommaDelimitedList"
-    },    
+    },
     "InternetGatewayId": {
       "Description": "Id of the VPCs InternetGateway",
       "Type": "String",
       "MinLength": "12",
       "MaxLength": "12",
-      "AllowedPattern":"igw-[a-z0-9]*"
+      "AllowedPattern": "igw-[a-z0-9]*"
     },
     "Environment": {
       "Description": "Name of the environment this VPC represents",
