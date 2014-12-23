@@ -35,7 +35,8 @@
     },
     "MasterUserPassword": {
       "Type": "String",
-      "NoEcho": "true"
+      "NoEcho": "true",
+      "Default":"password1234!"
     },
     "MultiAZ": {
       "Type": "String",

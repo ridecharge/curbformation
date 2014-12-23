@@ -8,7 +8,7 @@
     },
     "PrivateSubnetIds": {
       "Description": "Subnets to associate private routing.",
-      "Type": "CommaDelimitedList"
+      "Type": "List<AWS::EC2::Subnet::Id>"
     },
     "PublicSubnetIds": {
       "Description": "Subnets to create NAT Instances in.",

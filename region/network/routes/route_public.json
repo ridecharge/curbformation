@@ -8,7 +8,7 @@
     },
     "SubnetIds": {
       "Description": "Subnets to associate public routing.",
-      "Type": "CommaDelimitedList"
+      "Type": "List<AWS::EC2::Subnet::Id>"
     },
     "InternetGatewayId": {
       "Description": "Id of the VPCs InternetGateway",
@@ -22,8 +22,8 @@
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "14",
-      "AllowedPattern": "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     }
   },
   "Resources": {

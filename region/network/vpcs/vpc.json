@@ -47,6 +47,14 @@
           "Outputs.PrivateSubnets"
         ]
       }
+    },
+    "DBSubnetGroup": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Subnets",
+          "Outputs.DBSubnetGroup"
+        ]
+      }
     }
   },
   "Resources": {

@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Subnet Public Private Configuration v1.0.",
+  "Description": "Subnet Configuration v1.0.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment this VPC represents",
@@ -50,6 +50,14 @@
         ]
       },
       "Description": "List of public subnets."
+    },
+    "DBSubnetGroup":{
+      "Value":{
+        "Fn::GetAtt":[
+          "PrivateSubnets",
+          "Outputs.DBSubnetGroup"
+        ]
+      }
     }
   },
   "Resources": {

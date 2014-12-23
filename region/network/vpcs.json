@@ -55,6 +55,22 @@
           "Outputs.PrivateSubnetIds"
         ]
       }
+    },
+    "InfrastructureVPCDBSubnetGroup": {
+      "Value": {
+        "Fn::GetAtt": [
+          "InfrastructureVPC",
+          "Outputs.DBSubnetGroup"
+        ]
+      }
+    },
+    "ApplicationVPCDBSubnetGroup": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ApplicationVPC",
+          "Outputs.DBSubnetGroup"
+        ]
+      }
     }
   },
   "Resources": {

@@ -13,7 +13,7 @@
     "MasterUserPassword": {
       "Type": "String",
       "NoEcho": "true",
-      "Default":"test"
+      "Default": "test"
     },
     "ApplicationVPCId": {
       "Description": "VPC for this application.",
@@ -21,7 +21,7 @@
     }
   },
   "Resources": {
-    "Test": {
+    "SecurityGroups": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
