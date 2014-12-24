@@ -8,26 +8,26 @@ class Stack(object):
         apps = 3
         infra = 4
 
-    STACK_DEPENDS_ON = "STACK_DEPENDS_ON"
-    STACK_INPUTS = "STACK_INPUTS"
-    STACK_CAPABILITIES = "STACK_CAPABILITIES"
+    STACK_DEPENDS_ON = 'STACK_DEPENDS_ON'
+    STACK_INPUTS = 'STACK_INPUTS'
+    STACK_CAPABILITIES = 'STACK_CAPABILITIES'
 
-    ENV_GLOBAL = "global"
+    ENV_GLOBAL = 'global'
     TYPES_GLOBAL = [Types.iam]
 
     STACK_DEPENDENCIES = {
         Types.network: {
-            STACK_INPUTS: ["NATRoleProfileId"],
+            STACK_INPUTS: ['NATRoleProfileId'],
             STACK_DEPENDS_ON: [Types.iam],
             STACK_CAPABILITIES: []
         },
         Types.iam: {
             STACK_INPUTS: [],
             STACK_DEPENDS_ON: [],
-            STACK_CAPABILITIES: ["CAPABILITY_IAM"]
+            STACK_CAPABILITIES: ['CAPABILITY_IAM']
         },
         Types.apps: {
-            STACK_INPUTS: ["ApplicationVPCId"],
+            STACK_INPUTS: ['ApplicationVPCId'],
             STACK_DEPENDS_ON: [Types.network],
             STACK_CAPABILITIES: []
         }
@@ -90,7 +90,7 @@ class Stack(object):
         if not self.depends_on():
             return None
 
-        params = [("Environment", self.env)]
+        params = [('Environment', self.env)]
         for depend_stack in self.depends_on():
             params.extend(self.build_params(depend_stack))
         return params
@@ -104,14 +104,14 @@ class Stack(object):
         return params
 
     def describe(self):
-        print("Describing...")
+        print('Describing...')
         return self.cf_conn.describe_stacks(self.stack_name())[0]
 
     def delete(self):
         return self.cf_conn.delete_stack(self.stack_name())
 
     def create(self):
-        print("Creating...")
+        print('Creating...')
         return self.cf_conn.create_stack(
             self.stack_name(),
             None,
@@ -120,7 +120,7 @@ class Stack(object):
             capabilities=self.capabilities())
 
     def update(self):
-        print("Updating...")
+        print('Updating...')
         return self.cf_conn.update_stack(
             self.stack_name(),
             None,

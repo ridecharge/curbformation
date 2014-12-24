@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from stack import Stack
+from cf.stack import Stack
 
 class StackTest(unittest.TestCase):
 	def setUp(self):

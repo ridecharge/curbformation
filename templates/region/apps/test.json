@@ -44,6 +44,38 @@
         },
         "TimeoutInMinutes": "30"
       }
+    },
+    "Database": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {"Ref": "Environment"},
+          "DatabaseSecurityGroups": [
+            {
+              "Fn::GetAtt": [
+                "SecurityGroups",
+                "Outputs.DatabaseSecurityGroup"
+              ]
+            }
+          ],
+          "DBName": {
+            "Ref": "AWS::StackName"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "-",
+            [
+              "https://s3.amazonaws.com/curbformation",
+              {
+                "Ref": "Environment"
+              },
+              "templates/apps/components/database.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
     }
   }
 }

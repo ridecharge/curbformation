@@ -36,14 +36,14 @@
     "MasterUserPassword": {
       "Type": "String",
       "NoEcho": "true",
-      "Default":"password1234!"
+      "Default": "password1234!"
     },
     "MultiAZ": {
       "Type": "String",
       "Default": "true"
     },
-    "DatabaseSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup::Id"
+    "DatabaseSecurityGroups": {
+      "Type": "List<AWS::EC2::SecurityGroup::Id>"
     }
   },
   "Resources": {
@@ -65,9 +65,9 @@
         "Engine": {"Ref": "Engine"},
         "EngineVersion": {"Ref": "EngineVersion"},
         "MasterUsername": {"Ref": "MasterUsername"},
-        "MasterPassword": {"Ref": "MasterUserPassword"}
+        "MasterUserPassword": {"Ref": "MasterUserPassword"},
         "MultiAZ": {"Ref": "MultiAZ"},
-        "VPCSecurityGroups": {"Ref": "DatabaseSecurityGroup"},
+        "VPCSecurityGroups": {"Ref": "DatabaseSecurityGroups"},
         "Tags": [
           {
             "Key": "Environment",

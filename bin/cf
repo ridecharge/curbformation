@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import argparse
 from boto import cloudformation
-from stack import Stack
+from boto.exception import BotoServerError
+from cf.stack import Stack
 
 
 def get_stack(options):
@@ -25,44 +26,56 @@ def delete(options):
 
 
 def describe(options):
-    print(get_stack(options).describe())
+    stack = get_stack(options).describe()
+    print(stack.list_resources())
+    print(stack.stack_status)
 
 
 def register_subparsers(parser, parent_parser):
-    subparsers = parser.add_subparsers(title="subcommands", description="valid subcommands",
-                                       help="additional help")
-    register_subparser(subparsers, parent_parser, "update", update)
-    register_subparser(subparsers, parent_parser, "delete", delete)
-    register_subparser(subparsers, parent_parser, "create", create)
-    register_subparser(subparsers, parent_parser, "describe", describe)
+    subparsers = parser.add_subparsers(title='subcommands', description='valid subcommands',
+                                       help='additional help')
+    register_subparser(subparsers, parent_parser, 'update', update)
+    register_subparser(subparsers, parent_parser, 'delete', delete)
+    register_subparser(subparsers, parent_parser, 'create', create)
+    register_subparser(subparsers, parent_parser, 'describe', describe)
 
 
 def register_subparser(subparsers, parent_parser, name, func):
-    parser = subparsers.add_parser(name, help="{0} a Stack.".format(name), parents=[parent_parser])
+    parser = subparsers.add_parser(name, help='{0} a Stack.'.format(name), parents=[parent_parser])
     parser.set_defaults(func=func)
 
 
 def get_parent_parser():
     parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument("environment", help="The environment to create the stack in.")
-    parent_parser.add_argument("type", help="The type of stack to create.",
+    parent_parser.add_argument('environment', help='The environment to create the stack in.')
+    parent_parser.add_argument('type', help='The type of stack to create.',
                                choices=Stack.Types.__members__)
-    parent_parser.add_argument("-r", "--region", help="The AWS region to deploy this stack into.",
-                               choices=["us-east-1", "us-west-1"], default="us-east-1")
-    parent_parser.add_argument("-a", "--application",
-                               help="The application name if type is set to apps",
+    parent_parser.add_argument('-r', '--region', help='The AWS region to deploy this stack into.',
+                               choices=['us-east-1', 'us-west-1'], default='us-east-1')
+    parent_parser.add_argument('-a', '--application',
+                               help='The application name if type is set to apps',
                                default=None)
     return parent_parser
 
 
+def error_handler(args):
+    try:
+        args.func(args)
+    except BotoServerError as e:
+        print(e.body)
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Performs operations for Cloudformation Stacks.",
-        add_help=False)
+        description='Performs operations for Cloudformation Stacks.')
     register_subparsers(parser, get_parent_parser())
     args = parser.parse_args()
-    args.func(args)
+    if args.type == Stack.Types.apps.name and not args.application:
+        print("No application name supplied (-a) with type set to apps")
+        parser.print_help()
+        exit(1)
+    error_handler(args)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
