@@ -107,6 +107,9 @@ class Stack(object):
         print("Describing...")
         return self.cf_conn.describe_stacks(self.stack_name())[0]
 
+    def delete(self):
+        return self.cf_conn.delete_stack(self.stack_name())
+
     def create(self):
         print("Creating...")
         return self.cf_conn.create_stack(

@@ -4,5 +4,4 @@ if [ "curbformation" != "${PWD##*/}" ]; then
 	exit 1
 fi
 
-for x in $(find ./global -name "*.json"); do echo $x; aws cloudformation validate-template --template-body file://$x | grep "ValidationError"; done
-for x in $(find ./region -name "*.json"); do echo $x; aws cloudformation validate-template --template-body file://$x | grep "ValidationError"; done
+for x in $(find ./templates -name "*.json"); do echo $x; aws cloudformation validate-template --template-body file://$x | grep "ValidationError"; done

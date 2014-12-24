@@ -5,7 +5,7 @@ from stack import Stack
 class StackTest(unittest.TestCase):
 	def setUp(self):
 		self.cf_conn = MagicMock()
-		self.stack = Stack(Stack.Types.iam, Stack.ENV_GLOBAL, self.cf_conn)
+		self.stack = Stack(self.cf_conn, Stack.ENV_GLOBAL, Stack.Types.iam)
 
 	def test_stack_name(self):
 		self.assertEqual(self.stack.stack_name(), "global-iam")

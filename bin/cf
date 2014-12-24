@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+import argparse
+from boto import cloudformation
+from stack import Stack
+
+
+def get_stack(options):
+    cf_conn = cloudformation.connect_to_region(options.region)
+    return Stack(cf_conn,
+                 options.environment,
+                 Stack.Types[options.type],
+                 options.application)
+
+
+def create(options):
+    print(get_stack(options).create())
+
+
+def update(options):
+    print(get_stack(options).update())
+
+
+def delete(options):
+    print(get_stack(options).delete())
+
+
+def describe(options):
+    print(get_stack(options).describe())
+
+
+def register_subparsers(parser, parent_parser):
+    subparsers = parser.add_subparsers(title="subcommands", description="valid subcommands",
+                                       help="additional help")
+    register_subparser(subparsers, parent_parser, "update", update)
+    register_subparser(subparsers, parent_parser, "delete", delete)
+    register_subparser(subparsers, parent_parser, "create", create)
+    register_subparser(subparsers, parent_parser, "describe", describe)
+
+
+def register_subparser(subparsers, parent_parser, name, func):
+    parser = subparsers.add_parser(name, help="{0} a Stack.".format(name), parents=[parent_parser])
+    parser.set_defaults(func=func)
+
+
+def get_parent_parser():
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument("environment", help="The environment to create the stack in.")
+    parent_parser.add_argument("type", help="The type of stack to create.",
+                               choices=Stack.Types.__members__)
+    parent_parser.add_argument("-r", "--region", help="The AWS region to deploy this stack into.",
+                               choices=["us-east-1", "us-west-1"], default="us-east-1")
+    parent_parser.add_argument("-a", "--application",
+                               help="The application name if type is set to apps",
+                               default=None)
+    return parent_parser
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Performs operations for Cloudformation Stacks.",
+        add_help=False)
+    register_subparsers(parser, get_parent_parser())
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
