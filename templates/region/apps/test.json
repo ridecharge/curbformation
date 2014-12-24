@@ -15,6 +15,9 @@
       "NoEcho": "true",
       "Default": "test"
     },
+    "ApplicationVPCDBSubnetGroup": {
+      "Type": "String"
+    },
     "ApplicationVPCId": {
       "Description": "VPC for this application.",
       "Type": "AWS::EC2::VPC::Id"
@@ -50,17 +53,14 @@
       "Properties": {
         "Parameters": {
           "Environment": {"Ref": "Environment"},
-          "DatabaseSecurityGroups": [
-            {
-              "Fn::GetAtt": [
-                "SecurityGroups",
-                "Outputs.DatabaseSecurityGroup"
-              ]
-            }
-          ],
-          "DBName": {
-            "Ref": "AWS::StackName"
-          }
+          "DatabaseSecurityGroups": {
+            "Fn::GetAtt": [
+              "SecurityGroups",
+              "Outputs.DatabaseSecurityGroup"
+            ]
+          },
+          "DBName": "test",
+          "DBSubnetGroupName": {"Ref": "ApplicationVPCDBSubnetGroup"}
         },
         "TemplateURL": {
           "Fn::Join": [

@@ -27,7 +27,7 @@ class Stack(object):
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         },
         Types.apps: {
-            STACK_INPUTS: ['ApplicationVPCId'],
+            STACK_INPUTS: ['ApplicationVPCId', 'ApplicationVPCDBSubnetGroup'],
             STACK_DEPENDS_ON: [Types.network],
             STACK_CAPABILITIES: []
         }
@@ -52,7 +52,7 @@ class Stack(object):
 
     def depends_on(self):
         if self.stack_type not in Stack.STACK_DEPENDENCIES:
-            return None
+            return []
         stack_types = Stack.STACK_DEPENDENCIES[
             self.stack_type][Stack.STACK_DEPENDS_ON]
         stacks = []
@@ -75,16 +75,17 @@ class Stack(object):
         return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS]
 
     def stack_name(self):
+        name = ["{0.env}", "{0.stack_type.name}"]
         if self.app_name:
-            return "{0.env}-{0.app_name}".format(self)
-        return "{0.env}-{0.stack_type.name}".format(self)
+            name.append("{0.app_name}")
+        return "-".join(name).format(self)
 
     def template_uri(self):
+        uri = "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}"
         if self.app_name:
-            return "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}/" \
-                   "{0.app_name}.json".format(self)
-        return "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}.json" \
-            .format(self)
+            uri += "/{0.app_name}"
+        uri += ".json"
+        return uri.format(self)
 
     def params(self):
         if not self.depends_on():

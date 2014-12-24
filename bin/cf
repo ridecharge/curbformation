@@ -65,15 +65,23 @@ def error_handler(args):
         print(e.body)
 
 
+def args_error(message, parser):
+    parser.print_help()
+    print(message)
+    exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Performs operations for Cloudformation Stacks.')
     register_subparsers(parser, get_parent_parser())
     args = parser.parse_args()
+
     if args.type == Stack.Types.apps.name and not args.application:
-        print("No application name supplied (-a) with type set to apps")
-        parser.print_help()
-        exit(1)
+        args_error('No application name supplied (-a) with type = apps', parser)
+    if args.type != Stack.Types.apps.name and args.application:
+        args_error('Application name supplied (-a) with type != apps', parser)
+
     error_handler(args)
 
 

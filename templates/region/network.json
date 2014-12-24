@@ -12,7 +12,7 @@
     },
     "NATRoleProfileId": {
       "Type": "String",
-      "Description":"Instance Profile to allow NATs to restart each other."
+      "Description": "Instance Profile to allow NATs to restart each other."
     }
   },
   "Mappings": {
@@ -61,6 +61,14 @@
         "Fn::GetAtt": [
           "Network",
           "Outputs.ApplicationVPCPrivateSubnetIds"
+        ]
+      }
+    },
+    "ApplicationVPCDBSubnetGroup": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.ApplicationVPCDBSubnetGroup"
         ]
       }
     }

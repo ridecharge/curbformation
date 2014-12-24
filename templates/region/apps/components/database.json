@@ -14,9 +14,12 @@
       "Type": "Number",
       "Default": "300"
     },
+    "DBSubnetGroupName":{
+      "Type":"String"
+    },
     "DBInstanceClass": {
       "Type": "String",
-      "Default": "m3.medium"
+      "Default": "db.m3.medium"
     },
     "DBName": {
       "Type": "String"
@@ -43,7 +46,7 @@
       "Default": "true"
     },
     "DatabaseSecurityGroups": {
-      "Type": "List<AWS::EC2::SecurityGroup::Id>"
+      "Type": "CommaDelimitedList"
     }
   },
   "Resources": {
@@ -68,6 +71,7 @@
         "MasterUserPassword": {"Ref": "MasterUserPassword"},
         "MultiAZ": {"Ref": "MultiAZ"},
         "VPCSecurityGroups": {"Ref": "DatabaseSecurityGroups"},
+        "DBSubnetGroupName":{"Ref":"DBSubnetGroupName"},
         "Tags": [
           {
             "Key": "Environment",
