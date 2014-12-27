@@ -25,7 +25,7 @@
     "PrivateRouteTables": {
       "Type": "CommaDelimitedList"
     },
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Type": "String",
       "Description": "Instance Profile to allow NATs to restart each other."
     },
@@ -78,7 +78,7 @@
     }
   },
   "Outputs": {
-    "InstanceId": {
+    "Instance": {
       "Value": {
         "Ref": "NATInstance"
       }
@@ -104,7 +104,7 @@
           "Ref": "KeyName"
         },
         "IamInstanceProfile": {
-          "Ref": "NATRoleProfileId"
+          "Ref": "NATInstanceProfile"
         },
         "SubnetId": {
           "Ref": "PublicSubnet"

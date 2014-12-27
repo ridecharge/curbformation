@@ -12,23 +12,41 @@
     }
   },
   "Outputs": {
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Value": {
         "Fn::GetAtt": [
-          "NATRole",
-          "Outputs.NATRoleProfileId"
+          "NATInstanceProfile",
+          "Outputs.RoleInstanceProfile"
+        ]
+      }
+    },
+    "TestAppInstanceProfile": {
+      "Value": {
+        "Fn::GetAtt": [
+          "TestAppInstanceProfile",
+          "Outputs.RoleInstanceProfile"
         ]
       }
     }
   },
   "Resources": {
-    "NATRole": {
+    "NATInstanceProfile": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
           "Environment": "global"
         },
         "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/roles/nat_role.json",
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "TestAppInstanceProfile": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": "global"
+        },
+        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/roles/test_role.json",
         "TimeoutInMinutes": "30"
       }
     }

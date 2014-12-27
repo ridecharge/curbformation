@@ -2,19 +2,19 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Routing Creation v1.0",
   "Parameters": {
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC to launch this subnet into.",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "PublicSubnetIds": {
+    "PublicSubnets": {
       "Description": "Subnets to associate public routing.",
       "Type": "String"
     },
-    "PrivateSubnetIds": {
+    "PrivateSubnets": {
       "Description": "Subnets to associate private routing.",
       "Type": "String"
     },
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Type": "String",
       "Description":"Instance Profile to allow NATs to restart each other."
     },
@@ -22,8 +22,8 @@
       "Description": "URL prefix for this stack.",
       "Type": "String"
     },
-    "InternetGatewayId": {
-      "Description": "Id of the VPCs InternetGateway",
+    "InternetGateway": {
+      "Description": "The VPCs InternetGateway",
       "Type": "String"
     },
     "Environment": {
@@ -48,14 +48,14 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "SubnetIds": {
-            "Ref": "PublicSubnetIds"
+          "Subnets": {
+            "Ref": "PublicSubnets"
           },
-          "VpcId": {
-            "Ref": "VpcId"
+          "Vpc": {
+            "Ref": "Vpc"
           },
-          "InternetGatewayId": {
-            "Ref": "InternetGatewayId"
+          "InternetGateway": {
+            "Ref": "InternetGateway"
           }
         },
         "TemplateURL": {
@@ -82,17 +82,17 @@
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
-          "PrivateSubnetIds": {
-            "Ref": "PrivateSubnetIds"
+          "PrivateSubnets": {
+            "Ref": "PrivateSubnets"
           },
-          "PublicSubnetIds": {
-            "Ref": "PublicSubnetIds"
+          "PublicSubnets": {
+            "Ref": "PublicSubnets"
           },
-          "NATRoleProfileId": {
-            "Ref": "NATRoleProfileId"
+          "NATInstanceProfile": {
+            "Ref": "NATInstanceProfile"
           },
-          "VpcId": {
-            "Ref": "VpcId"
+          "Vpc": {
+            "Ref": "Vpc"
           },
           "CidrBlock": {
             "Ref": "CidrBlock"

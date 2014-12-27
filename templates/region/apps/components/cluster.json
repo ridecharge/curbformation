@@ -9,7 +9,59 @@
       "MaxLength": "14",
       "AllowedPattern": "[-_ a-zA-Z0-9]*",
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "AppName": {
+      "Type": "String"
     }
   },
-  "Resources": {}
+  "Resources": {
+    "LoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "AccessLoggingPolicy": {
+          "EmitInterval": "5",
+          "Enabled": "true",
+          "S3BucketName": "",
+          "S3BucketPrefix": ""
+        },
+        "ConnectionDrainingPolicy": {
+          "Enabled": "true"
+        },
+        "CrossZone": "true",
+        "HealthCheck": {
+          "HealthyThreshold": "6",
+          "Interval": "10",
+          "Target": "8080",
+          "Timeout": "5",
+          "UnhealthyThreshold": "3"
+        },
+        "LoadBalancerName": {
+          "Fn::Join": [
+            "-",
+            [
+              {"Ref": "Environment"},
+              {"Ref": "AppName"}
+            ]
+          ]
+        },
+        "Listeners": [{
+          "InstancePort" : "8080",
+          "InstanceProtocol" : "http",
+          "LoadBalancerPort" : "80",
+          "PolicyNames" :  [ ],
+          "Protocol" : "http"
+        }
+        ],
+        "Policies": [
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": [
+        ],
+        "Subnets": [
+        ],
+        "Tags": [
+        ]
+      }
+    }
+  }
 }

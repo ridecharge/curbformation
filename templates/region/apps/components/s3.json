@@ -9,7 +9,110 @@
       "MaxLength": "14",
       "AllowedPattern": "[-_ a-zA-Z0-9]*",
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "AppName": {
+      "Type": "String"
     }
   },
-  "Resources": {}
+  "Outputs": {
+    "PublicBucket": {
+      "Value": {
+        "Fn::GetAtt": [
+          "PublicBucket",
+          "Outputs.BucketName"
+        ]
+      }
+    },
+    "PrivateBucket": {
+      "Value": {
+        "Fn::GetAtt": [
+          "PublicBucket",
+          "Outputs.BucketName"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "LogBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "LogDeliveryWrite",
+        "BucketName": {
+          "Fn::Join": [
+            "-",
+            [
+              {"Ref": "Environment"},
+              {"Ref": "AppName"},
+              "logs"
+            ]
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {"Ref": "AppName"}
+          },
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Role",
+            "Value": "aws-logs"
+          }
+        ]
+      }
+    },
+    "PublicBucket": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "LogBucket": {"Ref": "LogBucket"},
+          "AppName": {"Ref": "AppName"},
+          "AccessType": "public"
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "-",
+            [
+              "https://s3.amazonaws.com/curbformation",
+              {
+                "Ref": "Environment"
+              },
+              "templates/apps/components/s3/storage_buckets.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "PrivateBucket": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {"Ref": "Environment"},
+          "LogBucket": {"Ref": "LogBucket"},
+          "AppName": {"Ref": "AppName"},
+          "AccessType": "private"
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "-",
+            [
+              "https://s3.amazonaws.com/curbformation",
+              {
+                "Ref": "Environment"
+              },
+              "templates/apps/components/s3/storage_buckets.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
 }
+

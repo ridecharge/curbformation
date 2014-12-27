@@ -13,7 +13,7 @@
     "ApplicationName": {
       "Type": "String"
     },
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC for this security groups.",
       "Type": "AWS::EC2::VPC::Id"
     },
@@ -69,7 +69,7 @@
             "Value": {"Ref": "ApplicationName"}
           }
         ],
-        "VpcId": {"Ref": "VpcId"}
+        "VpcId": {"Ref": "Vpc"}
       }
     },
     "InstanceSecurityGroup": {
@@ -98,7 +98,7 @@
             "Value": {"Ref": "ApplicationName"}
           }
         ],
-        "VpcId": {"Ref": "VpcId"}
+        "VpcId": {"Ref": "Vpc"}
       }
     },
     "LoadBalancerSecurityGroup": {
@@ -127,7 +127,7 @@
             "Value": {"Ref": "ApplicationName"}
           }
         ],
-        "VpcId": {"Ref": "VpcId"}
+        "VpcId": {"Ref": "Vpc"}
       }
     }
   }

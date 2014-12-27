@@ -14,7 +14,7 @@
       "Description": "URL prefix for this stack.",
       "Type": "String"
     },
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC for this route.",
       "Type": "AWS::EC2::VPC::Id"
     },
@@ -23,7 +23,7 @@
       "Type": "String",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     },
-    "PublicSubnetIds": {
+    "PublicSubnets": {
       "Description": "Subnets to associate public routing.",
       "Type": "List<AWS::EC2::Subnet::Id>"
     },
@@ -31,25 +31,25 @@
       "Description": "Routes to associate private subnets.",
       "Type": "CommaDelimitedList"
     },
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Type": "String",
       "Description":"Instance Profile to allow NATs to restart each other."
     }
   },
   "Outputs": {
-    "NATInstanceIdA": {
+    "NATInstanceA": {
       "Value": {
         "Fn::GetAtt": [
           "NATInstanceA",
-          "Outputs.InstanceId"
+          "Outputs.Instance"
         ]
       }
     },
-    "NATInstanceIdB": {
+    "NATInstanceB": {
       "Value": {
         "Fn::GetAtt": [
           "NATInstanceA",
-          "Outputs.InstanceId"
+          "Outputs.Instance"
         ]
       }
     }
@@ -62,8 +62,8 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "VpcId": {
-            "Ref": "VpcId"
+          "Vpc": {
+            "Ref": "Vpc"
           },
           "CidrBlock": {
             "Ref": "CidrBlock"
@@ -90,20 +90,20 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "NATRoleProfileId": {
-            "Ref": "NATRoleProfileId"
+          "NATInstanceProfile": {
+            "Ref": "NATInstanceProfile"
           },
           "NATSecurityGroup": {
             "Fn::GetAtt": [
               "NATSecurity",
-              "Outputs.NATSecurityGroupId"
+              "Outputs.NATSecurityGroup"
             ]
           },
           "PublicSubnet": {
             "Fn::Select": [
               "0",
               {
-                "Ref": "PublicSubnetIds"
+                "Ref": "PublicSubnets"
               }
             ]
           },
@@ -152,20 +152,20 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "NATRoleProfileId": {
-            "Ref": "NATRoleProfileId"
+          "NATInstanceProfile": {
+            "Ref": "NATInstanceProfile"
           },
           "NATSecurityGroup": {
             "Fn::GetAtt": [
               "NATSecurity",
-              "Outputs.NATSecurityGroupId"
+              "Outputs.NATSecurityGroup"
             ]
           },
           "PublicSubnet": {
             "Fn::Select": [
               "1",
               {
-                "Ref": "PublicSubnetIds"
+                "Ref": "PublicSubnets"
               }
             ]
           },

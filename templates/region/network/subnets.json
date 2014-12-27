@@ -23,7 +23,7 @@
       "Description": "URL prefix for this stack.",
       "Type": "String"
     },
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC to launch this subnet into.",
       "Type": "AWS::EC2::VPC::Id"
     },
@@ -100,8 +100,8 @@
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },
-          "VpcId": {
-            "Ref": "VpcId"
+          "Vpc": {
+            "Ref": "Vpc"
           },
           "SubnetType": "Public"
         },
@@ -158,8 +158,8 @@
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },
-          "VpcId": {
-            "Ref": "VpcId"
+          "Vpc": {
+            "Ref": "Vpc"
           },
           "SubnetType": "Private"
         },

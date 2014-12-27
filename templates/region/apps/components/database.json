@@ -72,6 +72,7 @@
         "MultiAZ": {"Ref": "MultiAZ"},
         "VPCSecurityGroups": {"Ref": "DatabaseSecurityGroups"},
         "DBSubnetGroupName":{"Ref":"DBSubnetGroupName"},
+        "StorageType":"gp2",
         "Tags": [
           {
             "Key": "Environment",
@@ -79,7 +80,7 @@
           },
           {
             "Key": "Role",
-            "Value": "Primary"
+            "Value": "database"
           }
         ]
       }

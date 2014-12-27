@@ -10,7 +10,7 @@
       "AllowedPattern": "[-_ a-zA-Z0-9]*",
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Type": "String",
       "Description": "Instance Profile to allow NATs to restart each other."
     }
@@ -32,35 +32,35 @@
     }
   },
   "Outputs": {
-    "ApplicationVPCId": {
+    "ApplicationVPC": {
       "Value": {
         "Fn::GetAtt": [
           "Network",
-          "Outputs.ApplicationVPCId"
+          "Outputs.ApplicationVPC"
         ]
       }
     },
-    "InfrastructureVPCId": {
+    "InfrastructureVPC": {
       "Value": {
         "Fn::GetAtt": [
           "Network",
-          "Outputs.InfrastructureVPCId"
+          "Outputs.InfrastructureVPC"
         ]
       }
     },
-    "InfrastructureVPCPrivateSubnetIds": {
+    "InfrastructureVPCPrivateSubnets": {
       "Value": {
         "Fn::GetAtt": [
           "Network",
-          "Outputs.InfrastructureVPCPrivateSubnetIds"
+          "Outputs.InfrastructureVPCPrivateSubnets"
         ]
       }
     },
-    "ApplicationVPCPrivateSubnetIds": {
+    "ApplicationVPCPrivateSubnets": {
       "Value": {
         "Fn::GetAtt": [
           "Network",
-          "Outputs.ApplicationVPCPrivateSubnetIds"
+          "Outputs.ApplicationVPCPrivateSubnets"
         ]
       }
     },
@@ -81,8 +81,8 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "NATRoleProfileId": {
-            "Ref": "NATRoleProfileId"
+          "NATInstanceProfile": {
+            "Ref": "NATInstanceProfile"
           },
           "AvailabilityZones": {
             "Fn::Join": [

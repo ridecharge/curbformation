@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "IAM NAT Instance Role Profile v1.0",
+  "Description": "IAM Application Instance Profile v1.0",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment this VPC represents",
@@ -40,20 +40,28 @@
         "Path": "/",
         "Policies": [
           {
-            "PolicyName": "NAT_Takeover",
+            "PolicyName": "S3BucketAccess",
             "PolicyDocument": {
               "Statement": [
                 {
                   "Effect": "Allow",
+                  "Action": ["s3:ListBucket"],
+                  "Resource": [
+                    "arn:aws:s3:::test-test-private",
+                    "arn:aws:s3:::test-test-public"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
                   "Action": [
-                    "ec2:DescribeInstances",
-                    "ec2:DescribeRouteTables",
-                    "ec2:CreateRoute",
-                    "ec2:ReplaceRoute",
-                    "ec2:StartInstances",
-                    "ec2:StopInstances"
+                    "s3:GetObject",
+                    "s3:PutObject",
+                    "s3:DeleteObject"
                   ],
-                  "Resource": "*"
+                  "Resource": [
+                    "arn:aws:s3:::test-test-private/*",
+                    "arn:aws:s3:::test-test-public/*"
+                  ]
                 }
               ]
             }

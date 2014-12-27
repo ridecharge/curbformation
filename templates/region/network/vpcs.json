@@ -18,37 +18,37 @@
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
     },
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Type": "String",
       "Description": "Instance Profile to allow NATs to restart each other."
     }
   },
   "Outputs": {
-    "ApplicationVPCId": {
+    "ApplicationVPC": {
       "Value": {
         "Fn::GetAtt": [
           "ApplicationVPC",
-          "Outputs.VpcId"
+          "Outputs.Vpc"
         ]
       }
     },
-    "InfrastructureVPCId": {
+    "InfrastructureVPC": {
       "Value": {
         "Fn::GetAtt": [
           "InfrastructureVPC",
-          "Outputs.VpcId"
+          "Outputs.Vpc"
         ]
       }
     },
-    "ApplicationVPCPrivateSubnetIds": {
+    "ApplicationVPCPrivateSubnets": {
       "Value": {
         "Fn::GetAtt": [
           "ApplicationVPC",
-          "Outputs.PrivateSubnetIds"
+          "Outputs.PrivateSubnets"
         ]
       }
     },
-    "InfrastructureVPCPrivateSubnetIds": {
+    "InfrastructureVPCPrivateSubnets": {
       "Value": {
         "Fn::GetAtt": [
           "InfrastructureVPC",
@@ -99,8 +99,8 @@
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
-          "NATRoleProfileId": {
-            "Ref": "NATRoleProfileId"
+          "NATInstanceProfile": {
+            "Ref": "NATInstanceProfile"
           }
         },
         "TemplateURL": {
@@ -142,8 +142,8 @@
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
-          "NATRoleProfileId": {
-            "Ref": "NATRoleProfileId"
+          "NATInstanceProfile": {
+            "Ref": "NATInstanceProfile"
           }
         },
         "TemplateURL": {
@@ -166,13 +166,13 @@
         "PeerVpcId": {
           "Fn::GetAtt": [
             "InfrastructureVPC",
-            "Outputs.VpcId"
+            "Outputs.Vpc"
           ]
         },
         "VpcId": {
           "Fn::GetAtt": [
             "ApplicationVPC",
-            "Outputs.VpcId"
+            "Outputs.Vpc"
           ]
         }
       }

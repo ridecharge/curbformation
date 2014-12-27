@@ -3,11 +3,19 @@
   "Description": "IAM Setup v1.0",
   "Parameters": {},
   "Outputs": {
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Value": {
         "Fn::GetAtt": [
           "Roles",
-          "Outputs.NATRoleProfileId"
+          "Outputs.NATInstanceProfile"
+        ]
+      }
+    },
+    "testAppInstanceProfile": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Roles",
+          "Outputs.TestAppInstanceProfile"
         ]
       }
     }

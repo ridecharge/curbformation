@@ -2,15 +2,15 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Private Routing Creation v1.0",
   "Parameters": {
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC for this route.",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "PrivateSubnetIds": {
+    "PrivateSubnets": {
       "Description": "Subnets to associate private routing.",
       "Type": "List<AWS::EC2::Subnet::Id>"
     },
-    "PublicSubnetIds": {
+    "PublicSubnets": {
       "Description": "Subnets to create NAT Instances in.",
       "Type": "String"
     },
@@ -31,7 +31,7 @@
       "Description": "URL prefix for this stack.",
       "Type": "String"
     },
-    "NATRoleProfileId": {
+    "NATInstanceProfile": {
       "Type": "String",
       "Description":"Instance Profile to allow NATs to restart each other."
     }
@@ -44,20 +44,20 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "VpcId": {
-            "Ref": "VpcId"
+          "Vpc": {
+            "Ref": "Vpc"
           },
           "CidrBlock": {
             "Ref": "CidrBlock"
           },
-          "PublicSubnetIds": {
-            "Ref": "PublicSubnetIds"
+          "PublicSubnets": {
+            "Ref": "PublicSubnets"
           },
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
-          "NATRoleProfileId": {
-            "Ref": "NATRoleProfileId"
+          "NATInstanceProfile": {
+            "Ref": "NATInstanceProfile"
           },
           "PrivateRouteTables": {
             "Fn::Join": [
@@ -97,7 +97,7 @@
         "InstanceId": {
           "Fn::GetAtt": [
             "NATInstances",
-            "Outputs.NATInstanceIdA"
+            "Outputs.NATInstanceA"
           ]
         }
       }
@@ -112,7 +112,7 @@
         "InstanceId": {
           "Fn::GetAtt": [
             "NATInstances",
-            "Outputs.NATInstanceIdB"
+            "Outputs.NATInstanceB"
           ]
         }
       }
@@ -121,7 +121,7 @@
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VpcId"
+          "Ref": "Vpc"
         },
         "Tags": [
           {
@@ -141,7 +141,7 @@
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VpcId"
+          "Ref": "Vpc"
         },
         "Tags": [
           {
@@ -164,7 +164,7 @@
           "Fn::Select": [
             "0",
             {
-              "Ref": "PrivateSubnetIds"
+              "Ref": "PrivateSubnets"
             }
           ]
         },
@@ -180,7 +180,7 @@
           "Fn::Select": [
             "1",
             {
-              "Ref": "PrivateSubnetIds"
+              "Ref": "PrivateSubnets"
             }
           ]
         },

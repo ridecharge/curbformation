@@ -2,16 +2,16 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Public Routing Creation v1.0",
   "Parameters": {
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC for this route.",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "SubnetIds": {
+    "Subnets": {
       "Description": "Subnets to associate public routing.",
       "Type": "List<AWS::EC2::Subnet::Id>"
     },
-    "InternetGatewayId": {
-      "Description": "Id of the VPCs InternetGateway",
+    "InternetGateway": {
+      "Description": "The VPCs InternetGateway",
       "Type": "String",
       "MinLength": "12",
       "MaxLength": "12",
@@ -31,7 +31,7 @@
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VpcId"
+          "Ref": "Vpc"
         },
         "Tags": [
           {
@@ -55,7 +55,7 @@
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGatewayId"
+          "Ref": "InternetGateway"
         }
       }
     },
@@ -66,7 +66,7 @@
           "Fn::Select": [
             "0",
             {
-              "Ref": "SubnetIds"
+              "Ref": "Subnets"
             }
           ]
         },
@@ -82,7 +82,7 @@
           "Fn::Select": [
             "1",
             {
-              "Ref": "SubnetIds"
+              "Ref": "Subnets"
             }
           ]
         },

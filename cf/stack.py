@@ -11,24 +11,29 @@ class Stack(object):
     STACK_DEPENDS_ON = 'STACK_DEPENDS_ON'
     STACK_INPUTS = 'STACK_INPUTS'
     STACK_CAPABILITIES = 'STACK_CAPABILITIES'
+    STACK_DYNAMIC_INPUTS = 'STACK_DYNAMIC_INPUTS'
 
     ENV_GLOBAL = 'global'
     TYPES_GLOBAL = [Types.iam]
 
     STACK_DEPENDENCIES = {
         Types.network: {
-            STACK_INPUTS: ['NATRoleProfileId'],
+            STACK_INPUTS: ['NATInstanceProfile'],
+            STACK_DYNAMIC_INPUTS: [],
             STACK_DEPENDS_ON: [Types.iam],
             STACK_CAPABILITIES: []
         },
         Types.iam: {
             STACK_INPUTS: [],
+            STACK_DYNAMIC_INPUTS: [],
             STACK_DEPENDS_ON: [],
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         },
         Types.apps: {
-            STACK_INPUTS: ['ApplicationVPCId', 'ApplicationVPCDBSubnetGroup'],
-            STACK_DEPENDS_ON: [Types.network],
+            STACK_INPUTS: ['ApplicationVPC', 'ApplicationVPCDBSubnetGroup',
+                           'ApplicationVPCPrivateSubnets'],
+            STACK_DYNAMIC_INPUTS: ["{0.app_name}AppInstanceProfile"],
+            STACK_DEPENDS_ON: [Types.network, Types.iam],
             STACK_CAPABILITIES: []
         }
     }
@@ -58,9 +63,10 @@ class Stack(object):
         stacks = []
         for stack_type in stack_types:
             stacks.append(
-                Stack(self.cf_conn,
-                      Stack.ENV_GLOBAL if stack_type in Stack.TYPES_GLOBAL else self.env,
-                      stack_type
+                Stack(
+                    self.cf_conn,
+                    Stack.ENV_GLOBAL if stack_type in Stack.TYPES_GLOBAL else self.env,
+                    stack_type
                 ))
         return stacks
 
@@ -72,7 +78,10 @@ class Stack(object):
     def inputs(self):
         if self.stack_type not in Stack.STACK_DEPENDENCIES:
             return None
-        return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS]
+        inputs = Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS]
+        for dynamic_input in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DYNAMIC_INPUTS]:
+            inputs.append(dynamic_input.format(self))
+        return inputs
 
     def stack_name(self):
         name = ["{0.env}", "{0.stack_type.name}"]

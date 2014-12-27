@@ -2,7 +2,7 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "NAT Security Group Creation v1.0",
   "Parameters": {
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC for this route.",
       "Type": "AWS::EC2::VPC::Id"
     },
@@ -21,7 +21,7 @@
     }
   },
   "Outputs": {
-    "NATSecurityGroupId": {
+    "NATSecurityGroup": {
       "Value": {
         "Ref": "NATSecurityGroup"
       }
@@ -33,7 +33,7 @@
       "Properties": {
         "GroupDescription": "Rules for allowing access to NAT HA Nodes",
         "VpcId": {
-          "Ref": "VpcId"
+          "Ref": "Vpc"
         },
         "SecurityGroupIngress": [
           {

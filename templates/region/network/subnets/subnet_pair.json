@@ -18,7 +18,7 @@
       "Description": "CidrBlocks for AZs this VPC",
       "Type": "CommaDelimitedList"
     },
-    "VpcId": {
+    "Vpc": {
       "Description": "VPC to launch this subnet into.",
       "Type": "AWS::EC2::VPC::Id"
     },
@@ -76,7 +76,7 @@
           ]
         },
         "VpcId": {
-          "Ref": "VpcId"
+          "Ref": "Vpc"
         },
         "CidrBlock": {
           "Fn::Select": [
@@ -131,7 +131,7 @@
           ]
         },
         "VpcId": {
-          "Ref": "VpcId"
+          "Ref": "Vpc"
         },
         "CidrBlock": {
           "Fn::Select": [
