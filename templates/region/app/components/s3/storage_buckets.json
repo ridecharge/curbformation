@@ -10,7 +10,7 @@
       "AllowedPattern": "[-_ a-zA-Z0-9]*",
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
-    "AppName": {
+    "ApplicationName": {
       "Type": "String"
     },
     "AccessType": {
@@ -51,7 +51,7 @@
             "-",
             [
               {"Ref": "Environment"},
-              {"Ref": "AppName"},
+              {"Ref": "ApplicationName"},
               {"Ref": "AccessType"}
             ]
           ]
@@ -62,7 +62,7 @@
         "Tags": [
           {
             "Key": "Application",
-            "Value": {"Ref": "AppName"}
+            "Value": {"Ref": "ApplicationName"}
           },
           {
             "Key": "Environment",

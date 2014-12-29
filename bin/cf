@@ -25,9 +25,25 @@ def delete(options):
     print(get_stack(options).delete())
 
 
+def describe_resource(resources, cf_conn):
+    for resource in resources:
+        if resource.resource_type == 'AWS::CloudFormation::Stack':
+            describe_resource(
+                cf_conn.describe_stacks(resource.physical_resource_id)[0].list_resources(), cf_conn)
+        print(resource.logical_resource_id)
+        print(resource.physical_resource_id)
+        print(resource.resource_type)
+        print(resource.resource_status)
+        print(resource.resource_status_reason)
+
+
 def describe(options):
+    cf_conn = cloudformation.connect_to_region(options.region)
     stack = get_stack(options).describe()
-    print(stack.list_resources())
+    describe_resource(stack.list_resources(), cf_conn)
+
+    print(stack.outputs)
+    print(stack.parameters)
     print(stack.stack_status)
 
 

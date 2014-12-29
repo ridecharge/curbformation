@@ -78,7 +78,7 @@ class Stack(object):
     def inputs(self):
         if self.stack_type not in Stack.STACK_DEPENDENCIES:
             return None
-        inputs = Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS]
+        inputs = Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS].copy()
         for dynamic_input in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DYNAMIC_INPUTS]:
             inputs.append(dynamic_input.format(self))
         return inputs
@@ -90,11 +90,17 @@ class Stack(object):
         return "-".join(name).format(self)
 
     def template_uri(self):
-        uri = "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}"
-        if self.app_name:
-            uri += "/{0.app_name}"
-        uri += ".json"
+        uri = "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}.json"
         return uri.format(self)
+
+    def tags(self):
+        tag = {
+            "Environment": self.env,
+            "StackType": self.stack_type
+        }
+        if self.app_name:
+            tag['Application'] = self.app_name
+        return tag
 
     def params(self):
         if not self.depends_on():
@@ -114,26 +120,31 @@ class Stack(object):
         return params
 
     def describe(self):
-        print('Describing...')
+        print("Describing {0}".format(self.stack_name()))
         return self.cf_conn.describe_stacks(self.stack_name())[0]
 
     def delete(self):
+        print("Deleting {0}".format(self.stack_name()))
         return self.cf_conn.delete_stack(self.stack_name())
 
     def create(self):
-        print('Creating...')
+        print("Creating {0}".format(self.stack_name()))
         return self.cf_conn.create_stack(
             self.stack_name(),
             None,
             self.template_uri(),
             self.params(),
-            capabilities=self.capabilities())
+            capabilities=self.capabilities(),
+            tags=self.tags()
+        )
 
     def update(self):
-        print('Updating...')
+        print("Updating {0}".format(self.stack_name()))
         return self.cf_conn.update_stack(
             self.stack_name(),
             None,
             self.template_uri(),
             self.params(),
-            capabilities=self.capabilities())
+            capabilities=self.capabilities(),
+            tags=self.tags()
+        )

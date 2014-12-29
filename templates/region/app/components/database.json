@@ -1,0 +1,300 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Database Setup v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
+    },
+    "AllocatedStorage": {
+      "Description": "Storage to allocate in 100 GB increments.",
+      "Type": "Number",
+      "ConstraintDescription": "Must be multiples of 100 from 100 to 3000",
+      "AllowedValues": [
+        "100",
+        "200",
+        "300",
+        "400",
+        "500",
+        "600",
+        "700",
+        "800",
+        "900",
+        "1000",
+        "1100",
+        "1200",
+        "1300",
+        "1400",
+        "1500",
+        "1600",
+        "1700",
+        "1800",
+        "1900",
+        "2000",
+        "2100",
+        "2200",
+        "2300",
+        "2400",
+        "2500",
+        "2600",
+        "2700",
+        "2800",
+        "2900",
+        "3000"
+      ]
+    },
+    "DBSubnetGroupName": {
+      "Description": "The VPC DBSubnetGroupName to launch into.",
+      "Type": "String"
+    },
+    "DBName": {
+      "Description": "Name of the database to be created in the instance.",
+      "Type": "String",
+      "AllowedPattern": "[a-z]*",
+      "ConstraintDescription": "DBName must be lower case alpha characters only."
+    },
+    "DBInstanceClass": {
+      "Description": "Database instance type.",
+      "Type": "String",
+      "Default": "db.m3.medium",
+      "AllowedValues": [
+        "db.m3.medium",
+        "db.r3.xlarge",
+        "db.r3.2xlarge",
+        "db.r3.4xlarge"
+      ],
+      "ConstraintDescription": "Value must an allowed standard size."
+    },
+    "MasterUsername": {
+      "Description": "Master Username for database.",
+      "Type": "String",
+      "Default": "rdsroot"
+    },
+    "MasterUserPassword": {
+      "Description": "Master Password for database.",
+      "Type": "String",
+      "NoEcho": "true"
+    },
+    "MultiAZ": {
+      "Type": "String",
+      "Default": "true"
+    },
+    "InstanceSecurityGroup": {
+      "Type": "String"
+    },
+    "ProvisionIops": {
+      "Description": "Whether to use provision iops.  Based off allocated storage size.",
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "true",
+        "false"
+      ],
+      "ConstraintDescription": "Must be a boolean value (true, false)"
+    },
+    "DatabaseType": {
+      "Type": "String",
+      "AllowedValues": [
+        "postgres",
+        "mysql"
+      ]
+    }
+  },
+  "Outputs": {
+    "Endpoint": {
+      "Value": {
+        "Fn::Join": [
+          ":",
+          [
+            {
+              "Fn::GetAtt": [
+                "Database",
+                "Endpoint.Address"
+              ]
+            },
+            {
+              "Fn::GetAtt": [
+                "Database",
+                "Endpoint.Port"
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "SecurityGroup": {
+      "Value": {
+        "Ref": "SecurityGroup"
+      }
+    }
+  },
+  "Mappings": {
+    "DatabaseTypes": {
+      "postgres": {
+        "Engine": "postgres",
+        "EngineVersion": "9.3.5",
+        "Port": "5432"
+      },
+      "mysql": {
+        "Engine": "mysql",
+        "EngineVersion": "5.6.21",
+        "Port": "3306"
+      }
+    },
+    "AllocatedStorage": {
+      "100": {"Iops": "1000"},
+      "200": {"Iops": "2000"},
+      "300": {"Iops": "3000"},
+      "400": {"Iops": "4000"},
+      "500": {"Iops": "5000"},
+      "600": {"Iops": "6000"},
+      "700": {"Iops": "7000"},
+      "800": {"Iops": "8000"},
+      "900": {"Iops": "9000"},
+      "1000": {"Iops": "10000"},
+      "1100": {"Iops": "11000"},
+      "1200": {"Iops": "12000"},
+      "1300": {"Iops": "13000"},
+      "1400": {"Iops": "14000"},
+      "1500": {"Iops": "15000"},
+      "1600": {"Iops": "16000"},
+      "1700": {"Iops": "17000"},
+      "1800": {"Iops": "18000"},
+      "1900": {"Iops": "19000"},
+      "2000": {"Iops": "20000"},
+      "2100": {"Iops": "21000"},
+      "2200": {"Iops": "22000"},
+      "2300": {"Iops": "23000"},
+      "2400": {"Iops": "24000"},
+      "2500": {"Iops": "25000"},
+      "2600": {"Iops": "26000"},
+      "2700": {"Iops": "27000"},
+      "2800": {"Iops": "28000"},
+      "2900": {"Iops": "29000"},
+      "3000": {"Iops": "30000"}
+    }
+  },
+  "Conditions": {
+    "UseProvisionedIops": {
+      "Fn::Equals": [
+        {"Ref": "ProvisionIops"},
+        "true"
+      ]
+    }
+  },
+  "Resources": {
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Application Database Security Group",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": {
+              "Fn::FindInMap": [
+                "DatabaseTypes",
+                {"Ref": "DatabaseType"},
+                "Port"
+              ]
+            },
+            "ToPort": {
+              "Fn::FindInMap": [
+                "DatabaseTypes",
+                {"Ref": "DatabaseType"},
+                "Port"
+              ]
+            },
+            "SourceSecurityGroupId": {"Ref": "InstanceSecurityGroup"}
+          }
+        ],
+        "VpcId": {"Ref": "Vpc"},
+        "Tags": [
+          {
+            "Key": "Role",
+            "Value": "database-security"
+          },
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Application",
+            "Value": {"Ref": "ApplicationName"}
+          }
+        ]
+      }
+    },
+    "Database": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "AllocatedStorage": {"Ref": "AllocatedStorage"},
+        "DBInstanceClass": {
+          "Ref": "DBInstanceClass"
+        },
+        "DBName": {"Ref": "DBName"},
+        "DBInstanceIdentifier": {
+          "Fn::Join": [
+            "-",
+            [
+              {"Ref": "Environment"},
+              {"Ref": "DBName"}
+            ]
+          ]
+        },
+        "Engine": {
+          "Fn::FindInMap": [
+            "DatabaseType",
+            {"Ref": "DatabaseType"},
+            "Engine"
+          ]
+        },
+        "EngineVersion": {
+          "Fn::FindInMap": [
+            "DatabaseType",
+            {"Ref": "DatabaseType"},
+            "EngineVersion"
+          ]
+        },
+        "MasterUsername": {"Ref": "MasterUsername"},
+        "MasterUserPassword": {"Ref": "MasterUserPassword"},
+        "MultiAZ": {"Ref": "MultiAZ"},
+        "VPCSecurityGroups": {"Ref": "DatabaseSecurityGroups"},
+        "DBSubnetGroupName": {"Ref": "DBSubnetGroupName"},
+        "StorageType": {
+          "Fn::If": [
+            "UseProvisionedIops",
+            "io1",
+            "gp2"
+          ]
+        },
+        "Iops": {
+          "Fn::If": [
+            "UseProvisionedIops",
+            {
+              "Fn::FindInMap": [
+                "AllocatedStorage",
+                {"Ref": "AllocatedStorage"},
+                "Iops"
+              ]
+            },
+            "AWS::NoValue"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Role",
+            "Value": "database"
+          }
+        ]
+      }
+    }
+  }
+}

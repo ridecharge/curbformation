@@ -16,8 +16,8 @@
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "14",
-      "AllowedPattern": "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     }
   },
   "Outputs": {

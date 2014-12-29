@@ -14,6 +14,16 @@
       "Type": "String"
     }
   },
+  "Mappings": {
+    "LoadBalancerType": {
+      "internal": {
+        "Port": "80"
+      },
+      "internet-facing": {
+        "Port": "443"
+      }
+    }
+  },
   "Resources": {
     "LoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
@@ -44,13 +54,14 @@
             ]
           ]
         },
-        "Listeners": [{
-          "InstancePort" : "8080",
-          "InstanceProtocol" : "http",
-          "LoadBalancerPort" : "80",
-          "PolicyNames" :  [ ],
-          "Protocol" : "http"
-        }
+        "Listeners": [
+          {
+            "InstancePort": "8080",
+            "InstanceProtocol": "http",
+            "LoadBalancerPort": "80",
+            "PolicyNames": [],
+            "Protocol": "http"
+          }
         ],
         "Policies": [
         ],

@@ -3,14 +3,14 @@
   "Description": "S3 Setup v1.0",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment these VPCs represent",
+      "Description": "Name of the environment to create s3 buckets in.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "14",
-      "AllowedPattern": "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     },
-    "AppName": {
+    "ApplicationName": {
       "Type": "String"
     }
   },
@@ -42,7 +42,7 @@
             "-",
             [
               {"Ref": "Environment"},
-              {"Ref": "AppName"},
+              {"Ref": "ApplicationName"},
               "logs"
             ]
           ]
@@ -50,7 +50,7 @@
         "Tags": [
           {
             "Key": "Application",
-            "Value": {"Ref": "AppName"}
+            "Value": {"Ref": "ApplicationName"}
           },
           {
             "Key": "Environment",
@@ -71,7 +71,7 @@
             "Ref": "Environment"
           },
           "LogBucket": {"Ref": "LogBucket"},
-          "AppName": {"Ref": "AppName"},
+          "ApplicationName": {"Ref": "ApplicationName"},
           "AccessType": "public"
         },
         "TemplateURL": {
@@ -95,7 +95,7 @@
         "Parameters": {
           "Environment": {"Ref": "Environment"},
           "LogBucket": {"Ref": "LogBucket"},
-          "AppName": {"Ref": "AppName"},
+          "ApplicationName": {"Ref": "ApplicationName"},
           "AccessType": "private"
         },
         "TemplateURL": {

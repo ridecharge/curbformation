@@ -3,30 +3,70 @@
   "Description": "Test App Setup v1.0",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment these VPCs represent",
+      "Description": "Name of the environment to deploy this app into.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "14",
-      "AllowedPattern": "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     },
     "MasterUserPassword": {
+      "Description": "Password for RDS instance Master User",
       "Type": "String",
-      "NoEcho": "true",
-      "Default": "test"
+      "NoEcho": "true"
     },
     "ApplicationVPCDBSubnetGroup": {
       "Type": "String"
     },
-    "ApplicationVPCPrivateSubnets":{
-      "Type":"List<AWS::EC2::Subnet::Id>"
+    "ApplicationVPCPrivateSubnets": {
+      "Type": "List<AWS::EC2::Subnet::Id>"
     },
     "ApplicationVPC": {
       "Description": "VPC for this application.",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "testAppInstanceProfile":{
-      "Type":"String"
+    "AppInstanceProfile": {
+      "Type": "String"
+    },
+    "DatabaseType": {
+      "Description": "The database type to setup.  Mysql or Postgres.",
+      "Type": "String",
+      "Default": "postgres",
+      "AllowedValues": [
+        "postgres",
+        "mysql",
+        "none"
+      ]
+    },
+    "LoadBalancerType": {
+      "Type": "String",
+      "AllowedValues": [
+        "internal",
+        "internet-facing"
+      ]
+    }
+  },
+  "Conditions": {
+    "CreateDatabase": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {"Ref": "DatabaseType"},
+            "none"
+          ]
+        }
+      ]
+    }
+  },
+  "Outputs": {
+    "DatabaseEndpoint": {
+      "Condition": "CreateDatabase",
+      "Value": {
+        "Fn::GetAtt": [
+          "Database",
+          "Outputs.Endpoint"
+        ]
+      }
     }
   },
   "Resources": {
@@ -36,8 +76,13 @@
         "Parameters": {
           "Environment": {"Ref": "Environment"},
           "Vpc": {"Ref": "ApplicationVPC"},
-          "ApplicationName": "Test",
-          "LoadBalancerPort": "443"
+          "ApplicationName": {"Ref": "ApplicationName"},
+          "LoadBalancerType": {
+            "Ref": "LoadBalancerType"
+          },
+          "DatabaseType": {
+            "Ref": "DatabaseType"
+          }
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -59,7 +104,7 @@
       "Properties": {
         "Parameters": {
           "Environment": {"Ref": "Environment"},
-          "AppName":"test"
+          "AppName": "test"
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -78,16 +123,11 @@
     },
     "Database": {
       "Type": "AWS::CloudFormation::Stack",
+      "Condition": "CreateDatabase",
       "Properties": {
         "Parameters": {
           "Environment": {"Ref": "Environment"},
-          "DatabaseSecurityGroups": {
-            "Fn::GetAtt": [
-              "SecurityGroups",
-              "Outputs.DatabaseSecurityGroup"
-            ]
-          },
-          "DBName": "test",
+          "DBName": {"Ref": "ApplicationName"},
           "DBSubnetGroupName": {"Ref": "ApplicationVPCDBSubnetGroup"}
         },
         "TemplateURL": {
