@@ -22,10 +22,6 @@
       "Description": "Template URL for a VPC.",
       "Type": "String"
     },
-    "NATInstanceProfile": {
-      "Type": "String",
-      "Description": "Instance Profile to allow NATs to restart each other."
-    },
     "VpcName": {
       "Type": "String"
     },
@@ -186,9 +182,6 @@
           },
           "InternetGateway": {
             "Ref": "InternetGateway"
-          },
-          "NATInstanceProfile": {
-            "Ref": "NATInstanceProfile"
           },
           "CidrBlock": {
             "Fn::Join": [

@@ -10,69 +10,38 @@
       "AllowedPattern": "[-_ a-zA-Z0-9]*",
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
-    "AppName": {
+    "ApplicationName": {
       "Type": "String"
-    }
-  },
-  "Mappings": {
-    "LoadBalancerType": {
-      "internal": {
-        "Port": "80"
-      },
-      "internet-facing": {
-        "Port": "443"
-      }
+    },
+    "Vpc": {
+      "Description": "VPC to launch this subnet into.",
+      "Type": "AWS::EC2::VPC::Id"
     }
   },
   "Resources": {
-    "LoadBalancer": {
-      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+    "ClusterSecurityGroup": {
+      "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "AccessLoggingPolicy": {
-          "EmitInterval": "5",
-          "Enabled": "true",
-          "S3BucketName": "",
-          "S3BucketPrefix": ""
+        "Parameters": {
+          "ApplicationName": {"Ref": "ApplicationName"},
+          "Environment": {"Ref": "Environment"},
+          "Vpc": {"Ref": "Vpc"}
         },
-        "ConnectionDrainingPolicy": {
-          "Enabled": "true"
-        },
-        "CrossZone": "true",
-        "HealthCheck": {
-          "HealthyThreshold": "6",
-          "Interval": "10",
-          "Target": "8080",
-          "Timeout": "5",
-          "UnhealthyThreshold": "3"
-        },
-        "LoadBalancerName": {
+        "TemplateURL": {
           "Fn::Join": [
             "-",
             [
-              {"Ref": "Environment"},
-              {"Ref": "AppName"}
+              "https://s3.amazonaws.com/curbformation",
+              {
+                "Ref": "Environment"
+              },
+              "templates/apps/cluster/security.json"
             ]
           ]
         },
-        "Listeners": [
-          {
-            "InstancePort": "8080",
-            "InstanceProtocol": "http",
-            "LoadBalancerPort": "80",
-            "PolicyNames": [],
-            "Protocol": "http"
-          }
-        ],
-        "Policies": [
-        ],
-        "Scheme": "internet-facing",
-        "SecurityGroups": [
-        ],
-        "Subnets": [
-        ],
-        "Tags": [
-        ]
+        "TimeoutInMinutes": "30"
       }
     }
   }
 }
+

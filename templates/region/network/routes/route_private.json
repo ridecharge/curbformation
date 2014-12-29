@@ -30,10 +30,6 @@
     "TemplateURLPrefix": {
       "Description": "URL prefix for this stack.",
       "Type": "String"
-    },
-    "NATInstanceProfile": {
-      "Type": "String",
-      "Description":"Instance Profile to allow NATs to restart each other."
     }
   },
   "Resources": {
@@ -55,9 +51,6 @@
           },
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
-          },
-          "NATInstanceProfile": {
-            "Ref": "NATInstanceProfile"
           },
           "PrivateRouteTables": {
             "Fn::Join": [

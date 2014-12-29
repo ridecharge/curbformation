@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "NAT Security Group Creation v1.0",
+  "Description": "NAT Instance Security Group Creation v1.0",
   "Parameters": {
     "Vpc": {
       "Description": "VPC for this route.",

@@ -10,40 +10,20 @@
       "AllowedPattern": "[a-z0-9]*",
       "ConstraintDescription": "can contain only lower case alphanumeric characters."
     },
+    "Vpc": {
+      "Description": "VPC to launch this database into.",
+      "Type": "AWS::EC2::VPC::Id"
+    },
     "AllocatedStorage": {
       "Description": "Storage to allocate in 100 GB increments.",
       "Type": "Number",
       "ConstraintDescription": "Must be multiples of 100 from 100 to 3000",
       "AllowedValues": [
         "100",
-        "200",
         "300",
-        "400",
         "500",
-        "600",
-        "700",
-        "800",
-        "900",
         "1000",
-        "1100",
-        "1200",
-        "1300",
-        "1400",
-        "1500",
-        "1600",
-        "1700",
-        "1800",
-        "1900",
         "2000",
-        "2100",
-        "2200",
-        "2300",
-        "2400",
-        "2500",
-        "2600",
-        "2700",
-        "2800",
-        "2900",
         "3000"
       ]
     },
@@ -51,7 +31,7 @@
       "Description": "The VPC DBSubnetGroupName to launch into.",
       "Type": "String"
     },
-    "DBName": {
+    "ApplicationName": {
       "Description": "Name of the database to be created in the instance.",
       "Type": "String",
       "AllowedPattern": "[a-z]*",
@@ -235,13 +215,13 @@
         "DBInstanceClass": {
           "Ref": "DBInstanceClass"
         },
-        "DBName": {"Ref": "DBName"},
+        "DBName": {"Ref": "ApplicationName"},
         "DBInstanceIdentifier": {
           "Fn::Join": [
             "-",
             [
               {"Ref": "Environment"},
-              {"Ref": "DBName"}
+              {"Ref": "ApplicationName"}
             ]
           ]
         },
@@ -262,7 +242,7 @@
         "MasterUsername": {"Ref": "MasterUsername"},
         "MasterUserPassword": {"Ref": "MasterUserPassword"},
         "MultiAZ": {"Ref": "MultiAZ"},
-        "VPCSecurityGroups": {"Ref": "DatabaseSecurityGroups"},
+        "VPCSecurityGroups": {"Ref": "SecurityGroup"},
         "DBSubnetGroupName": {"Ref": "DBSubnetGroupName"},
         "StorageType": {
           "Fn::If": [

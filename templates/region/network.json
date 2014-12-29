@@ -9,10 +9,6 @@
       "MaxLength": "14",
       "AllowedPattern": "[a-z0-9]*",
       "ConstraintDescription": "can contain only lower case alphanumeric characters."
-    },
-    "NATInstanceProfile": {
-      "Type": "String",
-      "Description": "Instance Profile to allow NATs to restart each other."
     }
   },
   "Mappings": {
@@ -80,9 +76,6 @@
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
-          },
-          "NATInstanceProfile": {
-            "Ref": "NATInstanceProfile"
           },
           "AvailabilityZones": {
             "Fn::Join": [

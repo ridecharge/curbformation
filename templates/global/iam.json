@@ -1,23 +1,14 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "IAM Setup v1.0",
-  "Parameters": {},
-  "Outputs": {
-    "NATInstanceProfile": {
-      "Value": {
-        "Fn::GetAtt": [
-          "Roles",
-          "Outputs.NATInstanceProfile"
-        ]
-      }
-    },
-    "testAppInstanceProfile": {
-      "Value": {
-        "Fn::GetAtt": [
-          "Roles",
-          "Outputs.TestAppInstanceProfile"
-        ]
-      }
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment this VPC represents",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     }
   },
   "Resources": {
@@ -25,7 +16,7 @@
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
-          "Environment": "global",
+          "Environment": {"Ref": "Environment"},
           "AdminGroup": {
             "Fn::GetAtt": [
               "Groups",
@@ -41,19 +32,9 @@
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
-          "Environment": "global"
+          "Environment": {"Ref": "Environment"}
         },
         "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/groups.json",
-        "TimeoutInMinutes": "30"
-      }
-    },
-    "Roles": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "Parameters": {
-          "Environment": "global"
-        },
-        "TemplateURL": "https://s3.amazonaws.com/curbformation-global-templates/iam/roles.json",
         "TimeoutInMinutes": "30"
       }
     }

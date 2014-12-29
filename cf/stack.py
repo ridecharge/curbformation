@@ -18,10 +18,10 @@ class Stack(object):
 
     STACK_DEPENDENCIES = {
         Types.network: {
-            STACK_INPUTS: ['NATInstanceProfile'],
+            STACK_INPUTS: [],
             STACK_DYNAMIC_INPUTS: [],
-            STACK_DEPENDS_ON: [Types.iam],
-            STACK_CAPABILITIES: []
+            STACK_DEPENDS_ON: [],
+            STACK_CAPABILITIES: ['CAPABILITY_IAM']
         },
         Types.iam: {
             STACK_INPUTS: [],
@@ -32,9 +32,8 @@ class Stack(object):
         Types.apps: {
             STACK_INPUTS: ['ApplicationVPC', 'ApplicationVPCDBSubnetGroup',
                            'ApplicationVPCPrivateSubnets'],
-            STACK_DYNAMIC_INPUTS: ["{0.app_name}AppInstanceProfile"],
-            STACK_DEPENDS_ON: [Types.network, Types.iam],
-            STACK_CAPABILITIES: []
+            STACK_DEPENDS_ON: [Types.network],
+            STACK_CAPABILITIES: ['CAPABILITY_IAM']
         }
     }
 
@@ -56,12 +55,8 @@ class Stack(object):
         self.cf_conn = cf_conn
 
     def depends_on(self):
-        if self.stack_type not in Stack.STACK_DEPENDENCIES:
-            return []
-        stack_types = Stack.STACK_DEPENDENCIES[
-            self.stack_type][Stack.STACK_DEPENDS_ON]
         stacks = []
-        for stack_type in stack_types:
+        for stack_type in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DEPENDS_ON]:
             stacks.append(
                 Stack(
                     self.cf_conn,
@@ -71,13 +66,9 @@ class Stack(object):
         return stacks
 
     def capabilities(self):
-        if self.stack_type not in Stack.STACK_DEPENDENCIES:
-            return None
         return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_CAPABILITIES]
 
     def inputs(self):
-        if self.stack_type not in Stack.STACK_DEPENDENCIES:
-            return None
         inputs = Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS].copy()
         for dynamic_input in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DYNAMIC_INPUTS]:
             inputs.append(dynamic_input.format(self))
@@ -103,9 +94,6 @@ class Stack(object):
         return tag
 
     def params(self):
-        if not self.depends_on():
-            return None
-
         params = [('Environment', self.env)]
         for depend_stack in self.depends_on():
             params.extend(self.build_params(depend_stack))

@@ -30,10 +30,6 @@
     "PrivateRouteTables": {
       "Description": "Routes to associate private subnets.",
       "Type": "CommaDelimitedList"
-    },
-    "NATInstanceProfile": {
-      "Type": "String",
-      "Description":"Instance Profile to allow NATs to restart each other."
     }
   },
   "Outputs": {
@@ -55,6 +51,23 @@
     }
   },
   "Resources": {
+    "NATInstanceProfile": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "nat_instances/nat_profile.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
     "NATSecurity": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
@@ -91,7 +104,10 @@
             "Ref": "Environment"
           },
           "NATInstanceProfile": {
-            "Ref": "NATInstanceProfile"
+            "Fn::GetAtt":[
+              "NATInstanceProfile",
+              "Outputs.InstanceProfile"
+            ]
           },
           "NATSecurityGroup": {
             "Fn::GetAtt": [
@@ -153,7 +169,10 @@
             "Ref": "Environment"
           },
           "NATInstanceProfile": {
-            "Ref": "NATInstanceProfile"
+            "Fn::GetAtt":[
+              "NATInstanceProfile",
+              "Outputs.InstanceProfile"
+            ]
           },
           "NATSecurityGroup": {
             "Fn::GetAtt": [

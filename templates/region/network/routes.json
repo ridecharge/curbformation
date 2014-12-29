@@ -14,10 +14,6 @@
       "Description": "Subnets to associate private routing.",
       "Type": "String"
     },
-    "NATInstanceProfile": {
-      "Type": "String",
-      "Description":"Instance Profile to allow NATs to restart each other."
-    },
     "TemplateURLPrefix": {
       "Description": "URL prefix for this stack.",
       "Type": "String"
@@ -87,9 +83,6 @@
           },
           "PublicSubnets": {
             "Ref": "PublicSubnets"
-          },
-          "NATInstanceProfile": {
-            "Ref": "NATInstanceProfile"
           },
           "Vpc": {
             "Ref": "Vpc"

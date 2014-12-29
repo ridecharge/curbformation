@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "NAT Instance for Private Routing Creation v1.0",
+  "Description": "NAT Instance Creation v1.0",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment this VPC represents",
@@ -24,10 +24,6 @@
     },
     "PrivateRouteTables": {
       "Type": "CommaDelimitedList"
-    },
-    "NATInstanceProfile": {
-      "Type": "String",
-      "Description": "Instance Profile to allow NATs to restart each other."
     },
     "NATSecurityGroup": {
       "Type": "String"
@@ -65,6 +61,9 @@
       "Description": "The number of seconds to wait for alternate NAT Node to restart before resuming health checks again",
       "Type": "String",
       "Default": "300"
+    },
+    "NATInstanceProfile": {
+      "Type": "String"
     }
   },
   "Mappings": {

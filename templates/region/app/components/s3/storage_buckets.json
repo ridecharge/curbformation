@@ -19,9 +19,6 @@
         "private",
         "public"
       ]
-    },
-    "LogBucket": {
-      "Type": "String"
     }
   },
   "Mappings": {
@@ -36,6 +33,36 @@
     }
   },
   "Resources": {
+    "LogBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "LogDeliveryWrite",
+        "BucketName": {
+          "Fn::Join": [
+            "-",
+            [
+              {"Ref": "Environment"},
+              {"Ref": "ApplicationName"},
+              "logs"
+            ]
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {"Ref": "ApplicationName"}
+          },
+          {
+            "Key": "Environment",
+            "Value": {"Ref": "Environment"}
+          },
+          {
+            "Key": "Role",
+            "Value": "aws-logs"
+          }
+        ]
+      }
+    },
     "S3Bucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {

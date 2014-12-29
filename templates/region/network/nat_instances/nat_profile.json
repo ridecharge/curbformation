@@ -1,21 +1,11 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "IAM NAT Instance Role Profile v1.0",
+  "Description": "NAT Instance Profile Creation v1.0",
   "Parameters": {
-    "Environment": {
-      "Description": "Name of the environment this VPC represents",
-      "Type": "String",
-      "MinLength": "4",
-      "MaxLength": "14",
-      "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
-    }
   },
   "Outputs": {
-    "RoleInstanceProfile": {
-      "Value": {
-        "Ref": "RoleInstanceProfile"
-      }
+    "InstanceProfile": {
+      "Value": {"Ref": "InstanceProfile"}
     }
   },
   "Resources": {
@@ -61,7 +51,7 @@
         ]
       }
     },
-    "RoleInstanceProfile": {
+    "InstanceProfile": {
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "Path": "/",
