@@ -3,65 +3,48 @@ from enum import Enum
 
 class Stack(object):
     class Types(Enum):
-        iam = 1
-        network = 2
-        apps = 3
-        infra = 4
+        env = 1
+        api = 2
+
+    APP_STACKS = [Types.api]
 
     STACK_DEPENDS_ON = 'STACK_DEPENDS_ON'
     STACK_INPUTS = 'STACK_INPUTS'
     STACK_CAPABILITIES = 'STACK_CAPABILITIES'
-    STACK_DYNAMIC_INPUTS = 'STACK_DYNAMIC_INPUTS'
-
-    ENV_GLOBAL = 'global'
-    TYPES_GLOBAL = [Types.iam]
 
     STACK_DEPENDENCIES = {
-        Types.network: {
+        Types.env: {
             STACK_INPUTS: [],
-            STACK_DYNAMIC_INPUTS: [],
             STACK_DEPENDS_ON: [],
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         },
-        Types.iam: {
-            STACK_INPUTS: [],
-            STACK_DYNAMIC_INPUTS: [],
-            STACK_DEPENDS_ON: [],
-            STACK_CAPABILITIES: ['CAPABILITY_IAM']
-        },
-        Types.apps: {
+        Types.api: {
             STACK_INPUTS: ['ApplicationVPC', 'ApplicationVPCDBSubnetGroup',
                            'ApplicationVPCPrivateSubnets'],
-            STACK_DEPENDS_ON: [Types.network],
+            STACK_DEPENDS_ON: [Types.env],
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         }
     }
 
-    def __init__(self, cf_conn, env, stack_type, app_name=None):
-        if env == Stack.ENV_GLOBAL and stack_type not in Stack.TYPES_GLOBAL:
-            raise Exception("Global environment without global stack type ({0.name}) specified"
-                            .format(stack_type))
-
-        if stack_type not in Stack.TYPES_GLOBAL and env == Stack.ENV_GLOBAL:
-            env = Stack.ENV_GLOBAL
-            print(
-                "Warning: {0} stack passed in with non global environment.  Setting to global."
-                .format(stack_type.name))
-
+    def __init__(self, cf_conn, stack_type, stack_name, env):
         self.env = env
         self.stack_type = stack_type
-        self.app_name = app_name
+        self.stack_name = stack_name
+
+        if self.stack_type == Stack.Types.env:
+            self.env = self.stack_name
 
         self.cf_conn = cf_conn
 
     def depends_on(self):
         stacks = []
-        for stack_type in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DEPENDS_ON]:
+        for depend_stack_type in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DEPENDS_ON]:
             stacks.append(
                 Stack(
                     self.cf_conn,
-                    Stack.ENV_GLOBAL if stack_type in Stack.TYPES_GLOBAL else self.env,
-                    stack_type
+                    depend_stack_type,
+                    self.stack_name if depend_stack_type in Stack.APP_STACKS else self.env,
+                    self.env
                 ))
         return stacks
 
@@ -69,16 +52,13 @@ class Stack(object):
         return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_CAPABILITIES]
 
     def inputs(self):
-        inputs = Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS].copy()
-        for dynamic_input in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DYNAMIC_INPUTS]:
-            inputs.append(dynamic_input.format(self))
-        return inputs
+        return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS]
 
-    def stack_name(self):
-        name = ["{0.env}", "{0.stack_type.name}"]
-        if self.app_name:
-            name.append("{0.app_name}")
-        return "-".join(name).format(self)
+    def full_stack_name(self):
+        full_name = ["{0.env}", "{0.stack_type.name}"]
+        if self.stack_type in Stack.APP_STACKS:
+            full_name.append("{0.stack_name}")
+        return "-".join(full_name).format(self)
 
     def template_uri(self):
         uri = "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.stack_type.name}.json"
@@ -86,15 +66,17 @@ class Stack(object):
 
     def tags(self):
         tag = {
-            "Environment": self.env,
-            "StackType": self.stack_type
+            'Environment': self.env,
+            'StackType': self.stack_type.name
         }
-        if self.app_name:
-            tag['Application'] = self.app_name
+        if self.stack_type in Stack.APP_STACKS:
+            tag['Application'] = self.stack_name
         return tag
 
     def params(self):
         params = [('Environment', self.env)]
+        if self.stack_type in Stack.APP_STACKS:
+            params.append(('ApplicationName', self.stack_name))
         for depend_stack in self.depends_on():
             params.extend(self.build_params(depend_stack))
         return params
@@ -108,17 +90,17 @@ class Stack(object):
         return params
 
     def describe(self):
-        print("Describing {0}".format(self.stack_name()))
-        return self.cf_conn.describe_stacks(self.stack_name())[0]
+        print("Describing {0}".format(self.full_stack_name()))
+        return self.cf_conn.describe_stacks(self.full_stack_name())[0]
 
     def delete(self):
-        print("Deleting {0}".format(self.stack_name()))
-        return self.cf_conn.delete_stack(self.stack_name())
+        print("Deleting {0}".format(self.full_stack_name()))
+        return self.cf_conn.delete_stack(self.full_stack_name())
 
     def create(self):
-        print("Creating {0}".format(self.stack_name()))
+        print("Creating {0}".format(self.full_stack_name()))
         return self.cf_conn.create_stack(
-            self.stack_name(),
+            self.full_stack_name(),
             None,
             self.template_uri(),
             self.params(),
@@ -127,9 +109,9 @@ class Stack(object):
         )
 
     def update(self):
-        print("Updating {0}".format(self.stack_name()))
+        print("Updating {0}".format(self.full_stack_name()))
         return self.cf_conn.update_stack(
-            self.stack_name(),
+            self.full_stack_name(),
             None,
             self.template_uri(),
             self.params(),

@@ -10,10 +10,6 @@ if [ "curbformation" != "${PWD##*/}" ]; then
 fi
 
 S3_BUCKET_URI=s3://curbformation-$1-templates
-S3_GLOBAL_BUCKET_URI=s3://curbformation-global-templates
 
 echo Syncing network templates to $S3_BUCKET_URI
-aws s3 sync ./templates/region $S3_BUCKET_URI --delete --exclude "*" --include "*.json"
-
-echo Syncing iam templates to $S3_GLOBAL_BUCKET_URI
-aws s3 sync ./templates/global $S3_GLOBAL_BUCKET_URI --delete --exclude "*" --include "*.json"
+aws s3 sync ./templates $S3_BUCKET_URI --delete --exclude "*" --include "*.json"

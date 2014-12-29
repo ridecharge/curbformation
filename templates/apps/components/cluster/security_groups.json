@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Cluster Setup v1.0",
+  "Description": "Cluster Security Groups Setup v1.0",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment these VPCs represent",
@@ -15,10 +15,12 @@
       "Type": "AWS::EC2::VPC::Id"
     },
     "LoadBalancerPort": {
-      "Type": "Number"
+      "Type": "Number",
+      "Default": "80"
     },
     "InstancePort": {
-      "Type": "Number"
+      "Type": "Number",
+      "Default": "8080"
     },
     "ApplicationName": {
       "Type": "String"

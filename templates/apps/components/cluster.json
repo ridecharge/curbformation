@@ -18,8 +18,26 @@
       "Type": "AWS::EC2::VPC::Id"
     }
   },
+  "Outputs": {
+    "LoadBalancerSecurityGroup": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ClusterSecurityGroups",
+          "Outputs.LoadBalancerSecurityGroup"
+        ]
+      }
+    },
+    "InstanceSecurityGroup": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ClusterSecurityGroups",
+          "Outputs.InstanceSecurityGroup"
+        ]
+      }
+    }
+  },
   "Resources": {
-    "ClusterSecurityGroup": {
+    "ClusterSecurityGroups": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
@@ -35,7 +53,7 @@
               {
                 "Ref": "Environment"
               },
-              "templates/apps/cluster/security.json"
+              "templates/apps/components/cluster/security_groups.json"
             ]
           ]
         },

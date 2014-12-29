@@ -17,6 +17,7 @@
     "AllocatedStorage": {
       "Description": "Storage to allocate in 100 GB increments.",
       "Type": "Number",
+      "Default": "300",
       "ConstraintDescription": "Must be multiples of 100 from 100 to 3000",
       "AllowedValues": [
         "100",
@@ -57,7 +58,8 @@
     "MasterUserPassword": {
       "Description": "Master Password for database.",
       "Type": "String",
-      "NoEcho": "true"
+      "NoEcho": "true",
+      "Default": "Password1234!"
     },
     "MultiAZ": {
       "Type": "String",
@@ -78,6 +80,7 @@
     },
     "DatabaseType": {
       "Type": "String",
+      "Default": "postgres",
       "AllowedValues": [
         "postgres",
         "mysql"
@@ -127,34 +130,10 @@
     },
     "AllocatedStorage": {
       "100": {"Iops": "1000"},
-      "200": {"Iops": "2000"},
       "300": {"Iops": "3000"},
-      "400": {"Iops": "4000"},
       "500": {"Iops": "5000"},
-      "600": {"Iops": "6000"},
-      "700": {"Iops": "7000"},
-      "800": {"Iops": "8000"},
-      "900": {"Iops": "9000"},
       "1000": {"Iops": "10000"},
-      "1100": {"Iops": "11000"},
-      "1200": {"Iops": "12000"},
-      "1300": {"Iops": "13000"},
-      "1400": {"Iops": "14000"},
-      "1500": {"Iops": "15000"},
-      "1600": {"Iops": "16000"},
-      "1700": {"Iops": "17000"},
-      "1800": {"Iops": "18000"},
-      "1900": {"Iops": "19000"},
       "2000": {"Iops": "20000"},
-      "2100": {"Iops": "21000"},
-      "2200": {"Iops": "22000"},
-      "2300": {"Iops": "23000"},
-      "2400": {"Iops": "24000"},
-      "2500": {"Iops": "25000"},
-      "2600": {"Iops": "26000"},
-      "2700": {"Iops": "27000"},
-      "2800": {"Iops": "28000"},
-      "2900": {"Iops": "29000"},
       "3000": {"Iops": "30000"}
     }
   },
@@ -227,14 +206,14 @@
         },
         "Engine": {
           "Fn::FindInMap": [
-            "DatabaseType",
+            "DatabaseTypes",
             {"Ref": "DatabaseType"},
             "Engine"
           ]
         },
         "EngineVersion": {
           "Fn::FindInMap": [
-            "DatabaseType",
+            "DatabaseTypes",
             {"Ref": "DatabaseType"},
             "EngineVersion"
           ]
@@ -242,7 +221,7 @@
         "MasterUsername": {"Ref": "MasterUsername"},
         "MasterUserPassword": {"Ref": "MasterUserPassword"},
         "MultiAZ": {"Ref": "MultiAZ"},
-        "VPCSecurityGroups": {"Ref": "SecurityGroup"},
+        "VPCSecurityGroups": [{"Ref": "SecurityGroup"}],
         "DBSubnetGroupName": {"Ref": "DBSubnetGroupName"},
         "StorageType": {
           "Fn::If": [
@@ -261,7 +240,7 @@
                 "Iops"
               ]
             },
-            "AWS::NoValue"
+            {"Ref": "AWS::NoValue"}
           ]
         },
         "Tags": [
