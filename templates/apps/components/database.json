@@ -15,7 +15,7 @@
       "Type": "AWS::EC2::VPC::Id"
     },
     "AllocatedStorage": {
-      "Description": "Storage to allocate in 100 GB increments.",
+      "Description": "Storage to allocate in GB.",
       "Type": "Number",
       "Default": "300",
       "ConstraintDescription": "Must be multiples of 100 from 100 to 3000",
@@ -76,7 +76,7 @@
         "true",
         "false"
       ],
-      "ConstraintDescription": "Must be a boolean value (true, false)"
+      "ConstraintDescription": "Must be a string encoded boolean value"
     },
     "DatabaseType": {
       "Type": "String",

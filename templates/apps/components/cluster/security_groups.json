@@ -3,12 +3,12 @@
   "Description": "Cluster Security Groups Setup v1.0",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment these VPCs represent",
+      "Description": "Name of the environment to create the security groups in.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "14",
-      "AllowedPattern": "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lowercase alphanum."
     },
     "Vpc": {
       "Description": "VPC to launch this subnet into.",

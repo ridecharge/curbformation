@@ -20,7 +20,7 @@ class Stack(object):
         },
         Types.api: {
             STACK_INPUTS: ['ApplicationVPC', 'ApplicationVPCDBSubnetGroup',
-                           'ApplicationVPCPrivateSubnets'],
+                           'ApplicationVPCPrivateSubnets', 'ApplicationVPCPublicSubnets'],
             STACK_DEPENDS_ON: [Types.env],
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         }
@@ -31,7 +31,7 @@ class Stack(object):
         self.stack_type = stack_type
         self.stack_name = stack_name
 
-        if self.stack_type == Stack.Types.env:
+        if self.stack_type not in Stack.APP_STACKS:
             self.env = self.stack_name
 
         self.cf_conn = cf_conn

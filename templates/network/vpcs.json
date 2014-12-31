@@ -52,6 +52,22 @@
         ]
       }
     },
+    "ApplicationVPCPublicSubnets": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ApplicationVPC",
+          "Outputs.PublicSubnets"
+        ]
+      }
+    },
+    "InfrastructureVPCPublicSubnets": {
+      "Value": {
+        "Fn::GetAtt": [
+          "InfrastructureVPC",
+          "Outputs.PublicSubnets"
+        ]
+      }
+    },
     "InfrastructureVPCDBSubnetGroup": {
       "Value": {
         "Fn::GetAtt": [

@@ -3,12 +3,12 @@
   "Description": "Cluster Setup v1.0",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment these VPCs represent",
+      "Description": "Name of the environment to launch into.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "14",
-      "AllowedPattern": "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric."
     },
     "ApplicationName": {
       "Type": "String"
@@ -38,6 +38,29 @@
   },
   "Resources": {
     "ClusterSecurityGroups": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "ApplicationName": {"Ref": "ApplicationName"},
+          "Environment": {"Ref": "Environment"},
+          "Vpc": {"Ref": "Vpc"}
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "-",
+            [
+              "https://s3.amazonaws.com/curbformation",
+              {
+                "Ref": "Environment"
+              },
+              "templates/apps/components/cluster/security_groups.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "LoadBalancer": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {

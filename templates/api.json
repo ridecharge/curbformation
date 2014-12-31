@@ -16,6 +16,9 @@
     "ApplicationVPCPrivateSubnets": {
       "Type": "List<AWS::EC2::Subnet::Id>"
     },
+    "ApplicationVPCPublicSubnets": {
+      "Type": "List<AWS::EC2::Subnet::Id>"
+    },
     "ApplicationVPC": {
       "Description": "VPC for this application.",
       "Type": "AWS::EC2::VPC::Id"

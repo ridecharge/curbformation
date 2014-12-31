@@ -32,6 +32,14 @@
       "Type": "String"
     }
   },
+  "Outputs": {
+    "RouteTableA": {
+      "Value": {"Ref": "PrivateRouteTableA"}
+    },
+    "RouteTableB": {
+      "Value": {"Ref": "PrivateRouteTableB"}
+    }
+  },
   "Resources": {
     "NATInstances": {
       "Type": "AWS::CloudFormation::Stack",

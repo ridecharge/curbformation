@@ -26,6 +26,11 @@
       "ConstraintDescription": "can contain only lower case alphanumeric characters."
     }
   },
+  "Outputs": {
+    "RouteTable": {
+      "Value": {"Ref": "PublicRouteTable"}
+    }
+  },
   "Resources": {
     "PublicRouteTable": {
       "Type": "AWS::EC2::RouteTable",

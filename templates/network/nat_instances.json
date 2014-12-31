@@ -104,7 +104,7 @@
             "Ref": "Environment"
           },
           "NATInstanceProfile": {
-            "Fn::GetAtt":[
+            "Fn::GetAtt": [
               "NATInstanceProfile",
               "Outputs.InstanceProfile"
             ]
@@ -163,13 +163,14 @@
     },
     "NATInstanceB": {
       "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": "NATInstanceA",
       "Properties": {
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
           },
           "NATInstanceProfile": {
-            "Fn::GetAtt":[
+            "Fn::GetAtt": [
               "NATInstanceProfile",
               "Outputs.InstanceProfile"
             ]

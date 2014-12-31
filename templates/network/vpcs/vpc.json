@@ -44,6 +44,14 @@
         ]
       }
     },
+    "PublicSubnets": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Subnets",
+          "Outputs.PublicSubnets"
+        ]
+      }
+    },
     "DBSubnetGroup": {
       "Value": {
         "Fn::GetAtt": [
@@ -110,7 +118,13 @@
         ]
       }
     },
-    "AttachGateway": {
+    "VPNGateway": {
+      "Type": "AWS::EC2::VPNGateway",
+      "Properties": {
+        "Type": "ipsec.1"
+      }
+    },
+    "AttachInternetGateway": {
       "Type": "AWS::EC2::VPCGatewayAttachment",
       "Properties": {
         "VpcId": {
@@ -119,6 +133,15 @@
         "InternetGatewayId": {
           "Ref": "InternetGateway"
         }
+      }
+    },
+    "AttachVpnGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "VpnGatewayId": {"Ref": "VPNGateway"}
       }
     },
     "Subnets": {
