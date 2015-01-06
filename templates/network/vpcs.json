@@ -17,6 +17,12 @@
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
+    },
+    "NATImageId": {
+      "Type": "String"
+    },
+    "BastionImageId": {
+      "Type": "String"
     }
   },
   "Outputs": {

@@ -40,8 +40,7 @@
       "Type": "List<AWS::EC2::Subnet::Id>"
     },
     "ImageId": {
-      "Type": "String",
-      "Default": "ami-38aeda50"
+      "Type": "String"
     },
     "VpcName": {
       "Description": "Name of the vpc this nat is created in.",

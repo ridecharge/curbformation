@@ -28,6 +28,12 @@
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
+    },
+    "NATImageId": {
+      "Type": "String"
+    },
+    "BastionImageId": {
+      "Type": "String"
     }
   },
   "Outputs": {
@@ -256,7 +262,8 @@
               ]
             ]
           },
-          "AvailabilityZones": {"Ref": "AvailabilityZones"}
+          "AvailabilityZones": {"Ref": "AvailabilityZones"},
+          "ImageId":{"Ref":"NATImageId"}
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -294,7 +301,8 @@
           "VpcName": {
             "Ref": "VpcName"
           },
-          "AvailabilityZones": {"Ref": "AvailabilityZones"}
+          "AvailabilityZones": {"Ref": "AvailabilityZones"},
+          "ImageId":{"Ref":"BastionImageId"}
         },
         "TemplateURL": {
           "Fn::Join": [

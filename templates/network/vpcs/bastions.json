@@ -29,6 +29,9 @@
     "VpcName": {
       "Description": "Name of the vpc this nat is created in.",
       "Type": "String"
+    },
+    "ImageId": {
+      "Type": "String"
     }
   },
   "Outputs": {
@@ -86,7 +89,8 @@
           },
           "VpcName": {
             "Ref": "VpcName"
-          }
+          },
+          "ImageId":{"Ref":"ImageId"}
         },
         "TemplateURL": {
           "Fn::Join": [

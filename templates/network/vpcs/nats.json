@@ -37,6 +37,9 @@
     },
     "BastionSecurityGroup": {
       "Type": "String"
+    },
+    "ImageId": {
+      "Type": "String"
     }
   },
   "Resources": {
@@ -103,7 +106,8 @@
           },
           "VpcName": {
             "Ref": "VpcName"
-          }
+          },
+          "ImageId":{"Ref":"ImageId"}
         },
         "TemplateURL": {
           "Fn::Join": [
