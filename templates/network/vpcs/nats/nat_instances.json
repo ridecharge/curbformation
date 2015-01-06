@@ -1,0 +1,121 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "NAT Instance Creation v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch NATs into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
+    "InstanceType": {
+      "Description": "Instance type for NAT nodes.",
+      "Type": "String",
+      "Default": "c3.large",
+      "AllowedValues": [
+        "c3.large"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    },
+    "SecurityGroups": {
+      "Type": "CommaDelimitedList"
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "Default": "bootstrap",
+      "AllowedPattern": "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "InstanceProfile": {
+      "Type": "String"
+    },
+    "AvailabilityZones": {
+      "Description": "AvailabilityZones to launch networking stacks into.",
+      "Type": "CommaDelimitedList"
+    },
+    "Subnets": {
+      "Description": "Subnets to launch NATs into.",
+      "Type": "List<AWS::EC2::Subnet::Id>"
+    },
+    "ImageId": {
+      "Type": "String",
+      "Default": "ami-42097e2a"
+    },
+    "VpcName": {
+      "Description": "Name of the vpc this nat is created in.",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "AsgLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "EbsOptimized": false,
+        "IamInstanceProfile": {
+          "Ref": "InstanceProfile"
+        },
+        "ImageId": {"Ref": "ImageId"},
+        "InstanceType": {"Ref": "InstanceType"},
+        "KeyName": {"Ref": "KeyName"},
+        "SecurityGroups": {
+          "Ref": "SecurityGroups"
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -x\n",
+                "exec > /tmp/userdata.log 2>&1\n",
+                "/bin/bash /usr/local/bin/ha-nat.sh\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "AutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": {"Ref": "AvailabilityZones"},
+        "Cooldown": "30",
+        "DesiredCapacity": "2",
+        "HealthCheckGracePeriod": "30",
+        "HealthCheckType": "EC2",
+        "LaunchConfigurationName": {"Ref": "AsgLaunchConfiguration"},
+        "MaxSize": "2",
+        "MinSize": "2",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {"Ref": "VpcName"},
+                  "NAT"
+                ]
+              ]
+            },
+            "PropagateAtLaunch": "true"
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            },
+            "PropagateAtLaunch": "true"
+          }
+        ],
+        "VPCZoneIdentifier": {"Ref": "Subnets"}
+      }
+    }
+  }
+}
+

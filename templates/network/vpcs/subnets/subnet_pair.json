@@ -3,12 +3,12 @@
   "Description": "Subnet Pair Creation v1.0.",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment this VPC represents",
+      "Description": "Name of the environment to launch this subnet pair into.",
       "Type": "String",
       "MinLength": "4",
-      "MaxLength": "14",
+      "MaxLength": "8",
       "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
     },
     "AvailabilityZones": {
       "Description": "AvailabilityZone to launch this subnet into.",
@@ -26,8 +26,8 @@
       "Description": "Public or Private for the Network tag",
       "Type": "String",
       "AllowedValues": [
-        "Public",
-        "Private"
+        "public",
+        "private"
       ]
     }
   },
@@ -59,7 +59,7 @@
     "CreateDBSubnetGroup": {
       "Fn::Equals": [
         {"Ref": "SubnetType"},
-        "Private"
+        "private"
       ]
     }
   },

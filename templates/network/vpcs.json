@@ -3,15 +3,15 @@
   "Description": "VPCs Configuration v1.0",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment these VPCs represent",
+      "Description": "Name of the environment to launch these VPCs into.",
       "Type": "String",
       "MinLength": "4",
-      "MaxLength": "14",
+      "MaxLength": "8",
       "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
     },
     "TemplateURLPrefix": {
-      "Description": "Template URL for a VPC.",
+      "Description": "Template URL prefix for nested stacks.",
       "Type": "String"
     },
     "AvailabilityZones": {
@@ -93,7 +93,7 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "CidrBlockPrefix": "10.0",
+          "CidrBlockPrefix": "10.250",
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },
@@ -144,7 +144,7 @@
               ]
             ]
           },
-          "CidrBlockPrefix": "10.1",
+          "CidrBlockPrefix": "10.251",
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },

@@ -3,12 +3,12 @@
   "Description": "VPC Creation v1.0",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment this VPC represents",
+      "Description": "Name of the environment to launch this VPC into.",
       "Type": "String",
       "MinLength": "4",
-      "MaxLength": "14",
+      "MaxLength": "8",
       "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
     },
     "CidrBlockPrefix": {
       "Description": "CidrBlock for this VPC",
@@ -118,12 +118,6 @@
         ]
       }
     },
-    "VPNGateway": {
-      "Type": "AWS::EC2::VPNGateway",
-      "Properties": {
-        "Type": "ipsec.1"
-      }
-    },
     "AttachInternetGateway": {
       "Type": "AWS::EC2::VPCGatewayAttachment",
       "Properties": {
@@ -133,15 +127,6 @@
         "InternetGatewayId": {
           "Ref": "InternetGateway"
         }
-      }
-    },
-    "AttachVpnGateway": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "VpnGatewayId": {"Ref": "VPNGateway"}
       }
     },
     "Subnets": {
@@ -171,7 +156,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "subnets.json"
+              "vpcs/subnets.json"
             ]
           ]
         },
@@ -225,7 +210,100 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "routes.json"
+              "vpcs/routes.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "NATs": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "PublicSubnets": {
+            "Fn::GetAtt": [
+              "Subnets",
+              "Outputs.PublicSubnets"
+            ]
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "Vpc": {
+            "Ref": "VPC"
+          },
+          "VpcName": {
+            "Ref": "VpcName"
+          },
+          "BastionSecurityGroup": {
+            "Fn::GetAtt": [
+              "BastionHosts",
+              "Outputs.SecurityGroup"
+            ]
+          },
+          "CidrBlock": {
+            "Fn::Join": [
+              ".",
+              [
+                {
+                  "Ref": "CidrBlockPrefix"
+                },
+                "0.0/16"
+              ]
+            ]
+          },
+          "AvailabilityZones": {"Ref": "AvailabilityZones"}
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "vpcs/nats.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "BastionHosts": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "PublicSubnets": {
+            "Fn::GetAtt": [
+              "Subnets",
+              "Outputs.PublicSubnets"
+            ]
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "Vpc": {
+            "Ref": "VPC"
+          },
+          "VpcName": {
+            "Ref": "VpcName"
+          },
+          "AvailabilityZones": {"Ref": "AvailabilityZones"}
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "vpcs/bastions.json"
             ]
           ]
         },
@@ -234,3 +312,4 @@
     }
   }
 }
+

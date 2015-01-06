@@ -3,12 +3,12 @@
   "Description": "Subnet Configuration v1.0.",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment this VPC represents",
+      "Description": "Name of the environment to launch this subnet into.",
       "Type": "String",
       "MinLength": "4",
-      "MaxLength": "14",
+      "MaxLength": "8",
       "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
     },
     "CidrBlockPrefix": {
       "Description": "CidrBlock for this VPC",
@@ -103,7 +103,7 @@
           "Vpc": {
             "Ref": "Vpc"
           },
-          "SubnetType": "Public"
+          "SubnetType": "public"
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -112,7 +112,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "subnets/subnet_pair.json"
+              "vpcs/subnets/subnet_pair.json"
             ]
           ]
         },
@@ -161,7 +161,7 @@
           "Vpc": {
             "Ref": "Vpc"
           },
-          "SubnetType": "Private"
+          "SubnetType": "private"
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -170,7 +170,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "subnets/subnet_pair.json"
+              "vpcs/subnets/subnet_pair.json"
             ]
           ]
         },

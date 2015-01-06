@@ -1,4 +1,6 @@
 from enum import Enum
+import json
+import os
 
 
 class Stack(object):
@@ -9,18 +11,14 @@ class Stack(object):
     APP_STACKS = [Types.api]
 
     STACK_DEPENDS_ON = 'STACK_DEPENDS_ON'
-    STACK_INPUTS = 'STACK_INPUTS'
     STACK_CAPABILITIES = 'STACK_CAPABILITIES'
 
     STACK_DEPENDENCIES = {
         Types.env: {
-            STACK_INPUTS: [],
             STACK_DEPENDS_ON: [],
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         },
         Types.api: {
-            STACK_INPUTS: ['ApplicationVPC', 'ApplicationVPCDBSubnetGroup',
-                           'ApplicationVPCPrivateSubnets', 'ApplicationVPCPublicSubnets'],
             STACK_DEPENDS_ON: [Types.env],
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         }
@@ -38,7 +36,9 @@ class Stack(object):
 
     def depends_on(self):
         stacks = []
-        for depend_stack_type in Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DEPENDS_ON]:
+        depend_stack_types = Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_DEPENDS_ON]
+        print("Depends On Stacks: ", *depend_stack_types)
+        for depend_stack_type in depend_stack_types:
             stacks.append(
                 Stack(
                     self.cf_conn,
@@ -52,7 +52,12 @@ class Stack(object):
         return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_CAPABILITIES]
 
     def inputs(self):
-        return Stack.STACK_DEPENDENCIES[self.stack_type][Stack.STACK_INPUTS]
+        data = json.load(open(
+            "{0}/templates/{1}.json".format(os.environ.get('PYTHONPATH'), self.stack_type.name)))
+        inputs = []
+        for key in data['Parameters']:
+            inputs.append(key)
+        return inputs
 
     def full_stack_name(self):
         full_name = ["{0.env}", "{0.stack_type.name}"]
@@ -79,6 +84,7 @@ class Stack(object):
             params.append(('ApplicationName', self.stack_name))
         for depend_stack in self.depends_on():
             params.extend(self.build_params(depend_stack))
+        print("With Parameters: ", *params)
         return params
 
     def build_params(self, depend_stack):

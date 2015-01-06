@@ -2,8 +2,16 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Routing Creation v1.0",
   "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch these routes into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
     "Vpc": {
-      "Description": "VPC to launch this subnet into.",
+      "Description": "Name of the VPC to launch these routes into.",
       "Type": "AWS::EC2::VPC::Id"
     },
     "PublicSubnets": {
@@ -21,14 +29,6 @@
     "InternetGateway": {
       "Description": "The VPCs InternetGateway",
       "Type": "String"
-    },
-    "Environment": {
-      "Description": "Name of the environment this VPC represents",
-      "Type": "String",
-      "MinLength": "4",
-      "MaxLength": "14",
-      "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     },
     "CidrBlock": {
       "Description": "Cidr Address for the VPC to create the instances in.",
@@ -87,7 +87,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "routes/route_public.json"
+              "vpcs/routes/route_public.json"
             ]
           ]
         },
@@ -107,9 +107,6 @@
           "PrivateSubnets": {
             "Ref": "PrivateSubnets"
           },
-          "PublicSubnets": {
-            "Ref": "PublicSubnets"
-          },
           "Vpc": {
             "Ref": "Vpc"
           },
@@ -124,7 +121,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "routes/route_private.json"
+              "vpcs/routes/route_private.json"
             ]
           ]
         },

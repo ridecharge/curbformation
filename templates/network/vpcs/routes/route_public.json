@@ -2,8 +2,16 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Public Routing Creation v1.0",
   "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch this public route into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
     "Vpc": {
-      "Description": "VPC for this route.",
+      "Description": "VPC to configure public routing for.",
       "Type": "AWS::EC2::VPC::Id"
     },
     "Subnets": {
@@ -16,14 +24,6 @@
       "MinLength": "12",
       "MaxLength": "12",
       "AllowedPattern": "igw-[a-z0-9]*"
-    },
-    "Environment": {
-      "Description": "Name of the environment this VPC represents",
-      "Type": "String",
-      "MinLength": "4",
-      "MaxLength": "14",
-      "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     }
   },
   "Outputs": {
@@ -47,7 +47,7 @@
           },
           {
             "Key": "Network",
-            "Value": "Public"
+            "Value": "public"
           }
         ]
       }

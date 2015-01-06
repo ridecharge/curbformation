@@ -2,6 +2,14 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Private Routing Creation v1.0",
   "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch this private route into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
     "Vpc": {
       "Description": "VPC for this route.",
       "Type": "AWS::EC2::VPC::Id"
@@ -9,18 +17,6 @@
     "PrivateSubnets": {
       "Description": "Subnets to associate private routing.",
       "Type": "List<AWS::EC2::Subnet::Id>"
-    },
-    "PublicSubnets": {
-      "Description": "Subnets to create NAT Instances in.",
-      "Type": "String"
-    },
-    "Environment": {
-      "Description": "Name of the environment this VPC represents",
-      "Type": "String",
-      "MinLength": "4",
-      "MaxLength": "14",
-      "AllowedPattern": "[a-z0-9]*",
-      "ConstraintDescription": "can contain only lower case alphanumeric characters."
     },
     "CidrBlock": {
       "Description": "Cidr Address for the VPC to create the instances in.",
@@ -41,83 +37,6 @@
     }
   },
   "Resources": {
-    "NATInstances": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "Parameters": {
-          "Environment": {
-            "Ref": "Environment"
-          },
-          "Vpc": {
-            "Ref": "Vpc"
-          },
-          "CidrBlock": {
-            "Ref": "CidrBlock"
-          },
-          "PublicSubnets": {
-            "Ref": "PublicSubnets"
-          },
-          "TemplateURLPrefix": {
-            "Ref": "TemplateURLPrefix"
-          },
-          "PrivateRouteTables": {
-            "Fn::Join": [
-              ",",
-              [
-                {
-                  "Ref": "PrivateRouteTableA"
-                },
-                {
-                  "Ref": "PrivateRouteTableB"
-                }
-              ]
-            ]
-          }
-        },
-        "TemplateURL": {
-          "Fn::Join": [
-            "/",
-            [
-              {
-                "Ref": "TemplateURLPrefix"
-              },
-              "nat_instances.json"
-            ]
-          ]
-        },
-        "TimeoutInMinutes": "30"
-      }
-    },
-    "PrivateRouteA": {
-      "Type": "AWS::EC2::Route",
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PrivateRouteTableB"
-        },
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "InstanceId": {
-          "Fn::GetAtt": [
-            "NATInstances",
-            "Outputs.NATInstanceA"
-          ]
-        }
-      }
-    },
-    "PrivateRouteB": {
-      "Type": "AWS::EC2::Route",
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "PrivateRouteTableA"
-        },
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "InstanceId": {
-          "Fn::GetAtt": [
-            "NATInstances",
-            "Outputs.NATInstanceB"
-          ]
-        }
-      }
-    },
     "PrivateRouteTableA": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {

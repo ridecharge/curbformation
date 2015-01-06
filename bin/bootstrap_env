@@ -16,4 +16,4 @@ aws s3api create-bucket --bucket $BUCKET_NAME
 
 bin/validate-all
 bin/sync $1
-bin/cf
+bin/cf create env $1
