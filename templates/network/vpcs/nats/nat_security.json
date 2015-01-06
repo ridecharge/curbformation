@@ -101,6 +101,7 @@
                   "Action": [
                     "ec2:DescribeInstances",
                     "ec2:DescribeRouteTables",
+                    "ec2:DescribeSubnets",
                     "ec2:CreateRoute",
                     "ec2:ReplaceRoute",
                     "ec2:StartInstances",
