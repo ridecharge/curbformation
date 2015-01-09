@@ -61,7 +61,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/bastions/bastion_security.json"
+              "network/vpcs/security_groups/bastion_security.json"
             ]
           ]
         },
@@ -90,7 +90,8 @@
           "VpcName": {
             "Ref": "VpcName"
           },
-          "ImageId":{"Ref":"ImageId"}
+          "ImageId": {"Ref": "ImageId"},
+          "Type": "Bastion"
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -99,7 +100,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/bastions/bastion_host.json"
+              "infra/autoscale_pair.json"
             ]
           ]
         },

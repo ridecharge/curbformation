@@ -64,7 +64,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/nats/nat_security.json"
+              "network/vpcs/security_groups/nat_security.json"
             ]
           ]
         },
@@ -107,7 +107,8 @@
           "VpcName": {
             "Ref": "VpcName"
           },
-          "ImageId":{"Ref":"ImageId"}
+          "ImageId": {"Ref": "ImageId"},
+          "Type": "NAT"
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -116,7 +117,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/nats/nat_instances.json"
+              "infra/autoscale_pair.json"
             ]
           ]
         },

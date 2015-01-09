@@ -111,7 +111,7 @@
             }
           },
           {
-            "Key": "Network",
+            "Key": "network",
             "Value": {
               "Ref": "SubnetType"
             }
@@ -166,7 +166,7 @@
             }
           },
           {
-            "Key": "Network",
+            "Key": "network",
             "Value": {
               "Ref": "SubnetType"
             }

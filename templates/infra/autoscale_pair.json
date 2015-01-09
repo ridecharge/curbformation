@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "NAT Instance Creation v1.0",
+  "Description": "Creates an AutoscalingGroup for infra instance pairs v1.0",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch NATs into.",
@@ -11,7 +11,7 @@
       "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
     },
     "InstanceType": {
-      "Description": "Instance type for NAT nodes.",
+      "Description": "Instance type for instance pair.",
       "Type": "String",
       "Default": "c3.large",
       "AllowedValues": [
@@ -32,7 +32,8 @@
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
     "InstanceProfile": {
-      "Type": "String"
+      "Type": "String",
+      "Default": "none"
     },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
@@ -48,16 +49,63 @@
     "VpcName": {
       "Description": "Name of the vpc this nat is created in.",
       "Type": "String"
+    },
+    "UserData": {
+      "Type": "String",
+      "Default": ""
+    },
+    "Type": {
+      "Type": "String",
+      "AllowedValues": [
+        "NAT",
+        "Bastion",
+        "NTP"
+      ]
+    }
+  },
+  "Conditions": {
+    "NoInstanceProfile": {
+      "Fn::Equals": [
+        {"Ref": "InstanceProfile"},
+        "none"
+      ]
+    }
+  },
+  "Mappings": {
+    "Types": {
+      "NAT": {
+        "public": true
+      },
+      "Bastion": {
+        "public": true
+      },
+      "NTP": {
+        "public": false
+      }
     }
   },
   "Resources": {
     "AsgLaunchConfiguration": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
-        "AssociatePublicIpAddress": true,
+        "AssociatePublicIpAddress": {
+          "Fn::FindInMap": [
+            "Types",
+            {"Ref": "Type"},
+            "public"
+          ]
+        },
         "EbsOptimized": false,
         "IamInstanceProfile": {
-          "Ref": "InstanceProfile"
+          "Fn::If": [
+            "NoInstanceProfile",
+            {
+              "Ref": "AWS::NoValue"
+            },
+            {
+              "Ref": "InstanceProfile"
+            }
+          ]
         },
         "ImageId": {"Ref": "ImageId"},
         "InstanceType": {"Ref": "InstanceType"},
@@ -67,19 +115,20 @@
         },
         "UserData": {
           "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash -x\n",
-                "exec > /tmp/userdata.log 2>&1\n",
-                "/bin/bash /usr/local/bin/ha-nat.sh\n"
-              ]
-            ]
+            "Ref": "UserData"
           }
         }
       }
     },
     "AutoScalingGroup": {
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT10M5S",
+          "WaitOnResourceSignals": "true"
+        }
+      },
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
         "AvailabilityZones": {"Ref": "AvailabilityZones"},
@@ -98,7 +147,7 @@
                 "-",
                 [
                   {"Ref": "VpcName"},
-                  "NAT"
+                  {"Ref": "Type"}
                 ]
               ]
             },

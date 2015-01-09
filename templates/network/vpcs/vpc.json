@@ -162,7 +162,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/subnets.json"
+              "network/vpcs/subnets.json"
             ]
           ]
         },
@@ -216,7 +216,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/routes.json"
+              "network/vpcs/routes.json"
             ]
           ]
         },
@@ -272,7 +272,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/nats.json"
+              "network/vpcs/nats.json"
             ]
           ]
         },
@@ -311,7 +311,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/bastions.json"
+              "network/vpcs/bastions.json"
             ]
           ]
         },

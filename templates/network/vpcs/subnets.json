@@ -112,7 +112,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/subnets/subnet_pair.json"
+              "network/vpcs/subnets/subnet_pair.json"
             ]
           ]
         },
@@ -170,7 +170,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/subnets/subnet_pair.json"
+              "network/vpcs/subnets/subnet_pair.json"
             ]
           ]
         },

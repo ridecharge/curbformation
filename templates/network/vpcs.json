@@ -103,6 +103,12 @@
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },
+          "NATImageId": {
+            "Ref": "NATImageId"
+          },
+          "BastionImageId": {
+            "Ref": "BastionImageId"
+          },
           "VpcName": {
             "Fn::Join": [
               "-",
@@ -125,7 +131,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/vpc.json"
+              "network/vpcs/vpc.json"
             ]
           ]
         },
@@ -138,6 +144,12 @@
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
+          },
+          "NATImageId": {
+            "Ref": "NATImageId"
+          },
+          "BastionImageId": {
+            "Ref": "BastionImageId"
           },
           "VpcName": {
             "Fn::Join": [
@@ -165,7 +177,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "vpcs/vpc.json"
+              "network/vpcs/vpc.json"
             ]
           ]
         },

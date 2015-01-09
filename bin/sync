@@ -13,3 +13,4 @@ S3_BUCKET_URI=s3://curbformation-$1-templates
 
 echo Syncing network templates to $S3_BUCKET_URI
 aws s3 sync ./templates $S3_BUCKET_URI --delete --exclude "*" --include "*.json"
+d
