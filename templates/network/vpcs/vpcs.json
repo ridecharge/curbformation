@@ -23,6 +23,9 @@
     },
     "BastionImageId": {
       "Type": "String"
+    },
+    "NTPImageId": {
+      "Type": "String"
     }
   },
   "Outputs": {
@@ -103,23 +106,7 @@
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },
-          "NATImageId": {
-            "Ref": "NATImageId"
-          },
-          "BastionImageId": {
-            "Ref": "BastionImageId"
-          },
-          "VpcName": {
-            "Fn::Join": [
-              "-",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                "ApplicationVPC"
-              ]
-            ]
-          },
+          "VpcName": "Application",
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           }
@@ -145,23 +132,7 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "NATImageId": {
-            "Ref": "NATImageId"
-          },
-          "BastionImageId": {
-            "Ref": "BastionImageId"
-          },
-          "VpcName": {
-            "Fn::Join": [
-              "-",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                "InfrastructureVPC"
-              ]
-            ]
-          },
+          "VpcName": "Infrastructure",
           "CidrBlockPrefix": "10.251",
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
@@ -184,21 +155,89 @@
         "TimeoutInMinutes": "30"
       }
     },
-    "AppInfraVPCPeering": {
-      "Type": "AWS::EC2::VPCPeeringConnection",
+    "VpcPeering": {
+      "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "PeerVpcId": {
-          "Fn::GetAtt": [
-            "InfrastructureVPC",
-            "Outputs.Vpc"
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "VpcA": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.Vpc"
+            ]
+          },
+          "VpcB": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.Vpc"
+            ]
+          },
+          "VpcAPrivateRouteTableA": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.PrivateRouteTableA"
+            ]
+          },
+          "VpcAPrivateRouteTableB": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.PrivateRouteTableB"
+            ]
+          },
+          "VpcBPrivateRouteTableA": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.PrivateRouteTableA"
+            ]
+          },
+          "VpcBPrivateRouteTableB": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.PrivateRouteTableB"
+            ]
+          },
+          "VpcAPublicRouteTable": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.PublicRouteTable"
+            ]
+          },
+          "VpcBPublicRouteTable": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.PublicRouteTable"
+            ]
+          },
+          "VpcACidrBlock": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.CidrBlock"
+            ]
+          },
+          "VpcBCidrBlock": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.CidrBlock"
+            ]
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "network/vpcs/vpc_peering.json"
+            ]
           ]
         },
-        "VpcId": {
-          "Fn::GetAtt": [
-            "ApplicationVPC",
-            "Outputs.Vpc"
-          ]
-        }
+        "TimeoutInMinutes": "30"
       }
     }
   }

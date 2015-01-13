@@ -6,7 +6,8 @@ import os
 class Stack(object):
     class Types(Enum):
         env = 1
-        api = 2
+        infra = 2
+        api = 3
 
     APP_STACKS = [Types.api]
 
@@ -15,6 +16,10 @@ class Stack(object):
 
     STACK_DEPENDENCIES = {
         Types.env: {
+            STACK_DEPENDS_ON: [],
+            STACK_CAPABILITIES: ['CAPABILITY_IAM']
+        },
+        Types.infra: {
             STACK_DEPENDS_ON: [],
             STACK_CAPABILITIES: ['CAPABILITY_IAM']
         },

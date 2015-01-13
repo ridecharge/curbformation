@@ -87,7 +87,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "network/vpcs/routes/route_public.json"
+              "network/routes/route_public.json"
             ]
           ]
         },
@@ -121,7 +121,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "network/vpcs/routes/route_private.json"
+              "network/routes/route_private.json"
             ]
           ]
         },

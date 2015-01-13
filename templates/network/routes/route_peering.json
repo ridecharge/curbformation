@@ -1,0 +1,55 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Private Routing Creation v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch this private route into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
+    "PrivateRouteTableA": {
+      "Type": "String"
+    },
+    "PrivateRouteTableB": {
+      "Type": "String"
+    },
+    "PublicRouteTable":{
+      "Type":"String"
+    },
+    "CidrBlock": {
+      "Type": "String"
+    },
+    "VpcPeeringConnection": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "PrivateRouteA": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": {"Ref": "CidrBlock"},
+        "RouteTableId": {"Ref": "PrivateRouteTableA"},
+        "VpcPeeringConnectionId": {"Ref": "VpcPeeringConnection"}
+      }
+    },
+    "PrivateRouteB": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": {"Ref": "CidrBlock"},
+        "RouteTableId": {"Ref": "PrivateRouteTableB"},
+        "VpcPeeringConnectionId": {"Ref": "VpcPeeringConnection"}
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": {"Ref": "CidrBlock"},
+        "RouteTableId": {"Ref": "PublicRouteTable"},
+        "VpcPeeringConnectionId": {"Ref": "VpcPeeringConnection"}
+      }
+    }
+  }
+}

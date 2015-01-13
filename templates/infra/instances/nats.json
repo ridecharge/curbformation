@@ -64,7 +64,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "network/vpcs/security_groups/nat_security.json"
+              "infra/security_groups/nat_security.json"
             ]
           ]
         },
@@ -82,6 +82,16 @@
             "Fn::GetAtt": [
               "NATSecurity",
               "Outputs.InstanceProfile"
+            ]
+          },
+          "UserData": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -x\n",
+                "exec > /tmp/userdata.log 2>&1\n",
+                "/bin/bash /usr/local/bin/ha-nat.sh\n"
+              ]
             ]
           },
           "SecurityGroups": {
@@ -117,7 +127,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "infra/autoscale_pair.json"
+              "infra/autoscaling/autoscaling_pair.json"
             ]
           ]
         },

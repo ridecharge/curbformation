@@ -125,8 +125,7 @@
         "AutoScalingRollingUpdate": {
           "MinInstancesInService": "1",
           "MaxBatchSize": "1",
-          "PauseTime": "PT10M5S",
-          "WaitOnResourceSignals": "true"
+          "PauseTime": "PT3M30S"
         }
       },
       "Type": "AWS::AutoScaling::AutoScalingGroup",

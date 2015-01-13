@@ -23,16 +23,14 @@
       "Type": "String"
     },
     "VpcName": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedValues": [
+        "Infrastructure",
+        "Application"
+      ]
     },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
-      "Type": "String"
-    },
-    "NATImageId": {
-      "Type": "String"
-    },
-    "BastionImageId": {
       "Type": "String"
     }
   },
@@ -63,6 +61,43 @@
         "Fn::GetAtt": [
           "Subnets",
           "Outputs.DBSubnetGroup"
+        ]
+      }
+    },
+    "PrivateRouteTableA": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Routes",
+          "Outputs.PrivateRouteTableA"
+        ]
+      }
+    },
+    "PrivateRouteTableB": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Routes",
+          "Outputs.PrivateRouteTableB"
+        ]
+      }
+    },
+    "PublicRouteTable":{
+      "Value": {
+        "Fn::GetAtt": [
+          "Routes",
+          "Outputs.PublicRouteTable"
+        ]
+      }
+    },
+    "CidrBlock": {
+      "Value": {
+        "Fn::Join": [
+          ".",
+          [
+            {
+              "Ref": "CidrBlockPrefix"
+            },
+            "0.0/16"
+          ]
         ]
       }
     }
@@ -162,7 +197,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "network/vpcs/subnets.json"
+              "network/subnets/subnets.json"
             ]
           ]
         },
@@ -216,102 +251,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "network/vpcs/routes.json"
-            ]
-          ]
-        },
-        "TimeoutInMinutes": "30"
-      }
-    },
-    "NATs": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "Parameters": {
-          "Environment": {
-            "Ref": "Environment"
-          },
-          "PublicSubnets": {
-            "Fn::GetAtt": [
-              "Subnets",
-              "Outputs.PublicSubnets"
-            ]
-          },
-          "TemplateURLPrefix": {
-            "Ref": "TemplateURLPrefix"
-          },
-          "Vpc": {
-            "Ref": "VPC"
-          },
-          "VpcName": {
-            "Ref": "VpcName"
-          },
-          "BastionSecurityGroup": {
-            "Fn::GetAtt": [
-              "BastionHosts",
-              "Outputs.SecurityGroup"
-            ]
-          },
-          "CidrBlock": {
-            "Fn::Join": [
-              ".",
-              [
-                {
-                  "Ref": "CidrBlockPrefix"
-                },
-                "0.0/16"
-              ]
-            ]
-          },
-          "AvailabilityZones": {"Ref": "AvailabilityZones"},
-          "ImageId":{"Ref":"NATImageId"}
-        },
-        "TemplateURL": {
-          "Fn::Join": [
-            "/",
-            [
-              {
-                "Ref": "TemplateURLPrefix"
-              },
-              "network/vpcs/nats.json"
-            ]
-          ]
-        },
-        "TimeoutInMinutes": "30"
-      }
-    },
-    "BastionHosts": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "Parameters": {
-          "Environment": {
-            "Ref": "Environment"
-          },
-          "PublicSubnets": {
-            "Fn::GetAtt": [
-              "Subnets",
-              "Outputs.PublicSubnets"
-            ]
-          },
-          "TemplateURLPrefix": {
-            "Ref": "TemplateURLPrefix"
-          },
-          "Vpc": {
-            "Ref": "VPC"
-          },
-          "VpcName": {
-            "Ref": "VpcName"
-          },
-          "AvailabilityZones": {"Ref": "AvailabilityZones"},
-          "ImageId":{"Ref":"BastionImageId"}
-        },
-        "TemplateURL": {
-          "Fn::Join": [
-            "/",
-            [
-              {
-                "Ref": "TemplateURLPrefix"
-              },
-              "network/vpcs/bastions.json"
+              "network/routes/routes.json"
             ]
           ]
         },

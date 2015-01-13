@@ -1,0 +1,132 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "VPCs Configuration v1.0",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch these VPCs into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
+    "TemplateURLPrefix": {
+      "Description": "Template URL prefix for nested stacks.",
+      "Type": "String"
+    },
+    "VpcA": {
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "VpcB": {
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "VpcACidrBlock": {
+      "Type": "String"
+    },
+    "VpcBCidrBlock": {
+      "Type": "String"
+    },
+    "VpcAPrivateRouteTableA": {
+      "Type": "String"
+    },
+    "VpcAPrivateRouteTableB": {
+      "Type": "String"
+    },
+    "VpcBPrivateRouteTableA": {
+      "Type": "String"
+    },
+    "VpcBPrivateRouteTableB": {
+      "Type": "String"
+    },
+    "VpcAPublicRouteTable": {
+      "Type": "String"
+    },
+    "VpcBPublicRouteTable": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "VPCPeering": {
+      "Type": "AWS::EC2::VPCPeeringConnection",
+      "Properties": {
+        "PeerVpcId": {
+          "Ref": "VpcA"
+        },
+        "VpcId": {
+          "Ref": "VpcB"
+        }
+      }
+    },
+    "VpcAPeeringRoutes": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "PrivateRouteTableA": {
+            "Ref": "VpcAPrivateRouteTableA"
+          },
+          "PrivateRouteTableB": {
+            "Ref": "VpcAPrivateRouteTableB"
+          },
+          "PublicRouteTable": {
+            "Ref": "VpcAPublicRouteTable"
+          },
+          "CidrBlock": {
+            "Ref": "VpcBCidrBlock"
+          },
+          "VpcPeeringConnection": {"Ref": "VPCPeering"}
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "network/routes/route_peering.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "VpcBPeeringRoutes": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "PrivateRouteTableA": {
+            "Ref": "VpcBPrivateRouteTableA"
+          },
+          "PrivateRouteTableB": {
+            "Ref": "VpcBPrivateRouteTableB"
+          },
+          "PublicRouteTable": {
+            "Ref": "VpcBPublicRouteTable"
+          },
+          "CidrBlock": {
+            "Ref": "VpcACidrBlock"
+          },
+          "VpcPeeringConnection": {"Ref": "VPCPeering"}
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "network/routes/route_peering.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}
+

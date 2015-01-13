@@ -61,7 +61,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "network/vpcs/security_groups/bastion_security.json"
+              "infra/security_groups/bastion_security.json"
             ]
           ]
         },
@@ -100,7 +100,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "infra/autoscale_pair.json"
+              "infra/autoscaling/autoscaling_pair.json"
             ]
           ]
         },
