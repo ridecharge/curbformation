@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "NAT Instance Security Group Creation v1.0",
+  "Description": "v1.0 Creates Instance Profile for NAT Services.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to create the security group in.",
@@ -13,7 +13,9 @@
   },
   "Outputs": {
     "InstanceProfile": {
-      "Value": {"Ref": "InstanceProfile"}
+      "Value": {
+        "Ref": "InstanceProfile"
+      }
     }
   },
   "Resources": {

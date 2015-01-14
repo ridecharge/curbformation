@@ -1,9 +1,9 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Creates an AutoscalingGroup for infra instance pairs v1.0",
+  "Description": " v1.0 Creates an Autoscaling HA pair of Instances for a Service",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment to launch NATs into.",
+      "Description": "Name of the environment to launch services into.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "8",
@@ -20,6 +20,7 @@
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
     "SecurityGroups": {
+      "Description": "Security Groups for the instances",
       "Type": "CommaDelimitedList"
     },
     "KeyName": {
@@ -32,6 +33,7 @@
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
     "InstanceProfile": {
+      "Description": "IAM Instance Profile for instances",
       "Type": "String"
     },
     "AvailabilityZones": {
@@ -43,13 +45,17 @@
       "Type": "List<AWS::EC2::Subnet::Id>"
     },
     "ImageId": {
-      "Type": "String"
+      "Description": "AMI to create instances.",
+      "Type": "String",
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "VpcName": {
       "Description": "Name of the vpc this nat is created in.",
       "Type": "String"
     },
     "UserData": {
+      "Description": "Userdata to pass to instance startup.",
       "Type": "String",
       "Default": ""
     },
@@ -90,9 +96,15 @@
         "IamInstanceProfile": {
           "Ref": "InstanceProfile"
         },
-        "ImageId": {"Ref": "ImageId"},
-        "InstanceType": {"Ref": "InstanceType"},
-        "KeyName": {"Ref": "KeyName"},
+        "ImageId": {
+          "Ref": "ImageId"
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
         "SecurityGroups": {
           "Ref": "SecurityGroups"
         },
@@ -113,14 +125,21 @@
       },
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
-        "AvailabilityZones": {"Ref": "AvailabilityZones"},
+        "AvailabilityZones": {
+          "Ref": "AvailabilityZones"
+        },
         "Cooldown": "30",
         "DesiredCapacity": "2",
         "HealthCheckGracePeriod": "30",
         "HealthCheckType": "EC2",
-        "LaunchConfigurationName": {"Ref": "AsgLaunchConfiguration"},
+        "LaunchConfigurationName": {
+          "Ref": "AsgLaunchConfiguration"
+        },
         "MaxSize": "2",
         "MinSize": "2",
+        "VPCZoneIdentifier": {
+          "Ref": "Subnets"
+        },
         "Tags": [
           {
             "Key": "Name",
@@ -128,8 +147,12 @@
               "Fn::Join": [
                 "-",
                 [
-                  {"Ref": "VpcName"},
-                  {"Ref": "Type"}
+                  {
+                    "Ref": "VpcName"
+                  },
+                  {
+                    "Ref": "Type"
+                  }
                 ]
               ]
             },
@@ -142,8 +165,7 @@
             },
             "PropagateAtLaunch": "true"
           }
-        ],
-        "VPCZoneIdentifier": {"Ref": "Subnets"}
+        ]
       }
     }
   }

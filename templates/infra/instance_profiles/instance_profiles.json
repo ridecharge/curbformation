@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Infrastructure Instance Security Group Creation v1.0",
+  "Description": "v1.0 Creates Instance Profiles for Services.",
   "Parameters": {
     "TemplateURLPrefix": {
       "Description": "Template URL prefix for nested stacks.",

@@ -1,9 +1,9 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "NAT Instances for Private Routing Creation v1.0",
+  "Description": "v1.0 Creates NTP Instances",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment to launch this nat into.",
+      "Description": "Name of the environment to launch these instances into.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "8",
@@ -40,7 +40,10 @@
       "Type": "String"
     },
     "ImageId": {
-      "Type": "String"
+      "Description": "AMI for NTP Instances",
+      "Type": "String",
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "InstanceProfile": {
       "Type": "String"

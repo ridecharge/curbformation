@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Bastion Host Security Creation v1.0",
+  "Description": "v1.0 Creates Security Group for Bastion Services.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch this bastion host into.",

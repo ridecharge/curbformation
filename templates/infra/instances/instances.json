@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "NAT Instances for Private Routing Creation v1.0",
+  "Description": "v1.0 Creates Instances for Infrastructure Services.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch this nat into.",
@@ -11,21 +11,27 @@
       "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
     },
     "PublicSubnets": {
-      "Description": "Subnets to associate public routing.",
+      "Description": "Subnets for public instances.",
       "Type": "String"
     },
     "PrivateSubnets": {
-      "Description": "Subnets to associate private routing.",
+      "Description": "Subnets for private instances.",
       "Type": "String"
     },
     "NATImageId": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "BastionImageId": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "NTPImageId": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "DNSInstanceProfile": {
       "Type": "String"

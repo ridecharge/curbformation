@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "NTP Instance Security Group Creation v1.0",
+  "Description": "v1.0 Creates Security Group for NTP Services.",
   "Parameters": {
     "Vpc": {
       "Description": "VPC for this security group.",

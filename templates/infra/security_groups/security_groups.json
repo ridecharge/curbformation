@@ -1,20 +1,7 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Infrastructure Instance Security Group Creation v1.0",
+  "Description": "v1.0 Security Groups for Infrastructure Services.",
   "Parameters": {
-    "Vpc": {
-      "Description": "VPC for this security group.",
-      "Type": "AWS::EC2::VPC::Id"
-    },
-    "CidrBlock": {
-      "Description": "Cidr Address for the VPC to create the instances in.",
-      "Type": "String",
-      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
-    },
-    "TemplateURLPrefix": {
-      "Description": "Template URL prefix for nested stacks.",
-      "Type": "String"
-    },
     "Environment": {
       "Description": "Name of the environment to create the security group in.",
       "Type": "String",
@@ -22,6 +9,20 @@
       "MaxLength": "14",
       "AllowedPattern": "[a-z0-9]*",
       "ConstraintDescription": "can contain only lower case alphanumeric characters."
+    },
+    "Vpc": {
+      "Description": "VPC for this security group.",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "CidrBlock": {
+      "Description": "Cidr Address for the VPC to create the instances in.",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18"
+    },
+    "TemplateURLPrefix": {
+      "Description": "Template URL prefix for nested stacks.",
+      "Type": "String"
     }
   },
   "Outputs": {
@@ -119,7 +120,9 @@
           "Environment": {
             "Ref": "Environment"
           },
-          "Vpc": {"Ref": "Vpc"}
+          "Vpc": {
+            "Ref": "Vpc"
+          }
         },
         "TemplateURL": {
           "Fn::Join": [

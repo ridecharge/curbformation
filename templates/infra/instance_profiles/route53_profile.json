@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Instance Self DNS Registration Profile Creation v1.0",
+  "Description": " v1.0 Creates Instance Profile to allow for Route53 Resource Record Set updates.",
   "Parameters": {
     "HostedZone": {
       "Type": "String"
@@ -16,7 +16,9 @@
   },
   "Outputs": {
     "InstanceProfile": {
-      "Value": {"Ref": "InstanceProfile"}
+      "Value": {
+        "Ref": "InstanceProfile"
+      }
     }
   },
   "Resources": {
@@ -52,15 +54,17 @@
                       "/",
                       [
                         "arn:aws:route53:::hostedzone",
-                        {"Ref": "HostedZone"}
+                        {
+                          "Ref": "HostedZone"
+                        }
                       ]
                     ]
                   }
                 },
                 {
-                  "Effect":"Allow",
-                  "Action":["route53:ListHostedZones"],
-                  "Resource":"*"
+                  "Effect": "Allow",
+                  "Action": ["route53:ListHostedZones"],
+                  "Resource": "*"
                 }
               ]
             }

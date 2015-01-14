@@ -1,9 +1,9 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Bastion Host Creation v1.0",
+  "Description": "v1.0 Creates Bastion Instances",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment to launch this VPC into.",
+      "Description": "Name of the environment to launch these instancesinto.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "8",
@@ -19,7 +19,7 @@
       "Type": "String"
     },
     "AvailabilityZones": {
-      "Description": "AvailabilityZones to launch networking stacks into.",
+      "Description": "AvailabilityZones to launch instances into.",
       "Type": "String"
     },
     "PublicSubnets": {
@@ -27,17 +27,22 @@
       "Type": "String"
     },
     "VpcName": {
-      "Description": "Name of the vpc this nat is created in.",
+      "Description": "Name of the vpc this instance is created in.",
       "Type": "String"
     },
     "ImageId": {
-      "Type": "String"
+      "Description": "AMI for Bastion Instances",
+      "Type": "String",
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "InstanceProfile": {
+      "Description": "Instance Profile that allows bastion host to self register dns.",
       "Type": "String"
     },
-    "ExternalBastionSecurityGroup":{
-      "Type":"String"
+    "ExternalBastionSecurityGroup": {
+      "Description": "Security Group to allow for internet access into the instance.",
+      "Type": "String"
     }
   },
   "Resources": {
@@ -49,7 +54,7 @@
             "Ref": "Environment"
           },
           "SecurityGroups": {
-            "Ref":"ExternalBastionSecurityGroup"
+            "Ref": "ExternalBastionSecurityGroup"
           },
           "Subnets": {
             "Ref": "PublicSubnets"
@@ -60,8 +65,12 @@
           "VpcName": {
             "Ref": "VpcName"
           },
-          "InstanceProfile": {"Ref": "InstanceProfile"},
-          "ImageId": {"Ref": "ImageId"},
+          "InstanceProfile": {
+            "Ref": "InstanceProfile"
+          },
+          "ImageId": {
+            "Ref": "ImageId"
+          },
           "Type": "Bastion"
         },
         "TemplateURL": {
