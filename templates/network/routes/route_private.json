@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Private Routing Creation v1.0",
+  "Description": "v1.0 Creates private routes for a vpc.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch this private route into.",

@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "VPCs Configuration v1.0",
+  "Description": "v1.0 Creates VPCs for environment.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch these VPCs into.",
@@ -19,13 +19,19 @@
       "Type": "String"
     },
     "NATImageId": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern":"ami-[a-z0-9]{8}",
+      "ConstraintDescription":"Must be a valid ami id"
     },
     "BastionImageId": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern":"ami-[a-z0-9]{8}",
+      "ConstraintDescription":"Must be a valid ami id"
     },
     "NTPImageId": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern":"ami-[a-z0-9]{8}",
+      "ConstraintDescription":"Must be a valid ami id"
     }
   },
   "Outputs": {

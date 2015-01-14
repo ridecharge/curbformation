@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "VPCs Configuration v1.0",
+  "Description": "v1.0 Peers two VPCs",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch these VPCs into.",
@@ -15,34 +15,60 @@
       "Type": "String"
     },
     "VpcA": {
+      "Description": "First VPC in the pair.",
       "Type": "AWS::EC2::VPC::Id"
     },
     "VpcB": {
+      "Description": "Second VPC in the pair.",
       "Type": "AWS::EC2::VPC::Id"
     },
     "VpcACidrBlock": {
-      "Type": "String"
+      "Description": "First VPCs cidr block",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18"
     },
     "VpcBCidrBlock": {
-      "Type": "String"
+      "Description": "Second VPCs cidr block",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18"
     },
     "VpcAPrivateRouteTableA": {
-      "Type": "String"
+      "Description": "First VPCs First Private Route Table",
+      "Type": "String",
+      "AllowedPattern": "rtb-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid Route Table id."
     },
     "VpcAPrivateRouteTableB": {
-      "Type": "String"
+      "Description": "First VPCs Second Private Route Table",
+      "Type": "String",
+      "AllowedPattern": "rtb-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid Route Table id."
     },
     "VpcBPrivateRouteTableA": {
-      "Type": "String"
+      "Description": "Second VPCs First Private Route Table",
+      "Type": "String",
+      "AllowedPattern": "rtb-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid Route Table id."
     },
     "VpcBPrivateRouteTableB": {
-      "Type": "String"
+      "Description": "Second VPCs Second Private Route Table",
+      "Type": "String",
+      "AllowedPattern": "rtb-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid Route Table id."
     },
     "VpcAPublicRouteTable": {
-      "Type": "String"
+      "Description": "First VPCs Public Route Table",
+      "Type": "String",
+      "AllowedPattern": "rtb-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid Route Table id."
     },
     "VpcBPublicRouteTable": {
-      "Type": "String"
+      "Description": "Second VPCs Public Route Table",
+      "Type": "String",
+      "AllowedPattern": "rtb-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid Route Table id."
     }
   },
   "Resources": {
@@ -76,7 +102,9 @@
           "CidrBlock": {
             "Ref": "VpcBCidrBlock"
           },
-          "VpcPeeringConnection": {"Ref": "VPCPeering"}
+          "VpcPeeringConnection": {
+            "Ref": "VPCPeering"
+          }
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -111,7 +139,9 @@
           "CidrBlock": {
             "Ref": "VpcACidrBlock"
           },
-          "VpcPeeringConnection": {"Ref": "VPCPeering"}
+          "VpcPeeringConnection": {
+            "Ref": "VPCPeering"
+          }
         },
         "TemplateURL": {
           "Fn::Join": [

@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Subnet Pair Creation v1.0.",
+  "Description": "v1.0 Creates a pair of subnets.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch this subnet pair into.",
@@ -15,7 +15,7 @@
       "Type": "CommaDelimitedList"
     },
     "CidrBlocks": {
-      "Description": "CidrBlocks for AZs this VPC",
+      "Description": "CidrBlocks for the VPCs two AZs",
       "Type": "CommaDelimitedList"
     },
     "Vpc": {
@@ -23,7 +23,7 @@
       "Type": "AWS::EC2::VPC::Id"
     },
     "SubnetType": {
-      "Description": "Public or Private for the Network tag",
+      "Description": "Public or Private network.",
       "Type": "String",
       "AllowedValues": [
         "public",

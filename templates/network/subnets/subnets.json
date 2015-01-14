@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Subnet Configuration v1.0.",
+  "Description": "v1.0 Creates subnets for a VPC.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch this subnet into.",
@@ -11,7 +11,7 @@
       "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
     },
     "CidrBlockPrefix": {
-      "Description": "CidrBlock for this VPC",
+      "Description": "CidrBlock for this subnet",
       "Type": "String",
       "MinLength": "3",
       "MaxLength": "7",
@@ -39,8 +39,7 @@
           "PrivateSubnets",
           "Outputs.Subnets"
         ]
-      },
-      "Description": "List of private subnets."
+      }
     },
     "PublicSubnets": {
       "Value": {
@@ -49,7 +48,7 @@
           "Outputs.Subnets"
         ]
       },
-      "Description": "List of public subnets."
+      "Description": "List of the VPCs public subnets."
     },
     "DBSubnetGroup":{
       "Value":{

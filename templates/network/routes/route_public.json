@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Public Routing Creation v1.0",
+  "Description": "v1.0 Creates a public routes for a VPC.",
   "Parameters": {
     "Environment": {
       "Description": "Name of the environment to launch this public route into.",
@@ -28,7 +28,9 @@
   },
   "Outputs": {
     "RouteTable": {
-      "Value": {"Ref": "PublicRouteTable"}
+      "Value": {
+        "Ref": "PublicRouteTable"
+      }
     }
   },
   "Resources": {
