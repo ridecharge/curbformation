@@ -32,42 +32,15 @@
     },
     "ImageId": {
       "Type": "String"
-    }
-  },
-  "Outputs": {
-    "SecurityGroup": {
-      "Value": {
-        "Fn::GetAtt": [
-          "BastionSecurity",
-          "Outputs.InternalSecurityGroup"
-        ]
-      }
+    },
+    "InstanceProfile": {
+      "Type": "String"
+    },
+    "ExternalBastionSecurityGroup":{
+      "Type":"String"
     }
   },
   "Resources": {
-    "BastionSecurity": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "Parameters": {
-          "Environment": {
-            "Ref": "Environment"
-          },
-          "Vpc": {"Ref": "Vpc"}
-        },
-        "TemplateURL": {
-          "Fn::Join": [
-            "/",
-            [
-              {
-                "Ref": "TemplateURLPrefix"
-              },
-              "infra/security_groups/bastion_security.json"
-            ]
-          ]
-        },
-        "TimeoutInMinutes": "30"
-      }
-    },
     "BastionInstances": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
@@ -76,10 +49,7 @@
             "Ref": "Environment"
           },
           "SecurityGroups": {
-            "Fn::GetAtt": [
-              "BastionSecurity",
-              "Outputs.ExternalSecurityGroup"
-            ]
+            "Ref":"ExternalBastionSecurityGroup"
           },
           "Subnets": {
             "Ref": "PublicSubnets"
@@ -90,6 +60,7 @@
           "VpcName": {
             "Ref": "VpcName"
           },
+          "InstanceProfile": {"Ref": "InstanceProfile"},
           "ImageId": {"Ref": "ImageId"},
           "Type": "Bastion"
         },

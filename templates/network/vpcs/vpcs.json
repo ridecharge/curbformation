@@ -239,6 +239,132 @@
         },
         "TimeoutInMinutes": "30"
       }
+    },
+    "InfrastructureVPCInstances": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "NATImageId": {
+            "Ref": "NATImageId"
+          },
+          "VpcName": "Infrastructure",
+          "CidrBlock": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.CidrBlock"
+            ]
+          },
+          "PrivateSubnets": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.PrivateSubnets"
+            ]
+          },
+          "PublicSubnets": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.PublicSubnets"
+            ]
+          },
+          "Vpc": {
+            "Fn::GetAtt": [
+              "InfrastructureVPC",
+              "Outputs.Vpc"
+            ]
+          },
+          "NTPImageId": {
+            "Ref": "NTPImageId"
+          },
+          "BastionImageId": {
+            "Ref": "BastionImageId"
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "HostedZone": "Z2FOYNIZLTFYNJ",
+          "AvailabilityZones": {
+            "Ref": "AvailabilityZones"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/infra.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "ApplicationVPCInstances": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "NATImageId": {
+            "Ref": "NATImageId"
+          },
+          "VpcName": "Application",
+          "CidrBlock": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.CidrBlock"
+            ]
+          },
+          "PrivateSubnets": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.PrivateSubnets"
+            ]
+          },
+          "PublicSubnets": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.PublicSubnets"
+            ]
+          },
+          "Vpc": {
+            "Fn::GetAtt": [
+              "ApplicationVPC",
+              "Outputs.Vpc"
+            ]
+          },
+          "NTPImageId": {
+            "Ref": "NTPImageId"
+          },
+          "HostedZone": "Z2FOYNIZLTFYNJ",
+          "BastionImageId": {
+            "Ref": "BastionImageId"
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "AvailabilityZones": {
+            "Ref": "AvailabilityZones"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/infra.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
     }
   }
 }

@@ -14,6 +14,9 @@
       "Description": "Template URL prefix for nested stacks.",
       "Type": "String"
     },
+    "HostedZone": {
+      "Type": "String"
+    },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
@@ -61,78 +64,134 @@
     }
   },
   "Resources": {
-    "BastionInstances": {
+    "SecurityGroups": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
           },
-          "PublicSubnets": {
-            "Ref":"PublicSubnets"
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "Vpc": {"Ref": "Vpc"},
+          "CidrBlock": {"Ref": "CidrBlock"}
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/security_groups/security_groups.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "InstanceProfiles": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
           },
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
-          "Vpc": {
-            "Ref": "Vpc"
+          "HostedZone": {
+            "Ref": "HostedZone"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/instance_profiles/instance_profiles.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "Instances": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "AvailabilityZones": {
+            "Ref": "AvailabilityZones"
+          },
+          "TemplateURLPrefix": {
+            "Ref": "TemplateURLPrefix"
+          },
+          "ExternalBastionSecurityGroup": {
+            "Fn::GetAtt": [
+              "SecurityGroups",
+              "Outputs.ExternalBastionSecurityGroup"
+            ]
+          },
+          "InternalBastionSecurityGroup": {
+            "Fn::GetAtt": [
+              "SecurityGroups",
+              "Outputs.InternalBastionSecurityGroup"
+            ]
+          },
+          "NTPSecurityGroup": {
+            "Fn::GetAtt": [
+              "SecurityGroups",
+              "Outputs.NTPSecurityGroup"
+            ]
+          },
+          "NATSecurityGroup": {
+            "Fn::GetAtt": [
+              "SecurityGroups",
+              "Outputs.NATSecurityGroup"
+            ]
+          },
+          "NATInstanceProfile": {
+            "Fn::GetAtt": [
+              "InstanceProfiles",
+              "Outputs.NATInstanceProfile"
+            ]
+          },
+          "DNSInstanceProfile": {
+            "Fn::GetAtt": [
+              "InstanceProfiles",
+              "Outputs.DNSInstanceProfile"
+            ]
+          },
+          "HostedZone": {
+            "Ref": "HostedZone"
+          },
+          "PublicSubnets": {
+            "Ref": "PublicSubnets"
+          },
+          "PrivateSubnets": {
+            "Ref": "PrivateSubnets"
+          },
+          "NATImageId": {
+            "Ref": "NATImageId"
+          },
+          "BastionImageId": {
+            "Ref": "BastionImageId"
+          },
+          "NTPImageId": {
+            "Ref": "NTPImageId"
           },
           "VpcName": {
             "Ref": "VpcName"
           },
-          "AvailabilityZones": {"Ref": "AvailabilityZones"},
-          "ImageId": {"Ref": "BastionImageId"}
-        },
-        "TemplateURL": {
-          "Fn::Join": [
-            "/",
-            [
-              {
-                "Ref": "TemplateURLPrefix"
-              },
-              "infra/instances/bastions.json"
-            ]
-          ]
-        },
-        "TimeoutInMinutes": "30"
-      }
-    },
-    "NTPInstances": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Condition": "CreateNTPInstances",
-      "Properties": {
-        "Parameters": {
-          "Environment": {
-            "Ref": "Environment"
-          },
-          "PrivateSubnets": {
-            "Ref":"PrivateSubnets"
-          },
-          "TemplateURLPrefix": {
-            "Ref": "TemplateURLPrefix"
-          },
           "Vpc": {
             "Ref": "Vpc"
-          },
-          "VpcName": {
-            "Fn::Join": [
-              "-",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                {"Ref": "VpcName"}
-              ]
-            ]
-          },
-          "BastionSecurityGroup": {
-            "Fn::GetAtt": [
-              "BastionInstances",
-              "Outputs.SecurityGroup"
-            ]
-          },
-          "AvailabilityZones": {"Ref": "AvailabilityZones"},
-          "ImageId": {"Ref": "NTPImageId"}
+          }
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -141,60 +200,7 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "infra/instances/ntps.json"
-            ]
-          ]
-        },
-        "TimeoutInMinutes": "30"
-      }
-    },
-    "NATs": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "Parameters": {
-          "Environment": {
-            "Ref": "Environment"
-          },
-          "PublicSubnets": {
-            "Ref":"PublicSubnets"
-          },
-          "TemplateURLPrefix": {
-            "Ref": "TemplateURLPrefix"
-          },
-          "Vpc": {
-            "Ref": "Vpc"
-          },
-          "VpcName": {
-            "Fn::Join": [
-              "-",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                {"Ref": "VpcName"}
-              ]
-            ]
-          },
-          "BastionSecurityGroup": {
-            "Fn::GetAtt": [
-              "BastionInstances",
-              "Outputs.SecurityGroup"
-            ]
-          },
-          "CidrBlock": {
-            "Ref": "CidrBlock"
-          },
-          "AvailabilityZones": {"Ref": "AvailabilityZones"},
-          "ImageId": {"Ref": "NATImageId"}
-        },
-        "TemplateURL": {
-          "Fn::Join": [
-            "/",
-            [
-              {
-                "Ref": "TemplateURLPrefix"
-              },
-              "infra/instances/nats.json"
+              "infra/instances/instances.json"
             ]
           ]
         },
@@ -203,3 +209,4 @@
     }
   }
 }
+

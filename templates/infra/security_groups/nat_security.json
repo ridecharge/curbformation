@@ -25,9 +25,6 @@
       "Value": {
         "Ref": "SecurityGroup"
       }
-    },
-    "InstanceProfile": {
-      "Value": {"Ref": "InstanceProfile"}
     }
   },
   "Resources": {
@@ -70,59 +67,6 @@
         "SourceSecurityGroupId": {
           "Ref": "SecurityGroup"
         }
-      }
-    },
-    "Role": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "ec2.amazonaws.com"
-                ]
-              },
-              "Action": [
-                "sts:AssumeRole"
-              ]
-            }
-          ]
-        },
-        "Path": "/",
-        "Policies": [
-          {
-            "PolicyName": "NAT_Takeover",
-            "PolicyDocument": {
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                    "ec2:ModifyInstanceAttribute",
-                    "ec2:DescribeInstances",
-                    "ec2:DescribeRouteTables",
-                    "ec2:DescribeSubnets",
-                    "ec2:CreateRoute",
-                    "ec2:ReplaceRoute"
-                  ],
-                  "Resource": "*"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    "InstanceProfile": {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Properties": {
-        "Path": "/",
-        "Roles": [
-          {
-            "Ref": "Role"
-          }
-        ]
       }
     }
   }

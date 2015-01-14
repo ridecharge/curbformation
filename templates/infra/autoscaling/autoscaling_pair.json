@@ -32,8 +32,7 @@
       "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
     "InstanceProfile": {
-      "Type": "String",
-      "Default": "none"
+      "Type": "String"
     },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
@@ -63,14 +62,6 @@
       ]
     }
   },
-  "Conditions": {
-    "NoInstanceProfile": {
-      "Fn::Equals": [
-        {"Ref": "InstanceProfile"},
-        "none"
-      ]
-    }
-  },
   "Mappings": {
     "Types": {
       "NAT": {
@@ -97,15 +88,7 @@
         },
         "EbsOptimized": false,
         "IamInstanceProfile": {
-          "Fn::If": [
-            "NoInstanceProfile",
-            {
-              "Ref": "AWS::NoValue"
-            },
-            {
-              "Ref": "InstanceProfile"
-            }
-          ]
+          "Ref": "InstanceProfile"
         },
         "ImageId": {"Ref": "ImageId"},
         "InstanceType": {"Ref": "InstanceType"},

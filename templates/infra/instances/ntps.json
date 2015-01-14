@@ -26,6 +26,9 @@
       "Description": "Subnets to associate private routing.",
       "Type": "String"
     },
+    "HostedZone": {
+      "Type": "String"
+    },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
@@ -33,36 +36,17 @@
     "BastionSecurityGroup": {
       "Type": "String"
     },
+    "NTPSecurityGroup": {
+      "Type": "String"
+    },
     "ImageId": {
+      "Type": "String"
+    },
+    "InstanceProfile": {
       "Type": "String"
     }
   },
   "Resources": {
-    "NTPSecurity": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "Parameters": {
-          "Environment": {
-            "Ref": "Environment"
-          },
-          "Vpc": {
-            "Ref": "Vpc"
-          }
-        },
-        "TemplateURL": {
-          "Fn::Join": [
-            "/",
-            [
-              {
-                "Ref": "TemplateURLPrefix"
-              },
-              "infra/security_groups/ntp_security.json"
-            ]
-          ]
-        },
-        "TimeoutInMinutes": "30"
-      }
-    },
     "NTPInstances": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
@@ -70,17 +54,27 @@
           "Environment": {
             "Ref": "Environment"
           },
+          "UserData": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/sh\n",
+                "/root/dns.py ",
+                {"Ref": "HostedZone"},
+                " ntp  > /tmp/dns.log"
+              ]
+            ]
+          },
           "SecurityGroups": {
             "Fn::Join": [
               ",",
               [
                 {
-                  "Fn::GetAtt": [
-                    "NTPSecurity",
-                    "Outputs.SecurityGroup"
-                  ]
+                  "Ref": "NTPSecurityGroup"
                 },
-                {"Ref": "BastionSecurityGroup"}
+                {
+                  "Ref": "BastionSecurityGroup"
+                }
               ]
             ]
           },
@@ -93,6 +87,7 @@
           "VpcName": {
             "Ref": "VpcName"
           },
+          "InstanceProfile": {"Ref": "InstanceProfile"},
           "ImageId": {"Ref": "ImageId"},
           "Type": "NTP"
         },

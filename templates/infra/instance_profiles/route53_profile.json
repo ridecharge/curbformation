@@ -1,0 +1,83 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Instance Self DNS Registration Profile Creation v1.0",
+  "Parameters": {
+    "HostedZone": {
+      "Type": "String"
+    },
+    "Environment": {
+      "Description": "Name of the environment to create the security group in.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
+    }
+  },
+  "Outputs": {
+    "InstanceProfile": {
+      "Value": {"Ref": "InstanceProfile"}
+    }
+  },
+  "Resources": {
+    "Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "DNS_Register",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["route53:ChangeResourceRecordSets"],
+                  "Resource": {
+                    "Fn::Join": [
+                      "/",
+                      [
+                        "arn:aws:route53:::hostedzone",
+                        {"Ref": "HostedZone"}
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "Effect":"Allow",
+                  "Action":["route53:ListHostedZones"],
+                  "Resource":"*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "InstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      }
+    }
+  }
+}

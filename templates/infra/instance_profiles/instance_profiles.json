@@ -1,0 +1,86 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Infrastructure Instance Security Group Creation v1.0",
+  "Parameters": {
+    "TemplateURLPrefix": {
+      "Description": "Template URL prefix for nested stacks.",
+      "Type": "String"
+    },
+    "Environment": {
+      "Description": "Name of the environment to create the security group in.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "14",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "can contain only lower case alphanumeric characters."
+    },
+    "HostedZone": {
+      "Type": "String"
+    }
+  },
+  "Outputs": {
+    "DNSInstanceProfile": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Route53RecordSetInstanceProfile",
+          "Outputs.InstanceProfile"
+        ]
+      }
+    },
+    "NATInstanceProfile": {
+      "Value": {
+        "Fn::GetAtt": [
+          "NATInstanceProfile",
+          "Outputs.InstanceProfile"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "Route53RecordSetInstanceProfile": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "HostedZone": {"Ref": "HostedZone"}
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/instance_profiles/route53_profile.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "NATInstanceProfile": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/instance_profiles/nat_profile.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}
