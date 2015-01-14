@@ -20,18 +20,18 @@
     },
     "NATImageId": {
       "Type": "String",
-      "AllowedPattern":"ami-[a-z0-9]{8}",
-      "ConstraintDescription":"Must be a valid ami id"
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "BastionImageId": {
       "Type": "String",
-      "AllowedPattern":"ami-[a-z0-9]{8}",
-      "ConstraintDescription":"Must be a valid ami id"
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     },
     "NTPImageId": {
       "Type": "String",
-      "AllowedPattern":"ami-[a-z0-9]{8}",
-      "ConstraintDescription":"Must be a valid ami id"
+      "AllowedPattern": "ami-[a-z0-9]{8}",
+      "ConstraintDescription": "Must be a valid ami id"
     }
   },
   "Outputs": {
@@ -97,6 +97,11 @@
           "ApplicationVPC",
           "Outputs.DBSubnetGroup"
         ]
+      }
+    },
+    "PublicHostedZoned": {
+      "Value": {
+        "Ref": "PublicHostedZone"
       }
     }
   },
@@ -370,6 +375,35 @@
           ]
         },
         "TimeoutInMinutes": "30"
+      }
+    },
+    "PublicHostedZone": {
+      "Type": "AWS::Route53::HostedZone",
+      "Properties": {
+        "HostedZoneConfig": {
+          "Comment": {
+            "Fn::Join": [
+              " ",
+              [
+                "Public Hosted Zone for",
+                {
+                  "Ref": "Environment"
+                }
+              ]
+            ]
+          },
+          "Name": {
+            "Fn::Join": [
+              ".",
+              [
+                {
+                  "Ref": "Environment"
+                },
+                "gc"
+              ]
+            ]
+          }
+        }
       }
     }
   }
