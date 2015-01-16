@@ -48,8 +48,12 @@
       "Type": "AWS::EC2::VPC::Id"
     },
     "VpcName": {
-      "Description": "Name of the vpc this nat is created in.",
-      "Type": "String"
+      "Description": "Name of the VPC to create services in.",
+      "Type": "String",
+      "AllowedValues": [
+        "Infrastructure",
+        "Application"
+      ]
     },
     "HostedZone": {
       "Type": "String"
@@ -74,7 +78,7 @@
   "Resources": {
     "BastionInstances": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn":"NTPInstances",
+      "DependsOn": "NTPInstances",
       "Properties": {
         "Parameters": {
           "Environment": {
@@ -179,7 +183,7 @@
     },
     "NATInstances": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn":"NTPInstances",
+      "DependsOn": "NTPInstances",
       "Properties": {
         "Parameters": {
           "Environment": {

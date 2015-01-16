@@ -116,7 +116,8 @@ class Stack(object):
             self.template_uri(),
             self.params(),
             capabilities=self.capabilities(),
-            tags=self.tags()
+            tags=self.tags(),
+            disable_rollback=True
         )
 
     def update(self):
@@ -127,5 +128,6 @@ class Stack(object):
             self.template_uri(),
             self.params(),
             capabilities=self.capabilities(),
-            tags=self.tags()
+            tags=self.tags(),
+            disable_rollback=True
         )

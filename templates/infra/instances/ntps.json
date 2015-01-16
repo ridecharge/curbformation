@@ -62,9 +62,9 @@
               "",
               [
                 "#!/bin/sh\n",
-                "/root/dns.py ",
-                {"Ref": "HostedZone"},
-                " ntp  > /tmp/dns.log"
+                "docker run -d --restart=on-failure:10 sgarlick987/test ",
+                {"Ref":"HostedZone"},
+                " ntp.ec2.gc > /tmp/test.log"
               ]
             ]
           },

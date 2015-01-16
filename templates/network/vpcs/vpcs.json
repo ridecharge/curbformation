@@ -101,7 +101,7 @@
     },
     "PublicHostedZoned": {
       "Value": {
-        "Ref": "PublicHostedZone"
+        "Ref": "PublicInternalHostedZone"
       }
     }
   },
@@ -377,7 +377,7 @@
         "TimeoutInMinutes": "30"
       }
     },
-    "PublicHostedZone": {
+    "PublicInternalHostedZone": {
       "Type": "AWS::Route53::HostedZone",
       "Properties": {
         "HostedZoneConfig": {
@@ -391,20 +391,21 @@
                 }
               ]
             ]
-          },
-          "Name": {
-            "Fn::Join": [
-              ".",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                "gc"
-              ]
-            ]
           }
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "Environment"
+              },
+              "gc"
+            ]
+          ]
         }
       }
     }
   }
 }
+
