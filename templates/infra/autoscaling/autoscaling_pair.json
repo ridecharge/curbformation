@@ -148,6 +148,9 @@
                 "-",
                 [
                   {
+                    "Ref": "Environment"
+                  },
+                  {
                     "Ref": "VpcName"
                   },
                   {

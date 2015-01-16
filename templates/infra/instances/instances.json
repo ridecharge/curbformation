@@ -97,15 +97,7 @@
             "Ref": "DNSInstanceProfile"
           },
           "VpcName": {
-            "Fn::Join": [
-              "-",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                {"Ref": "VpcName"}
-              ]
-            ]
+            "Ref":"VpcName"
           },
           "ExternalBastionSecurityGroup": {
             "Ref": "ExternalBastionSecurityGroup"
@@ -151,15 +143,7 @@
             "Ref": "DNSInstanceProfile"
           },
           "VpcName": {
-            "Fn::Join": [
-              "-",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                {"Ref": "VpcName"}
-              ]
-            ]
+            "Ref":"VpcName"
           },
           "BastionSecurityGroup": {
             "Ref": "InternalBastionSecurityGroup"
@@ -199,15 +183,7 @@
             "Ref": "Vpc"
           },
           "VpcName": {
-            "Fn::Join": [
-              "-",
-              [
-                {
-                  "Ref": "Environment"
-                },
-                {"Ref": "VpcName"}
-              ]
-            ]
+            "Ref":"VpcName"
           },
           "BastionSecurityGroup": {
             "Ref": "InternalBastionSecurityGroup"

@@ -19,8 +19,12 @@
       "Type": "AWS::EC2::VPC::Id"
     },
     "VpcName": {
-      "Description": "Name of the vpc this nat is created in.",
-      "Type": "String"
+      "Description": "Name of the VPC to create services in.",
+      "Type": "String",
+      "AllowedValues": [
+        "Infrastructure",
+        "Application"
+      ]
     },
     "PrivateSubnets": {
       "Description": "Subnets to associate private routing.",
@@ -49,8 +53,17 @@
       "Type": "String"
     }
   },
+  "Conditions": {
+    "CreateNTPInstances": {
+      "Fn::Equals": [
+        {"Ref": "VpcName"},
+        "Infrastructure"
+      ]
+    }
+  },
   "Resources": {
     "NTPInstances": {
+      "Condition":"CreateNTPInstances",
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
@@ -63,7 +76,7 @@
               [
                 "#!/bin/sh\n",
                 "docker run -d --restart=on-failure:10 sgarlick987/test ",
-                {"Ref":"HostedZone"},
+                {"Ref": "HostedZone"},
                 " ntp.ec2.gc > /tmp/test.log"
               ]
             ]
