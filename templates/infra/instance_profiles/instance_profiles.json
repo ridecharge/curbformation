@@ -14,15 +14,40 @@
       "AllowedPattern": "[a-z0-9]*",
       "ConstraintDescription": "can contain only lower case alphanumeric characters."
     },
-    "HostedZone": {
+    "PrivateInternalHostedZone": {
+      "Description": "Route53 Private Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
+    "PublicInternalHostedZone": {
+      "Description": "Route53 Public Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
+    "PublicExternalHostedZone": {
+      "Description": "Route53 Public External Hosted Zone for VPC.",
       "Type": "String"
     }
   },
   "Outputs": {
-    "DNSInstanceProfile": {
+    "PublicExternalHostedZoneInstanceProfile": {
       "Value": {
         "Fn::GetAtt": [
-          "Route53RecordSetInstanceProfile",
+          "PublicExternalHostedZoneInstanceProfile",
+          "Outputs.InstanceProfile"
+        ]
+      }
+    },
+    "PrivateInternalHostedZoneInstanceProfile": {
+      "Value": {
+        "Fn::GetAtt": [
+          "PrivateInternalHostedZoneInstanceProfile",
+          "Outputs.InstanceProfile"
+        ]
+      }
+    },
+    "PublicInternalHostedZoneInstanceProfile": {
+      "Value": {
+        "Fn::GetAtt": [
+          "PublicInternalHostedZoneInstanceProfile",
           "Outputs.InstanceProfile"
         ]
       }
@@ -34,17 +59,27 @@
           "Outputs.InstanceProfile"
         ]
       }
+    },
+    "ENIAttachInstanceProfile": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ENIAttachInstanceProfile",
+          "Outputs.InstanceProfile"
+        ]
+      }
     }
   },
   "Resources": {
-    "Route53RecordSetInstanceProfile": {
+    "PublicExternalHostedZoneInstanceProfile": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
           },
-          "HostedZone": {"Ref": "HostedZone"}
+          "HostedZone": {
+            "Ref": "PublicExternalHostedZone"
+          }
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -53,7 +88,57 @@
               {
                 "Ref": "TemplateURLPrefix"
               },
-              "infra/instance_profiles/route53_profile.json"
+              "infra/instance_profiles/hosted_zone_profile.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "PrivateInternalHostedZoneInstanceProfile": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "HostedZone": {
+            "Ref": "PrivateInternalHostedZone"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/instance_profiles/hosted_zone_profile.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "PublicInternalHostedZoneInstanceProfile": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "HostedZone": {
+            "Ref": "PublicInternalHostedZone"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/instance_profiles/hosted_zone_profile.json"
             ]
           ]
         },
@@ -76,6 +161,28 @@
                 "Ref": "TemplateURLPrefix"
               },
               "infra/instance_profiles/nat_profile.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "ENIAttachInstanceProfile": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "/",
+            [
+              {
+                "Ref": "TemplateURLPrefix"
+              },
+              "infra/instance_profiles/eni_attach_profile.json"
             ]
           ]
         },

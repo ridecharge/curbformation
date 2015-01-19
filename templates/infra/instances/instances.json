@@ -28,15 +28,30 @@
       "AllowedPattern": "ami-[a-z0-9]{8}",
       "ConstraintDescription": "Must be a valid ami id"
     },
+    "CidrBlockPrefix": {
+      "Description": "CidrBlock for this VPC",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "7",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "Must be the first 2 bytes of a CidrBlock."
+    },
     "NTPImageId": {
       "Type": "String",
       "AllowedPattern": "ami-[a-z0-9]{8}",
       "ConstraintDescription": "Must be a valid ami id"
     },
-    "DNSInstanceProfile": {
+    "PublicInternalHostedZoneInstanceProfile": {
+      "Type": "String"
+    },
+    "PublicInternalHostedZone": {
+      "Description": "Route53 Public Internal Hosted Zone for VPC.",
       "Type": "String"
     },
     "NATInstanceProfile": {
+      "Type": "String"
+    },
+    "ENIAttachInstanceProfile": {
       "Type": "String"
     },
     "TemplateURLPrefix": {
@@ -54,9 +69,6 @@
         "Infrastructure",
         "Application"
       ]
-    },
-    "HostedZone": {
-      "Type": "String"
     },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
@@ -78,7 +90,7 @@
   "Resources": {
     "BastionInstances": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn": "NTPInstances",
+      "DependsOn": "NATInstances",
       "Properties": {
         "Parameters": {
           "Environment": {
@@ -94,14 +106,18 @@
             "Ref": "Vpc"
           },
           "InstanceProfile": {
-            "Ref": "DNSInstanceProfile"
+            "Ref": "PublicInternalHostedZoneInstanceProfile"
+          },
+          "PublicInternalHostedZone": {
+            "Ref": "PublicInternalHostedZone"
           },
           "VpcName": {
-            "Ref":"VpcName"
+            "Ref": "VpcName"
           },
           "ExternalBastionSecurityGroup": {
             "Ref": "ExternalBastionSecurityGroup"
           },
+          "PublicInternalHostedZoneInstanceProfile": {"Ref": "PublicInternalHostedZoneInstanceProfile"},
           "AvailabilityZones": {"Ref": "AvailabilityZones"},
           "ImageId": {"Ref": "BastionImageId"}
         },
@@ -121,14 +137,17 @@
     },
     "NTPInstances": {
       "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": "NATInstances",
       "Properties": {
         "Parameters": {
           "Environment": {
             "Ref": "Environment"
           },
-          "HostedZone": {"Ref": "HostedZone"},
           "PrivateSubnets": {
             "Ref": "PrivateSubnets"
+          },
+          "CidrBlockPrefix": {
+            "Ref": "CidrBlockPrefix"
           },
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
@@ -140,10 +159,10 @@
             "Ref": "Vpc"
           },
           "InstanceProfile": {
-            "Ref": "DNSInstanceProfile"
+            "Ref": "ENIAttachInstanceProfile"
           },
           "VpcName": {
-            "Ref":"VpcName"
+            "Ref": "VpcName"
           },
           "BastionSecurityGroup": {
             "Ref": "InternalBastionSecurityGroup"
@@ -167,7 +186,6 @@
     },
     "NATInstances": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn": "NTPInstances",
       "Properties": {
         "Parameters": {
           "Environment": {
@@ -183,7 +201,7 @@
             "Ref": "Vpc"
           },
           "VpcName": {
-            "Ref":"VpcName"
+            "Ref": "VpcName"
           },
           "BastionSecurityGroup": {
             "Ref": "InternalBastionSecurityGroup"

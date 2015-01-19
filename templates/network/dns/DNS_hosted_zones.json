@@ -1,0 +1,81 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "v1.0 Creates Route53 Hosted Zones for environment.",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment for hosted zones.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    }
+  },
+  "Outputs": {
+    "PrivateInternalHostedZone": {
+      "Value": "Z2FOYNIZLTFYNJ"
+    },
+    "PublicInternalHostedZone": {
+      "Value": {
+        "Ref": "PublicInternalHostedZone"
+      }
+    },
+    "PublicExternalHostedZone": {
+      "Value": {
+        "Ref": "PublicExternalHostedZone"
+      }
+    }
+  },
+  "Resources": {
+    "PublicInternalHostedZone": {
+      "Type": "AWS::Route53::HostedZone",
+      "Properties": {
+        "HostedZoneConfig": {
+          "Comment": {
+            "Fn::Join": [
+              " ",
+              [
+                "Public Internal Hosted Zone for",
+                {"Ref": "Environment"}
+              ]
+            ]
+          }
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {"Ref": "Environment"},
+              "gc"
+            ]
+          ]
+        }
+      }
+    },
+    "PublicExternalHostedZone": {
+      "Type": "AWS::Route53::HostedZone",
+      "Properties": {
+        "HostedZoneConfig": {
+          "Comment": {
+            "Fn::Join": [
+              " ",
+              [
+                "Public External Hosted Zone for",
+                {"Ref": "Environment"}
+              ]
+            ]
+          }
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {"Ref": "Environment"},
+              "gocurb.io"
+            ]
+          ]
+        }
+      }
+    }
+  }
+}

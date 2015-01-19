@@ -14,8 +14,16 @@
       "Description": "Template URL prefix for nested stacks.",
       "Type": "String"
     },
-    "HostedZone": {
-      "Description": "Route53 Private Hosted Zone for VPC.",
+    "PrivateInternalHostedZone": {
+      "Description": "Route53 Private Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
+    "PublicInternalHostedZone": {
+      "Description": "Route53 Public Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
+    "PublicExternalHostedZone": {
+      "Description": "Route53 Public External Hosted Zone for VPC.",
       "Type": "String"
     },
     "AvailabilityZones": {
@@ -34,11 +42,13 @@
       "Description": "VPC to launch the services into.",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "CidrBlock": {
-      "Description": "Cidr Address for the VPC to create the instances in.",
+    "CidrBlockPrefix": {
+      "Description": "CidrBlock for this VPC",
       "Type": "String",
-      "MinLength": "9",
-      "MaxLength": "18"
+      "MinLength": "3",
+      "MaxLength": "7",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "Must be the first 2 bytes of a CidrBlock."
     },
     "PublicSubnets": {
       "Description": "Subnets to create public services in.",
@@ -89,7 +99,15 @@
             "Ref": "Vpc"
           },
           "CidrBlock": {
-            "Ref": "CidrBlock"
+            "Fn::Join": [
+              ".",
+              [
+                {
+                  "Ref": "CidrBlockPrefix"
+                },
+                "0.0/16"
+              ]
+            ]
           }
         },
         "TemplateURL": {
@@ -116,8 +134,14 @@
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
-          "HostedZone": {
-            "Ref": "HostedZone"
+          "PrivateInternalHostedZone": {
+            "Ref": "PrivateInternalHostedZone"
+          },
+          "PublicInternalHostedZone": {
+            "Ref": "PublicInternalHostedZone"
+          },
+          "PublicExternalHostedZone": {
+            "Ref": "PublicExternalHostedZone"
           }
         },
         "TemplateURL": {
@@ -147,6 +171,9 @@
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
+          "PublicInternalHostedZone": {
+            "Ref": "PublicInternalHostedZone"
+          },
           "ExternalBastionSecurityGroup": {
             "Fn::GetAtt": [
               "SecurityGroups",
@@ -171,20 +198,23 @@
               "Outputs.NATSecurityGroup"
             ]
           },
+          "ENIAttachInstanceProfile": {
+            "Fn::GetAtt": [
+              "InstanceProfiles",
+              "Outputs.ENIAttachInstanceProfile"
+            ]
+          },
           "NATInstanceProfile": {
             "Fn::GetAtt": [
               "InstanceProfiles",
               "Outputs.NATInstanceProfile"
             ]
           },
-          "DNSInstanceProfile": {
+          "PublicInternalHostedZoneInstanceProfile": {
             "Fn::GetAtt": [
               "InstanceProfiles",
-              "Outputs.DNSInstanceProfile"
+              "Outputs.PublicInternalHostedZoneInstanceProfile"
             ]
-          },
-          "HostedZone": {
-            "Ref": "HostedZone"
           },
           "PublicSubnets": {
             "Ref": "PublicSubnets"
@@ -203,6 +233,9 @@
           },
           "VpcName": {
             "Ref": "VpcName"
+          },
+          "CidrBlockPrefix": {
+            "Ref": "CidrBlockPrefix"
           },
           "Vpc": {
             "Ref": "Vpc"

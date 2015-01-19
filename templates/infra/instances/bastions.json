@@ -22,6 +22,13 @@
       "Description": "AvailabilityZones to launch instances into.",
       "Type": "String"
     },
+    "PublicInternalHostedZoneInstanceProfile": {
+      "Type": "String"
+    },
+    "PublicInternalHostedZone": {
+      "Description": "Route53 Public Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
     "PublicSubnets": {
       "Description": "Subnets to launch Bastion Hosts into.",
       "Type": "String"
@@ -71,7 +78,22 @@
           "ImageId": {
             "Ref": "ImageId"
           },
-          "Type": "Bastion"
+          "Type": "Bastion",
+          "UserData": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/sh\n",
+                "docker run sgarlick987/aws-startup-utils ./register_dns.py ",
+                {"Ref": "PublicInternalHostedZone"},
+                " ",
+                {"Ref":"VpcName"},
+                ".",
+                {"Ref": "Environment"},
+                ".gc bastion "
+              ]
+            ]
+          }
         },
         "TemplateURL": {
           "Fn::Join": [

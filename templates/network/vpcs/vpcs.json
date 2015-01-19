@@ -98,11 +98,6 @@
           "Outputs.DBSubnetGroup"
         ]
       }
-    },
-    "PublicHostedZoned": {
-      "Value": {
-        "Ref": "PublicInternalHostedZone"
-      }
     }
   },
   "Resources": {
@@ -262,12 +257,7 @@
             "Ref": "NATImageId"
           },
           "VpcName": "Infrastructure",
-          "CidrBlock": {
-            "Fn::GetAtt": [
-              "InfrastructureVPC",
-              "Outputs.CidrBlock"
-            ]
-          },
+          "CidrBlockPrefix": "10.251",
           "PrivateSubnets": {
             "Fn::GetAtt": [
               "InfrastructureVPC",
@@ -295,7 +285,24 @@
           "TemplateURLPrefix": {
             "Ref": "TemplateURLPrefix"
           },
-          "HostedZone": "Z2FOYNIZLTFYNJ",
+          "PrivateInternalHostedZone": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PrivateInternalHostedZone"
+            ]
+          },
+          "PublicInternalHostedZone": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicInternalHostedZone"
+            ]
+          },
+          "PublicExternalHostedZone": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicExternalHostedZone"
+            ]
+          },
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           }
@@ -324,13 +331,8 @@
           "NATImageId": {
             "Ref": "NATImageId"
           },
+          "CidrBlockPrefix": "10.250",
           "VpcName": "Application",
-          "CidrBlock": {
-            "Fn::GetAtt": [
-              "ApplicationVPC",
-              "Outputs.CidrBlock"
-            ]
-          },
           "PrivateSubnets": {
             "Fn::GetAtt": [
               "ApplicationVPC",
@@ -352,7 +354,24 @@
           "NTPImageId": {
             "Ref": "NTPImageId"
           },
-          "HostedZone": "Z2FOYNIZLTFYNJ",
+          "PrivateInternalHostedZone": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PrivateInternalHostedZone"
+            ]
+          },
+          "PublicInternalHostedZone": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicInternalHostedZone"
+            ]
+          },
+          "PublicExternalHostedZone": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicExternalHostedZone"
+            ]
+          },
           "BastionImageId": {
             "Ref": "BastionImageId"
           },
@@ -377,35 +396,63 @@
         "TimeoutInMinutes": "30"
       }
     },
-    "PublicInternalHostedZone": {
-      "Type": "AWS::Route53::HostedZone",
+    "HostedZones": {
+      "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "HostedZoneConfig": {
-          "Comment": {
-            "Fn::Join": [
-              " ",
-              [
-                "Public Hosted Zone for",
-                {
-                  "Ref": "Environment"
-                }
-              ]
-            ]
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
           }
         },
-        "Name": {
+        "TemplateURL": {
           "Fn::Join": [
-            ".",
+            "/",
             [
               {
-                "Ref": "Environment"
+                "Ref": "TemplateURLPrefix"
               },
-              "gc"
+              "network/dns/dns_hosted_zones.json"
             ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    },
+    "DHCPOptions": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "DomainNameServers": ["AmazonProvidedDNS"],
+        "NtpServers": [
+          "10.251.0.5",
+          "10.251.64.5"
+        ]
+      }
+    },
+    "ApplicationVPCDHCPOptionAssociation": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "DhcpOptionsId": {"Ref": "DHCPOptions"},
+        "VpcId": {
+          "Fn::GetAtt": [
+            "ApplicationVPC",
+            "Outputs.Vpc"
+          ]
+        }
+      }
+    },
+    "InfrastructureVPCDHCPOptionAssociation": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "DhcpOptionsId": {"Ref": "DHCPOptions"},
+        "VpcId": {
+          "Fn::GetAtt": [
+            "InfrastructureVPC",
+            "Outputs.Vpc"
           ]
         }
       }
     }
   }
 }
+
 
