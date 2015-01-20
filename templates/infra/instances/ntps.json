@@ -144,7 +144,7 @@
               "\n",
               [
                 "#!/bin/sh",
-                "docker run sgarlick987/aws-startup-utils ./attach_eni.py ntp",
+                "docker run -d --restart=on-failure:10 sgarlick987/aws-startup-utils ./attach_eni.py ntp",
                 "while [ -z \"$(ifconfig -a | grep eth1)\" ]; do sleep 3s; done;",
                 "cat /etc/network/interfaces.d/eth0.cfg | sed 's/eth0/eth1/g' > /etc/network/interfaces.d/eth1.cfg",
                 "ifup eth1",

@@ -417,40 +417,6 @@
         },
         "TimeoutInMinutes": "30"
       }
-    },
-    "DHCPOptions": {
-      "Type": "AWS::EC2::DHCPOptions",
-      "Properties": {
-        "DomainNameServers": ["AmazonProvidedDNS"],
-        "NtpServers": [
-          "10.251.0.5",
-          "10.251.64.5"
-        ]
-      }
-    },
-    "ApplicationVPCDHCPOptionAssociation": {
-      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
-      "Properties": {
-        "DhcpOptionsId": {"Ref": "DHCPOptions"},
-        "VpcId": {
-          "Fn::GetAtt": [
-            "ApplicationVPC",
-            "Outputs.Vpc"
-          ]
-        }
-      }
-    },
-    "InfrastructureVPCDHCPOptionAssociation": {
-      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
-      "Properties": {
-        "DhcpOptionsId": {"Ref": "DHCPOptions"},
-        "VpcId": {
-          "Fn::GetAtt": [
-            "InfrastructureVPC",
-            "Outputs.Vpc"
-          ]
-        }
-      }
     }
   }
 }

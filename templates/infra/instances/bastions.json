@@ -84,7 +84,7 @@
               "",
               [
                 "#!/bin/sh\n",
-                "docker run sgarlick987/aws-startup-utils ./register_dns.py ",
+                "docker run -d --restart=on-failure:10 sgarlick987/aws-startup-utils ./register_dns.py ",
                 {"Ref": "PublicInternalHostedZone"},
                 " ",
                 {"Ref":"VpcName"},
