@@ -45,14 +45,13 @@
               "Statement": [
                 {
                   "Effect": "Allow",
-                  "Action": ["ec2:AttachNetworkInterface"],
+                  "Action": [
+                    "ec2:AttachNetworkInterface",
+                    "ec2:DescribeNetworkInterfaces",
+                    "ec2:DescribeInstances"
+                  ],
                   "Resource": "*"
 
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": ["ec2:DescribeNetworkInterfaces"],
-                  "Resource": "*"
                 }
               ]
             }

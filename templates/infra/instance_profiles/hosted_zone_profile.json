@@ -63,7 +63,10 @@
                 },
                 {
                   "Effect": "Allow",
-                  "Action": ["route53:ListHostedZones"],
+                  "Action": [
+                    "route53:ListHostedZones",
+                    "ec2:DescribeInstances"
+                  ],
                   "Resource": "*"
                 }
               ]

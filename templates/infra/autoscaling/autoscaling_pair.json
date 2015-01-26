@@ -13,9 +13,9 @@
     "InstanceType": {
       "Description": "Instance type for instance pair.",
       "Type": "String",
-      "Default": "c3.large",
+      "Default": "c4.large",
       "AllowedValues": [
-        "c3.large"
+        "c4.large"
       ],
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
@@ -71,17 +71,92 @@
   "Mappings": {
     "Types": {
       "NAT": {
-        "public": true
+        "public": true,
+        "healthchecktype": "ELB"
       },
       "Bastion": {
-        "public": true
+        "public": true,
+        "healthchecktype": "EC2"
       },
       "NTP": {
-        "public": false
+        "public": false,
+        "healthchecktype": "EC2"
       }
     }
   },
+  "Conditions": {
+    "CreateLoadBalancer": {
+      "Fn::Equals": [
+        {
+          "Fn::FindInMap": [
+            "Types",
+            {"Ref": "Type"},
+            "healthchecktype"
+          ]
+        },
+        "ELB"
+      ]
+    }
+  },
   "Resources": {
+    "LoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Condition": "CreateLoadBalancer",
+      "Properties": {
+        "SecurityGroups": {
+          "Ref": "SecurityGroups"
+        },
+        "Scheme": "internal",
+        "Subnets": {
+          "Ref": "Subnets"
+        },
+        "HealthCheck": {
+          "HealthyThreshold": "5",
+          "Interval": "10",
+          "Target": "tcp:22",
+          "Timeout": "5",
+          "UnhealthyThreshold": "3"
+        },
+        "Listeners": [
+          {
+            "InstancePort": "9999",
+            "InstanceProtocol": "TCP",
+            "LoadBalancerPort": "9999",
+            "Protocol": "TCP"
+          }
+        ],
+        "LoadBalancerName": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "Environment"
+              },
+              {
+                "Ref": "VpcName"
+              },
+              {
+                "Ref": "Type"
+              }
+            ]
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "Role",
+            "Value": {
+              "Ref": "Type"
+            }
+          }
+        ]
+      }
+    },
     "AsgLaunchConfiguration": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
@@ -128,10 +203,25 @@
         "AvailabilityZones": {
           "Ref": "AvailabilityZones"
         },
+        "LoadBalancerNames": [
+          {
+            "Fn::If": [
+              "CreateLoadBalancer",
+              {"Ref": "LoadBalancer"},
+              {"Ref": "AWS::NoValue"}
+            ]
+          }
+        ],
         "Cooldown": "30",
         "DesiredCapacity": "2",
         "HealthCheckGracePeriod": "30",
-        "HealthCheckType": "EC2",
+        "HealthCheckType": {
+          "Fn::FindInMap": [
+            "Types",
+            {"Ref": "Type"},
+            "healthchecktype"
+          ]
+        },
         "LaunchConfigurationName": {
           "Ref": "AsgLaunchConfiguration"
         },
@@ -165,6 +255,13 @@
             "Key": "Environment",
             "Value": {
               "Ref": "Environment"
+            },
+            "PropagateAtLaunch": "true"
+          },
+          {
+            "Key": "Role",
+            "Value": {
+              "Ref": "Type"
             },
             "PropagateAtLaunch": "true"
           }

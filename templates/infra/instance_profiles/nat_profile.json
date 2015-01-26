@@ -46,6 +46,7 @@
                 {
                   "Effect": "Allow",
                   "Action": [
+                    "elasticloadbalancing:DescribeInstanceHealth",
                     "ec2:ModifyInstanceAttribute",
                     "ec2:DescribeInstances",
                     "ec2:DescribeRouteTables",

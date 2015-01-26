@@ -84,13 +84,19 @@
               "",
               [
                 "#!/bin/sh\n",
-                "docker run -d --restart=on-failure:10 sgarlick987/aws-startup-utils ./register_dns.py ",
+                "n=0\n",
+                "until [ $n -ge 5 ]\n",
+                "do\n",
+                "docker run --restart=on-failure:10 sgarlick987/aws-startup-utils ./register_dns.py ",
                 {"Ref": "PublicInternalHostedZone"},
                 " ",
-                {"Ref":"VpcName"},
+                {"Ref": "VpcName"},
                 ".",
                 {"Ref": "Environment"},
-                ".gc bastion "
+                ".gc && break\n",
+                "n=$((n+1))\n",
+                "sleep 2\n",
+                "done\n"
               ]
             ]
           }

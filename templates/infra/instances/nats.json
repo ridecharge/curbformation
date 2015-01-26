@@ -60,11 +60,16 @@
           },
           "UserData": {
             "Fn::Join": [
-              "",
+              "\n",
               [
-                "#!/bin/bash -x\n",
-                "exec > /tmp/userdata.log 2>&1\n",
-                "/bin/bash /usr/local/bin/ha-nat.sh\n"
+                "#!/bin/bash",
+                "n=0",
+                "until [ $n -ge 5 ]",
+                "do",
+                "docker run -d --restart=always sgarlick987/aws-startup-utils ./nat_monitor.py && break",
+                "n=$((n+1))",
+                "sleep 2",
+                "done"
               ]
             ]
           },

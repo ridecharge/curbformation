@@ -34,36 +34,88 @@
         "GroupDescription": "Rules for allowing access to NAT HA Nodes",
         "VpcId": {
           "Ref": "Vpc"
-        },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "-1",
-            "FromPort": "0",
-            "ToPort": "65535",
-            "CidrIp": {
-              "Ref": "CidrBlock"
-            }
-          }
-        ],
-        "SecurityGroupEgress": [
-          {
-            "IpProtocol": "-1",
-            "FromPort": "0",
-            "ToPort": "65535",
-            "CidrIp": "0.0.0.0/0"
-          }
-        ]
+        }
       }
     },
-    "AllowICMP": {
+    "DNSIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "CidrBlock"
+        },
+        "FromPort": "53",
+        "GroupId": {
+          "Ref": "SecurityGroup"
+        },
+        "IpProtocol": "udp",
+        "ToPort": "53"
+      }
+    },
+    "HTTPIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "CidrBlock"
+        },
+        "FromPort": "80",
+        "GroupId": {
+          "Ref": "SecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "ToPort": "80"
+      }
+    },
+    "HTTPSIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "CidrBlock"
+        },
+        "FromPort": "443",
+        "GroupId": {
+          "Ref": "SecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "ToPort": "443"
+      }
+    },
+    "ICMPIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "CidrBlock"
+        },
+        "FromPort": "-1",
+        "GroupId": {
+          "Ref": "SecurityGroup"
+        },
+        "IpProtocol": "icmp",
+        "ToPort": "-1"
+      }
+    },
+    "NTPIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": {
+          "Ref": "CidrBlock"
+        },
+        "FromPort": "123",
+        "GroupId": {
+          "Ref": "SecurityGroup"
+        },
+        "IpProtocol": "udp",
+        "ToPort": "123"
+      }
+    },
+    "TCPPingIngress": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "GroupId": {
           "Ref": "SecurityGroup"
         },
-        "IpProtocol": "icmp",
-        "FromPort": "-1",
-        "ToPort": "-1",
+        "IpProtocol": "tcp",
+        "FromPort": "22",
+        "ToPort": "22",
         "SourceSecurityGroupId": {
           "Ref": "SecurityGroup"
         }

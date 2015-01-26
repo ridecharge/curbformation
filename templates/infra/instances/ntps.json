@@ -107,7 +107,7 @@
     },
     "NTPInstances": {
       "Condition": "CreateNTPInstances",
-      "DependsOn":"NTPNetworkInterfaces",
+      "DependsOn": "NTPNetworkInterfaces",
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "Parameters": {
@@ -139,12 +139,18 @@
           "InstanceProfile": {"Ref": "InstanceProfile"},
           "ImageId": {"Ref": "ImageId"},
           "Type": "NTP",
-          "UserData":{
-            "Fn::Join":[
+          "UserData": {
+            "Fn::Join": [
               "\n",
               [
                 "#!/bin/sh",
-                "docker run -d --restart=on-failure:10 sgarlick987/aws-startup-utils ./attach_eni.py ntp",
+                "n=0",
+                "until [ $n -ge 5 ]",
+                "do",
+                "docker run --restart=on-failure:10 sgarlick987/aws-startup-utils ./attach_eni.py && break",
+                "n=$((n+1))",
+                "sleep 2",
+                "done",
                 "while [ -z \"$(ifconfig -a | grep eth1)\" ]; do sleep 3s; done;",
                 "cat /etc/network/interfaces.d/eth0.cfg | sed 's/eth0/eth1/g' > /etc/network/interfaces.d/eth1.cfg",
                 "ifup eth1",
