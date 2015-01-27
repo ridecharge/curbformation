@@ -66,7 +66,7 @@
                 "n=0",
                 "until [ $n -ge 5 ]",
                 "do",
-                "docker run -d --restart=always sgarlick987/aws-startup-utils ./nat_monitor.py && break",
+                "docker run -d --restart=always -e \"LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89\" sgarlick987/aws-startup-utils ./nat_monitor.py && break",
                 "n=$((n+1))",
                 "sleep 2",
                 "done"

@@ -147,7 +147,7 @@
                 "n=0",
                 "until [ $n -ge 5 ]",
                 "do",
-                "docker run --restart=on-failure:10 sgarlick987/aws-startup-utils ./attach_eni.py && break",
+                "docker run --restart=on-failure:10 -e \"LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89\" sgarlick987/aws-startup-utils ./attach_eni.py && break",
                 "n=$((n+1))",
                 "sleep 2",
                 "done",
