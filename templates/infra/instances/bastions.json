@@ -3,7 +3,7 @@
   "Description": "v1.0 Creates Bastion Instances",
   "Parameters": {
     "Environment": {
-      "Description": "Name of the environment to launch these instancesinto.",
+      "Description": "Name of the environment to launch these instances into.",
       "Type": "String",
       "MinLength": "4",
       "MaxLength": "8",
@@ -27,6 +27,14 @@
     },
     "PublicInternalHostedZone": {
       "Description": "Route53 Public Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
+    "PublicInternalDomain": {
+      "Description": "Route53 Public Internal Domain for VPC.",
+      "Type": "String"
+    },
+    "PublicExternalDomain": {
+      "Description": "Route53 Public External Domain for VPC.",
       "Type": "String"
     },
     "PublicSubnets": {
@@ -69,11 +77,25 @@
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },
+          "PublicInternalHostedZone": {"Ref": "PublicInternalHostedZone"},
           "VpcName": {
             "Ref": "VpcName"
           },
           "InstanceProfile": {
             "Ref": "InstanceProfile"
+          },
+          "PublicInternalDomain": {
+            "Fn::Join": [
+              ".",
+              [
+                {"Ref": "VpcName"},
+                {"Ref": "PublicInternalDomain"}
+              ]
+            ]
+
+          },
+          "PublicExternalDomain": {
+            "Ref": "PublicExternalDomain"
           },
           "ImageId": {
             "Ref": "ImageId"
@@ -81,22 +103,10 @@
           "Type": "Bastion",
           "UserData": {
             "Fn::Join": [
-              "",
+              "\n",
               [
-                "#!/bin/sh\n",
-                "n=0\n",
-                "until [ $n -ge 5 ]\n",
-                "do\n",
-                "docker run --restart=on-failure:10 -e \"LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89\" sgarlick987/aws-startup-utils ./register_dns.py ",
-                {"Ref": "PublicInternalHostedZone"},
-                " ",
-                {"Ref": "VpcName"},
-                ".",
-                {"Ref": "Environment"},
-                ".gc && break\n",
-                "n=$((n+1))\n",
-                "sleep 2\n",
-                "done\n"
+                "#!/bin/sh",
+                "docker run -d --restart=on-failure:10 -e \"LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89\" sgarlick987/aws-startup-utils ./register_dns.py"
               ]
             ]
           }

@@ -9,6 +9,14 @@
       "MaxLength": "8",
       "AllowedPattern": "[a-z0-9]*",
       "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
+    "PublicExternalDomainBase": {
+      "Type": "String",
+      "Default": "gocurb.com"
+    },
+    "PublicInternalDomainBase": {
+      "Type": "String",
+      "Default": "gocurb.io"
     }
   },
   "Outputs": {
@@ -20,9 +28,31 @@
         "Ref": "PublicInternalHostedZone"
       }
     },
+    "PublicInternalDomain": {
+      "Value": {
+        "Fn::Join": [
+          ".",
+          [
+            {"Ref": "Environment"},
+            {"Ref": "PublicInternalDomainBase"}
+          ]
+        ]
+      }
+    },
     "PublicExternalHostedZone": {
       "Value": {
         "Ref": "PublicExternalHostedZone"
+      }
+    },
+    "PublicExternalDomain": {
+      "Value": {
+        "Fn::Join": [
+          ".",
+          [
+            {"Ref": "Environment"},
+            {"Ref": "PublicExternalDomainBase"}
+          ]
+        ]
       }
     }
   },
@@ -46,7 +76,7 @@
             ".",
             [
               {"Ref": "Environment"},
-              "gc"
+              {"Ref": "PublicInternalDomainBase"}
             ]
           ]
         }
@@ -71,7 +101,7 @@
             ".",
             [
               {"Ref": "Environment"},
-              "gocurb.io"
+              {"Ref": "PublicExternalDomainBase"}
             ]
           ]
         }

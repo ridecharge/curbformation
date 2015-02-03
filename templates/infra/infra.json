@@ -26,6 +26,14 @@
       "Description": "Route53 Public External Hosted Zone for VPC.",
       "Type": "String"
     },
+    "PublicInternalDomain": {
+      "Description": "Route53 Public Internal Domain for VPC.",
+      "Type": "String"
+    },
+    "PublicExternalDomain": {
+      "Description": "Route53 Public External Domain for VPC.",
+      "Type": "String"
+    },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch services into.",
       "Type": "String"
@@ -239,6 +247,12 @@
           },
           "Vpc": {
             "Ref": "Vpc"
+          },
+          "PublicInternalDomain": {
+            "Ref": "PublicInternalDomain"
+          },
+          "PublicExternalDomain": {
+            "Ref": "PublicExternalDomain"
           }
         },
         "TemplateURL": {

@@ -42,6 +42,18 @@
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
     },
+    "PublicInternalHostedZone": {
+      "Description": "Route53 Public Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
+    "PublicInternalDomain": {
+      "Description": "Route53 Public Internal Domain for VPC.",
+      "Type": "String"
+    },
+    "PublicExternalDomain": {
+      "Description": "Route53 Public External Domain for VPC.",
+      "Type": "String"
+    },
     "BastionSecurityGroup": {
       "Type": "String"
     },
@@ -133,8 +145,15 @@
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           },
+          "PublicInternalHostedZone": {"Ref": "PublicInternalHostedZone"},
           "VpcName": {
             "Ref": "VpcName"
+          },
+          "PublicInternalDomain": {
+            "Ref": "PublicInternalDomain"
+          },
+          "PublicExternalDomain": {
+            "Ref": "PublicExternalDomain"
           },
           "InstanceProfile": {"Ref": "InstanceProfile"},
           "ImageId": {"Ref": "ImageId"},
@@ -143,24 +162,9 @@
             "Fn::Join": [
               "\n",
               [
-                "#!/bin/sh",
-                "n=0",
-                "until [ $n -ge 5 ]",
-                "do",
-                "docker run --restart=on-failure:10 -e \"LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89\" sgarlick987/aws-startup-utils ./attach_eni.py && break",
-                "n=$((n+1))",
-                "sleep 2",
-                "done",
-                "while [ -z \"$(ifconfig -a | grep eth1)\" ]; do sleep 3s; done;",
-                "cat /etc/network/interfaces.d/eth0.cfg | sed 's/eth0/eth1/g' > /etc/network/interfaces.d/eth1.cfg",
-                "ifup eth1",
-                "echo \"200 out\" >> /etc/iproute2/rt_tables",
-                "GATEWAY=$(route -n | awk 'FNR == 3 {print $2}')",
-                "PRIVATE_IP=$(ifconfig -a | grep -A 1 eth1 | awk 'FNR == 2 { print $2 }' | sed 's/.*://')",
-                "ip route add default via $GATEWAY dev eth1 table out",
-                "ip rule add from $PRIVATE_IP/32 table out",
-                "ip rule add to $PRIVATE_IP/32 table out",
-                "ip route flush cache"
+                "#!/bin/bash",
+                "docker run -d --restart=on-failure:10 -e LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89 sgarlick987/aws-startup-utils ./attach_eni.py",
+                "/tmp/config_network_interface.sh eth1"
               ]
             ]
           }

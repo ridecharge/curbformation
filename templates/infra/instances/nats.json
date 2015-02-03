@@ -30,6 +30,18 @@
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
     },
+    "PublicInternalHostedZone": {
+      "Description": "Route53 Public Internal Hosted Zone for VPC.",
+      "Type": "String"
+    },
+    "PublicInternalDomain": {
+      "Description": "Route53 Public Internal Domain for VPC.",
+      "Type": "String"
+    },
+    "PublicExternalDomain": {
+      "Description": "Route53 Public External Domain for VPC.",
+      "Type": "String"
+    },
     "BastionSecurityGroup": {
       "Description":"Security group to allow ssh from bastion instancse.",
       "Type": "String"
@@ -55,21 +67,23 @@
           "Environment": {
             "Ref": "Environment"
           },
+          "PublicInternalHostedZone": {"Ref": "PublicInternalHostedZone"},
           "InstanceProfile": {
             "Ref":"NATInstanceProfile"
+          },
+          "PublicInternalDomain": {
+            "Ref": "PublicInternalDomain"
+          },
+          "PublicExternalDomain": {
+            "Ref": "PublicExternalDomain"
           },
           "UserData": {
             "Fn::Join": [
               "\n",
               [
                 "#!/bin/bash",
-                "n=0",
-                "until [ $n -ge 5 ]",
-                "do",
-                "docker run -d --restart=always -e \"LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89\" sgarlick987/aws-startup-utils ./nat_monitor.py && break",
-                "n=$((n+1))",
-                "sleep 2",
-                "done"
+                "service iptables-persistent start",
+                "docker run -d --restart=always -e LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89 sgarlick987/aws-startup-utils ./nat_monitor.py"
               ]
             ]
           },

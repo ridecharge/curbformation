@@ -18,6 +18,14 @@
       "Description": "Subnets for private instances.",
       "Type": "String"
     },
+    "PublicInternalDomain": {
+      "Description": "Route53 Public Internal Domain for VPC.",
+      "Type": "String"
+    },
+    "PublicExternalDomain": {
+      "Description": "Route53 Public External Domain for VPC.",
+      "Type": "String"
+    },
     "NATImageId": {
       "Type": "String",
       "AllowedPattern": "ami-[a-z0-9]{8}",
@@ -119,7 +127,13 @@
           },
           "PublicInternalHostedZoneInstanceProfile": {"Ref": "PublicInternalHostedZoneInstanceProfile"},
           "AvailabilityZones": {"Ref": "AvailabilityZones"},
-          "ImageId": {"Ref": "BastionImageId"}
+          "ImageId": {"Ref": "BastionImageId"},
+          "PublicInternalDomain": {
+            "Ref": "PublicInternalDomain"
+          },
+          "PublicExternalDomain": {
+            "Ref": "PublicExternalDomain"
+          }
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -168,7 +182,14 @@
             "Ref": "InternalBastionSecurityGroup"
           },
           "AvailabilityZones": {"Ref": "AvailabilityZones"},
-          "ImageId": {"Ref": "NTPImageId"}
+          "ImageId": {"Ref": "NTPImageId"},
+          "PublicInternalHostedZone": {"Ref": "PublicInternalHostedZone"},
+          "PublicInternalDomain": {
+            "Ref": "PublicInternalDomain"
+          },
+          "PublicExternalDomain": {
+            "Ref": "PublicExternalDomain"
+          }
         },
         "TemplateURL": {
           "Fn::Join": [
@@ -206,6 +227,13 @@
           "BastionSecurityGroup": {
             "Ref": "InternalBastionSecurityGroup"
           },
+          "PublicInternalDomain": {
+            "Ref": "PublicInternalDomain"
+          },
+          "PublicExternalDomain": {
+            "Ref": "PublicExternalDomain"
+          },
+          "PublicInternalHostedZone": {"Ref": "PublicInternalHostedZone"},
           "NATSecurityGroup": {"Ref": "NATSecurityGroup"},
           "NATInstanceProfile": {"Ref": "NATInstanceProfile"},
           "AvailabilityZones": {"Ref": "AvailabilityZones"},

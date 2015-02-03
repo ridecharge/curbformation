@@ -303,6 +303,18 @@
               "Outputs.PublicExternalHostedZone"
             ]
           },
+          "PublicInternalDomain": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicInternalDomain"
+            ]
+          },
+          "PublicExternalDomain": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicExternalDomain"
+            ]
+          },
           "AvailabilityZones": {
             "Ref": "AvailabilityZones"
           }
@@ -370,6 +382,18 @@
             "Fn::GetAtt": [
               "HostedZones",
               "Outputs.PublicExternalHostedZone"
+            ]
+          },
+          "PublicInternalDomain": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicInternalDomain"
+            ]
+          },
+          "PublicExternalDomain": {
+            "Fn::GetAtt": [
+              "HostedZones",
+              "Outputs.PublicExternalDomain"
             ]
           },
           "BastionImageId": {
