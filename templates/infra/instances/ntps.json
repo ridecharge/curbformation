@@ -164,7 +164,7 @@
               [
                 "#!/bin/bash",
                 "docker run -d --restart=on-failure:10 -e LOGGLY_TOKEN=e8bcd155-264b-4ec0-88be-fcb023f76a89 sgarlick987/aws-startup-utils ./attach_eni.py",
-                "/tmp/config_network_interface.sh eth1"
+                "/root/config_network_interface.sh eth1"
               ]
             ]
           }

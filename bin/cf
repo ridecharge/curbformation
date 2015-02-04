@@ -2,15 +2,12 @@
 import argparse
 from boto import cloudformation
 from boto.exception import BotoServerError
-from cf.stack import Stack
+from cf.stack import EnvironmentStack
 
 
 def get_stack(options):
     cf_conn = cloudformation.connect_to_region(options.region)
-    return Stack(cf_conn,
-                 Stack.Types[options.stack_type],
-                 options.stack_name,
-                 options.environment)
+    return EnvironmentStack(cf_conn, options.environment)
 
 
 def create(options):
@@ -63,9 +60,6 @@ def register_subparser(subparsers, parent_parser, name, func):
 
 def get_parent_parser():
     parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument('stack_type', help='The stack type.',
-                               choices=Stack.Types.__members__)
-    parent_parser.add_argument('stack_name', help='The name of the stack.')
     parent_parser.add_argument('-r', '--region', help='The AWS region to deploy this stack into.',
                                choices=['us-east-1', 'us-west-1'], default='us-east-1')
     parent_parser.add_argument('-e', '--environment',
