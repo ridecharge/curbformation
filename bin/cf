@@ -1,13 +1,21 @@
 #!/usr/bin/env python
 import argparse
+import time
+import sys
+from boto import ec2
 from boto import cloudformation
 from boto.exception import BotoServerError
-from cf.stack import EnvironmentStack
+from cf.stacks.environment import Environment
 
 
 def get_stack(options):
     cf_conn = cloudformation.connect_to_region(options.region)
-    return EnvironmentStack(cf_conn, options.environment)
+    ec2_conn = ec2.connect_to_region(options.region)
+    return Environment(cf_conn, ec2_conn, options.environment)
+
+
+def validate(options):
+    sys.exit(0 if get_stack(options).validate() else 1)
 
 
 def create(options):
@@ -25,6 +33,7 @@ def delete(options):
 def describe_resource(resources, cf_conn):
     for resource in resources:
         if resource.resource_type == 'AWS::CloudFormation::Stack':
+            time.sleep(2)
             describe_resource(
                 cf_conn.describe_stacks(resource.physical_resource_id)[0].list_resources(), cf_conn)
         print(resource.logical_resource_id)
@@ -51,6 +60,7 @@ def register_subparsers(parser, parent_parser):
     register_subparser(subparsers, parent_parser, 'delete', delete)
     register_subparser(subparsers, parent_parser, 'create', create)
     register_subparser(subparsers, parent_parser, 'describe', describe)
+    register_subparser(subparsers, parent_parser, 'validate', validate)
 
 
 def register_subparser(subparsers, parent_parser, name, func):

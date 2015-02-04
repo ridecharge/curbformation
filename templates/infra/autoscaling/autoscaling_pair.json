@@ -35,15 +35,6 @@
       "Description": "Security Groups for the instances",
       "Type": "CommaDelimitedList"
     },
-    "KeyName": {
-      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "64",
-      "Default": "bootstrap",
-      "AllowedPattern": "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription": "can contain only alphanumeric characters, spaces, dashes and underscores."
-    },
     "InstanceProfile": {
       "Description": "IAM Instance Profile for instances",
       "Type": "String"
@@ -190,7 +181,7 @@
           "Ref": "InstanceType"
         },
         "KeyName": {
-          "Ref": "KeyName"
+          "Ref": "Environment"
         },
         "SecurityGroups": {
           "Ref": "SecurityGroups"

@@ -14,6 +14,5 @@ BUCKET_NAME=curbformation-$1-templates
 echo Creating Bucket $BUCKET_NAME if it does not exists.
 aws s3api create-bucket --bucket $BUCKET_NAME
 
-bin/validate-all
 bin/sync $1
-bin/cf create env $1
+bin/cf create $1
