@@ -4,12 +4,12 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-if [ "curbformation" != "${PWD##*/}" ]; then
-	echo You must run this script from the curbformation root directory.
+if [ "curbformation-templates" != "${PWD##*/}" ]; then
+	echo You must run this script from the curbformation-templates root directory.
 	exit 1
 fi
 
 S3_BUCKET_URI=s3://curbformation-$1-templates
 
 echo Syncing network templates to $S3_BUCKET_URI
-aws s3 sync ./templates $S3_BUCKET_URI --delete --exclude "*" --include "*.json"
+aws s3 sync . $S3_BUCKET_URI --delete --exclude "*" --include "*.json"
