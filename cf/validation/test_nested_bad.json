@@ -1,0 +1,26 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "v1.0 Creates VPCs for environment.",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch these VPCs into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    },
+    "TemplateURLPrefix": {
+      "Description": "Template URL prefix for nested stacks.",
+      "Type": "String"
+    },
+    "AvailabilityZones": {
+      "Description": "AvailabilityZones to launch networking stacks into.",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+  }
+}
+
+

@@ -1,0 +1,143 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "v1.0 Creates a network for environment.",
+  "Parameters": {
+    "Environment": {
+      "Description": "Name of the environment to launch these VPCs into.",
+      "Type": "String",
+      "MinLength": "4",
+      "MaxLength": "8",
+      "AllowedPattern": "[a-z0-9]*",
+      "ConstraintDescription": "Can contain 4 to 8 lower case alphanumeric characters."
+    }
+  },
+  "Mappings": {
+    "RegionMappings": {
+      "us-west-1": {
+        "AvailabilityZones": [
+          "us-west-1a",
+          "us-west-1b"
+        ]
+      },
+      "us-east-1": {
+        "AvailabilityZones": [
+          "us-east-1a",
+          "us-east-1c"
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "ApplicationVPC": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.ApplicationVPC"
+        ]
+      }
+    },
+    "InfrastructureVPC": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.InfrastructureVPC"
+        ]
+      }
+    },
+    "InfrastructureVPCPrivateSubnets": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.InfrastructureVPCPrivateSubnets"
+        ]
+      }
+    },
+    "ApplicationVPCPrivateSubnets": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.ApplicationVPCPrivateSubnets"
+        ]
+      }
+    },
+    "InfrastructureVPCPublicSubnets": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.InfrastructureVPCPublicSubnets"
+        ]
+      }
+    },
+    "ApplicationVPCPublicSubnets": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.ApplicationVPCPublicSubnets"
+        ]
+      }
+    },
+    "ApplicationVPCDBSubnetGroup": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Network",
+          "Outputs.ApplicationVPCDBSubnetGroup"
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "Network": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "Environment": {
+            "Ref": "Environment"
+          },
+          "NATImageId": "ami-aef6b6c6",
+          "BastionImageId": "ami-86f5b5ee",
+          "NTPImageId":"ami-e8793b80",
+          "AvailabilityZones": {
+            "Fn::Join": [
+              ",",
+              {
+                "Fn::FindInMap": [
+                  "RegionMappings",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "AvailabilityZones"
+                ]
+              }
+            ]
+          },
+          "TemplateURLPrefix": {
+            "Fn::Join": [
+              "-",
+              [
+                "https://s3.amazonaws.com/curbformation",
+                {
+                  "Ref": "Environment"
+                },
+                "templates"
+              ]
+            ]
+          }
+        },
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.amazonaws.com/curbformation-",
+              {
+                "Ref": "Environment"
+              },
+              "-templates/",
+              "test_nested_bad.json"
+            ]
+          ]
+        },
+        "TimeoutInMinutes": "30"
+      }
+    }
+  }
+}

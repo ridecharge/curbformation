@@ -35,7 +35,9 @@ class NestedStackValidator(object):
         Load the template body
         :return:
         """
-        return json.load(open(self.template_path))
+        with open(self.template_path) as file:
+            json_data = json.load(file)
+        return json_data
 
     def __dependencies(self):
         """
