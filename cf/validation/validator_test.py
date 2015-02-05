@@ -6,8 +6,8 @@ from boto.exception import BotoServerError
 from unittest.mock import patch
 
 
-def do_pass(var):
-    return var
+def do_pass(_):
+    pass
 
 
 @patch('time.sleep', do_pass)
