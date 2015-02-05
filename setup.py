@@ -8,5 +8,6 @@ setup(name='curbformation',
           'bin/bootstrap_env'
       ],
       url='https://github.com/ridecharge/curbformation',
-      packages=['cf']
+      packages=['cf'],
+      install_requires=['boto>=2.34.0']
 )
