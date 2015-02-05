@@ -14,9 +14,16 @@ class NestedStackValidator(object):
         self.default_inputs = self.__default_inputs()
 
     def __inputs(self):
+        """
+        :return: All parameters in the template
+        """
         return set(self.template['Parameters'].keys())
 
     def __default_inputs(self):
+        """
+        Determine which inputs have default values
+        :return: list of inputs that have default values
+        """
         inputs = []
         for key, val in self.template['Parameters'].items():
             if 'Default' in val:
@@ -24,9 +31,16 @@ class NestedStackValidator(object):
         return set(inputs)
 
     def __template(self):
+        """
+        Load the template body
+        :return:
+        """
         return json.load(open(self.template_path))
 
     def __dependencies(self):
+        """
+        :return: the dependencies in a nested stacks resource parameter section
+        """
         dependencies = {}
         for resource in self.stack_resources:
             properties = resource['Properties']
@@ -36,6 +50,10 @@ class NestedStackValidator(object):
         return dependencies
 
     def __stack_resources(self):
+        """
+        Gets the items in resource block in the cloudformation template that is a nested stack
+        :return: array of nested stack resources
+        """
         resources = []
         for _, value in self.template['Resources'].items():
             if value['Type'] == 'AWS::CloudFormation::Stack':
@@ -45,7 +63,7 @@ class NestedStackValidator(object):
     def __handle_errors(self, undefined_inputs, undefined_params, nested_path):
         has_errors = False
         if len(undefined_params) == 0 and len(undefined_inputs) == 0:
-            print('Successfully validated', self.template_path)
+            print('Successfully validated {} nesting {}'.format(self.template_path, nested_path))
         else:
             if len(undefined_inputs) > 0:
                 print('The following parameters are not defined in the nested template.')
@@ -60,6 +78,10 @@ class NestedStackValidator(object):
         return has_errors
 
     def __validate_template_syntax(self):
+        """
+        Validates a templates syntax using the boto/aws validation
+        :returns True if the template syntax is valid
+        """
         time.sleep(1)
         try:
             self.conn.validate_template(json.dumps(self.template))
@@ -69,6 +91,10 @@ class NestedStackValidator(object):
         return True
 
     def validate(self):
+        """
+        Validates a stacks syntax and input/output match ups for nested stacks resursively
+        :return: True if all the stacks come back valid
+        """
         if self.__validate_template_syntax():
             nested_valid = True
             # Then check if the nested templates are valid
