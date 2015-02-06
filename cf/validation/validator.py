@@ -8,7 +8,7 @@ def new_nested_stack_validator(cf_conn):
 
 
 class NestedStackValidator(object):
-    def __init__(self, conn, root_path='../curbformation/'):
+    def __init__(self, conn, root_path='../curbformation-templates/'):
         self.conn = conn
         self.root_path = root_path
 
