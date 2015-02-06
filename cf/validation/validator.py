@@ -68,7 +68,7 @@ class NestedStackValidator(object):
                 has_errors = True
         return has_errors
 
-    def __validate_template_syntax(self, template_body):
+    def __validate_template_syntax(self, template_body, path):
         """
         Validates a templates syntax using the boto/aws validation
         :returns True if the template syntax is valid
@@ -77,6 +77,7 @@ class NestedStackValidator(object):
         try:
             self.conn.validate_template(json.dumps(template_body))
         except BotoServerError as err:
+            print(path)
             print(err.message)
             return False
         return True
@@ -91,7 +92,7 @@ class NestedStackValidator(object):
         :return: True if all the stacks come back valid
         """
 
-        if self.__validate_template_syntax(template_body):
+        if self.__validate_template_syntax(template_body, template_path):
             nested_valid = True
             for path, params in self.__dependencies(template_body):
                 depend_template_body = self.__load_template(path)
