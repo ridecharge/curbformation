@@ -16,6 +16,7 @@ class Environment(object):
         self.stack_name = self.service.build_full_stack_name(self)
         self.template_uri = self.service.build_template_uri(self)
         self.tags = self.service.build_base_tags(self)
+        self.inputs = self.service.build_inputs(self)
         self.params = self.service.build_params(self)
 
     def validate(self):

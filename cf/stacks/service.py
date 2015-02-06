@@ -25,12 +25,22 @@ class StackService(object):
         }
         return tag
 
-    def build_params(self, stack):
+    def build_inputs(self, stack):
         data = json.load(open(stack.template))
         inputs = []
         for key in data['Parameters']:
             inputs.append(key)
         return inputs
+
+    def build_params(self, stack):
+        # All stacks have the environment param, and
+        # stacks with more inputs will call out and get them
+        # from the environment stack
+        params = [('Environment', stack.env)]
+        if len(stack.inputs) > 1:
+            for output in self.__describe(stack.env+'-env'):
+                if output.key != 'Environment':
+                    params.append((output.key, output.value))
 
     def create_key_pair(self, stack):
         print("Creating key pair {0}".format(stack.env))
@@ -40,12 +50,15 @@ class StackService(object):
         print("Deleting key pair {0}".format(stack.env))
         self.ec2_conn.delete_key_pair(stack.env)
 
+    def __describe(self, stack_name):
+        return self.cf_conn.describe_stacks(stack_name)[0]
+
     def validate(self, stack):
         self.validator.validate(stack)
 
     def describe(self, stack):
         print("Describing {0}".format(stack.stack_name))
-        return self.cf_conn.describe_stacks(stack.stack_name)[0]
+        return self.__describe(stack.stack_name)
 
     def delete(self, stack):
         print("Deleting {0}".format(stack.stack_name))
