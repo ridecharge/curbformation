@@ -12,9 +12,9 @@ class StackService(object):
         full_name = ["{0.env}", "{0.name}"]
         return "-".join(full_name).format(stack)
 
-    def build_template_uri(self):
+    def build_template_uri(self, stack):
         uri = "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.template}"
-        return uri.format(self)
+        return uri.format(stack)
 
     def build_base_tags(self, stack):
         tag = {
