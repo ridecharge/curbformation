@@ -1,3 +1,5 @@
+import json
+
 def new_stack_service(cf_conn, ec2_conn):
     return StackService(cf_conn, ec2_conn)
 
@@ -22,6 +24,13 @@ class StackService(object):
             'Template': stack.template
         }
         return tag
+
+    def build_params(self, stack):
+        data = json.load(open(stack.template))
+        inputs = []
+        for key in data['Parameters']:
+            inputs.append(key)
+        return inputs
 
     def create_key_pair(self, stack):
         print("Creating key pair {0}".format(stack.env))
