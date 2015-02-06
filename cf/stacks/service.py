@@ -1,5 +1,6 @@
 import json
 
+
 def new_stack_service(cf_conn, ec2_conn):
     return StackService(cf_conn, ec2_conn)
 
@@ -54,11 +55,11 @@ class StackService(object):
         print("Deleting key pair ", stack.env)
         self.ec2_conn.delete_key_pair(stack.env)
 
-    def __describe(self, stack_name):
-        return self.cf_conn.describe_stacks(stack_name)[0]
-
     def validate(self, stack):
         self.validator.validate(stack)
+
+    def __describe(self, stack_name):
+        return self.cf_conn.describe_stacks(stack_name)[0]
 
     def describe(self, stack):
         print("Describing ", stack.stack_name)

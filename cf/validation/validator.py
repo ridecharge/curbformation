@@ -10,57 +10,43 @@ class NestedStackValidator(object):
     def __init__(self, conn, template_path):
         self.conn = conn
         self.template_path = template_path
-        self.template = self.__template()
-        self.stack_resources = self.__stack_resources()
-        self.dependencies = self.__dependencies()
-        self.inputs = self.__inputs()
-        self.default_inputs = self.__default_inputs()
 
-    def __inputs(self):
+    def __inputs(self, template_body):
         """
         :return: All parameters in the template
         """
-        return set(self.template['Parameters'].keys())
+        return set(template_body['Parameters'].keys())
 
-    def __default_inputs(self):
+    def __default_inputs(self, template_body):
         """
         Determine which inputs have default values
         :return: list of inputs that have default values
         """
         inputs = []
-        for key, val in self.template['Parameters'].items():
+        for key, val in template_body['Parameters'].items():
             if 'Default' in val:
                 inputs.append(key)
         return set(inputs)
 
-    def __template(self):
-        """
-        Load the template body
-        :return:
-        """
-        with open(self.template_path) as file:
-            json_data = json.load(file)
-        return json_data
 
-    def __dependencies(self, template):
+    def __dependencies(self, template_body):
         """
         :return: the dependencies in a nested stacks resource parameter section
         """
         dependencies = {}
-        for resource in self.stack_resources:
+        for resource in self.__stack_resources(template_body):
             properties = resource['Properties']
             template_url = properties['TemplateURL']['Fn::Join'][1][-1]
-            params = properties['Parameters'].keys()
-            dependencies[template_url] = set(params)
-        return dependencies
+            dependencies[template_url] = self.__inputs(template_body)
+        return dependencies.items()
 
-    def __stack_resources(self, template):
+    def __stack_resources(self, template_body):
         """
         Gets the items in resource block in the cloudformation template that is a nested stack
         :return: array of nested stack resources
         """
         resources = []
-        for _, value in self.template['Resources'].items():
+        for _, value in template_body['Resources'].items():
             if value['Type'] == 'AWS::CloudFormation::Stack':
                 resources.append(value)
         return resources
@@ -82,37 +68,31 @@ class NestedStackValidator(object):
                 has_errors = True
         return has_errors
 
-    def __validate_template_syntax(self, template):
+    def __validate_template_syntax(self, template_body):
         """
         Validates a templates syntax using the boto/aws validation
         :returns True if the template syntax is valid
         """
         time.sleep(1)
         try:
-            self.conn.validate_template(json.dumps(self.template))
+            self.conn.validate_template(json.dumps(template_body))
         except BotoServerError as err:
             print(err.message)
             return False
         return True
 
-    def validate(self, stack):
+    def __load_template(self, path):
+        return json.load(open('../curbformation/'+path))
+
+    def __validate(self, template_body):
         """
         Validates a stacks syntax and input/output match ups for nested stacks resursively
         :return: True if all the stacks come back valid
         """
-        if self.__validate_template_syntax():
-            nested_valid = True
-            # Then check if the nested templates are valid
-            for path, params in self.dependencies.items():
-                nested_stack = NestedStackValidator(self.conn, path)
-                # If the nested template validate properly then validated the in/out params
-                if nested_stack.validate():
-                    undefined_inputs = params.difference(nested_stack.inputs)
-                    undefined_params = nested_stack.inputs.difference(params).difference(
-                        nested_stack.default_inputs)
-                    nested_valid = nested_valid and not self.__handle_errors(undefined_inputs,
-                                                                             undefined_params, path)
-                else:
-                    nested_valid = False
-            return nested_valid
-        return False
+        if self.__validate_template_syntax(template_body):
+            for path, params in self.__dependencies(template_body):
+                depend_template_body = self.__load_template(path)
+                self.__validate(depend_template_body)
+
+    def validate(self, stack):
+        return self.__validate(stack.template_body)
