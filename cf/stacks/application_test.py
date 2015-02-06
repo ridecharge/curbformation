@@ -4,7 +4,7 @@ from cf.stacks.environment import Environment
 from unittest.mock import MagicMock
 
 
-class EnvironmentTest(unittest.TestCase):
+class ApplicationTest(unittest.TestCase):
     def setUp(self):
         self.service = MagicMock()
         self.env = 'test'
@@ -17,29 +17,29 @@ class EnvironmentTest(unittest.TestCase):
         }
         self.params = [('Environment', self.env)]
         self.template_uri = 'https://s3.amazonaws.com/curbformation-test-templates/env.json'
-        self.environment = Environment(self.service, self.env)
+        self.stack = Environment(self.service, self.env)
 
     def test_validate(self):
-        self.environment.validate()
-        self.service.validate(self.environment)
+        self.stack.validate()
+        self.service.validate(self.stack)
 
     def test_create(self):
-        self.environment.create()
-        self.service.create_key_pair.assert_called_with(self.environment)
-        self.service.create(self.environment)
+        self.stack.create()
+        self.service.create_key_pair.assert_called_with(self.stack)
+        self.service.create(self.stack)
 
     def test_update(self):
-        self.environment.update()
-        self.service.update.assert_called_with(self.environment)
+        self.stack.update()
+        self.service.update.assert_called_with(self.stack)
 
     def test_delete(self):
-        self.environment.delete()
-        self.service.delete_key_pair.assert_called_with(self.environment)
-        self.service.delete.assert_called_with(self.environment)
+        self.stack.delete()
+        self.service.delete_key_pair.assert_called_with(self.stack)
+        self.service.delete.assert_called_with(self.stack)
 
     def test_describe(self):
-        self.environment.describe()
-        self.service.describe.assert_called_with(self.environment)
+        self.stack.describe()
+        self.service.describe.assert_called_with(self.stack)
 
 
 if __name__ == '__main__':
