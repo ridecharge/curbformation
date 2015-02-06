@@ -25,8 +25,11 @@ class StackService(object):
         }
         return tag
 
+    def load_template_body(self, stack):
+        return json.load(open(stack.template))
+
     def build_inputs(self, stack):
-        data = json.load(open(stack.template))
+        data = stack.template_body
         inputs = []
         for key in data['Parameters']:
             inputs.append(key)

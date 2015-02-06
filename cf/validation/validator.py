@@ -42,7 +42,7 @@ class NestedStackValidator(object):
             json_data = json.load(file)
         return json_data
 
-    def __dependencies(self):
+    def __dependencies(self, template):
         """
         :return: the dependencies in a nested stacks resource parameter section
         """
@@ -54,7 +54,7 @@ class NestedStackValidator(object):
             dependencies[template_url] = set(params)
         return dependencies
 
-    def __stack_resources(self):
+    def __stack_resources(self, template):
         """
         Gets the items in resource block in the cloudformation template that is a nested stack
         :return: array of nested stack resources
@@ -82,7 +82,7 @@ class NestedStackValidator(object):
                 has_errors = True
         return has_errors
 
-    def __validate_template_syntax(self):
+    def __validate_template_syntax(self, template):
         """
         Validates a templates syntax using the boto/aws validation
         :returns True if the template syntax is valid
@@ -95,7 +95,7 @@ class NestedStackValidator(object):
             return False
         return True
 
-    def validate(self):
+    def validate(self, stack):
         """
         Validates a stacks syntax and input/output match ups for nested stacks resursively
         :return: True if all the stacks come back valid
