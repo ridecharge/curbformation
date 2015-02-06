@@ -6,10 +6,7 @@ from unittest.mock import MagicMock
 
 class EnvironmentTest(unittest.TestCase):
     def setUp(self):
-        self.ec2_conn = MagicMock()
-        self.cf_conn = MagicMock()
-        self.cf_conn.update_stack = MagicMock(return_value="")
-        self.cf_conn.create_stack = MagicMock(return_value="")
+        self.service = MagicMock()
         self.env = 'test'
         self.template = 'env.json'
         self.stack_name = self.env+'-env'
@@ -20,39 +17,25 @@ class EnvironmentTest(unittest.TestCase):
         }
         self.params = [('Environment', self.env)]
         self.template_uri = 'https://s3.amazonaws.com/curbformation-test-templates/env.json'
-        self.environment = Environment(self.cf_conn, self.ec2_conn, self.env)
+        self.environment = Environment(self.service, self.env)
 
     def test_create(self):
         self.environment.create()
-        self.ec2_conn.create_key_pair.assert_called_with(self.env)
-        self.cf_conn.create_stack. \
-            assert_called_with(self.stack_name,
-                               None,
-                               self.template_uri,
-                               self.params,
-                               capabilities=self.capabilities,
-                               tags=self.tags,
-                               disable_rollback=True)
+        self.service.create_key_pair.assert_called_with(self.environment)
+        self.service.create(self.environment)
 
     def test_update(self):
         self.environment.update()
-        self.cf_conn.update_stack. \
-            assert_called_with(self.stack_name,
-                               None,
-                               self.template_uri,
-                               self.params,
-                               capabilities=self.capabilities,
-                               tags=self.tags,
-                               disable_rollback=True)
+        self.service.update.assert_called_with(self.environment)
 
     def test_delete(self):
         self.environment.delete()
-        self.ec2_conn.delete_key_pair.assert_called_with(self.env)
-        self.cf_conn.delete_stack.assert_called_with(self.stack_name)
+        self.service.delete_key_pair.assert_called_with(self.environment)
+        self.service.delete.assert_called_with(self.environment)
 
     def test_describe(self):
         self.environment.describe()
-        self.cf_conn.describe_stacks.assert_called_with(self.stack_name)
+        self.service.describe.assert_called_with(self.environment)
 
 
 if __name__ == '__main__':

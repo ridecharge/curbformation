@@ -67,6 +67,7 @@ class StackService(object):
 
     def create(self, stack):
         print("Creating {0}".format(stack.stack_name))
+        print("with params: {0}", stack.params)
         return self.cf_conn.create_stack(
             stack.stack_name,
             None,
@@ -79,6 +80,7 @@ class StackService(object):
 
     def update(self, stack):
         print("Updating {0}".format(stack.stack_name))
+        print("with params: {0}", stack.params)
         return self.cf_conn.update_stack(
             stack.stack_name,
             None,
