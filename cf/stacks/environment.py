@@ -25,11 +25,11 @@ class Environment(object):
         return self.service.describe(self)
 
     def delete(self):
-        self.service.delete_key_pair()
+        self.service.delete_key_pair(self)
         return self.service.delete(self)
 
     def create(self):
-        self.service.create_key_pair()
+        self.service.create_key_pair(self)
         return self.service.create(self)
 
     def update(self):
