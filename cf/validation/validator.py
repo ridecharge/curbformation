@@ -98,7 +98,7 @@ class NestedStackValidator(object):
                 depend_template_body = self.__load_template(path)
                 if self.__validate(depend_template_body, path):
                     inputs = self.__inputs(depend_template_body)
-                    default_inputs = self.__default_inputs(template_body)
+                    default_inputs = self.__default_inputs(depend_template_body)
 
                     undefined_inputs = params.difference(inputs)
                     undefined_params = inputs.difference(params).difference(default_inputs)

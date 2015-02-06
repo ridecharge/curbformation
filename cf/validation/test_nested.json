@@ -16,7 +16,8 @@
     },
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
-      "Type": "String"
+      "Type": "String",
+      "Default":"abc"
     },
     "NATImageId": {
       "Type": "String",

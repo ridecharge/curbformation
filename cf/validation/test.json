@@ -96,20 +96,6 @@
           "NATImageId": "ami-aef6b6c6",
           "BastionImageId": "ami-86f5b5ee",
           "NTPImageId":"ami-e8793b80",
-          "AvailabilityZones": {
-            "Fn::Join": [
-              ",",
-              {
-                "Fn::FindInMap": [
-                  "RegionMappings",
-                  {
-                    "Ref": "AWS::Region"
-                  },
-                  "AvailabilityZones"
-                ]
-              }
-            ]
-          },
           "TemplateURLPrefix": {
             "Fn::Join": [
               "-",
