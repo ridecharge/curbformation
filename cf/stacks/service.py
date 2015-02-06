@@ -47,11 +47,11 @@ class StackService(object):
         return params
 
     def create_key_pair(self, stack):
-        print("Creating key pair {0}".format(stack.env))
+        print("Creating key pair ", stack.env)
         self.ec2_conn.create_key_pair(stack.env)
 
     def delete_key_pair(self, stack):
-        print("Deleting key pair {0}".format(stack.env))
+        print("Deleting key pair ", stack.env)
         self.ec2_conn.delete_key_pair(stack.env)
 
     def __describe(self, stack_name):
@@ -61,16 +61,16 @@ class StackService(object):
         self.validator.validate(stack)
 
     def describe(self, stack):
-        print("Describing {0}".format(stack.stack_name))
+        print("Describing ", stack.stack_name)
         return self.__describe(stack.stack_name)
 
     def delete(self, stack):
-        print("Deleting {0}".format(stack.stack_name))
+        print("Deleting ", stack.stack_name)
         return self.cf_conn.delete_stack(stack.stack_name)
 
     def create(self, stack):
-        print("Creating {0}".format(stack.stack_name))
-        print("with params: {0}", stack.params)
+        print("Creating ", stack.stack_name)
+        print("with params: ", stack.params)
         return self.cf_conn.create_stack(
             stack.stack_name,
             None,
@@ -82,8 +82,8 @@ class StackService(object):
         )
 
     def update(self, stack):
-        print("Updating {0}".format(stack.stack_name))
-        print("with params: {0}", stack.params)
+        print("Updating ", stack.stack_name)
+        print("with params: ", stack.params)
         return self.cf_conn.update_stack(
             stack.stack_name,
             None,
