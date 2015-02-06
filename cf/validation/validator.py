@@ -2,14 +2,14 @@ import json
 import time
 from boto.exception import BotoServerError
 
+
 def new_nested_stack_validator(cf_conn):
-    pass
+    return NestedStackValidator(cf_conn)
 
 
 class NestedStackValidator(object):
-    def __init__(self, conn, template_path):
+    def __init__(self, conn):
         self.conn = conn
-        self.template_path = template_path
 
     def __inputs(self, template_body):
         """
@@ -90,9 +90,21 @@ class NestedStackValidator(object):
         :return: True if all the stacks come back valid
         """
         if self.__validate_template_syntax(template_body):
+            nested_valid = True
             for path, params in self.__dependencies(template_body):
                 depend_template_body = self.__load_template(path)
-                self.__validate(depend_template_body)
+                if self.__validate(depend_template_body):
+                    inputs = self.__inputs(depend_template_body)
+                    default_inputs = self.__default_inputs(template_body)
+
+                    undefined_inputs = params.difference(inputs)
+                    undefined_params = inputs.difference(params).difference(default_inputs)
+                    nested_valid = nested_valid and not self.__handle_errors(undefined_inputs,
+                                                                             undefined_params, path)
+                else:
+                    nested_valid = False
+                return nested_valid
+        return False
 
     def validate(self, stack):
         return self.__validate(stack.template_body)
