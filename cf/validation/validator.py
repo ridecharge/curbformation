@@ -2,6 +2,9 @@ import json
 import time
 from boto.exception import BotoServerError
 
+def new_nested_stack_validator(cf_conn):
+    pass
+
 
 class NestedStackValidator(object):
     def __init__(self, conn, template_path):

@@ -1,17 +1,18 @@
 import cf.stacks.service
 
 
-def new_environment_stack(cf_conn, ec2_conn, env):
+def new_application_stack(cf_conn, ec2_conn, app, env):
     service = cf.stacks.service.new_stack_service(cf_conn, ec2_conn)
-    return Environment(service, env)
+    return Application(service, app, env)
 
 
-class Environment(object):
-    def __init__(self, service, env):
+class Application(object):
+    def __init__(self, service, app, env):
         self.service = service
+        self.app = app
         self.env = env
-        self.name = 'env'
-        self.template = 'env.json'
+        self.name = app
+        self.template = self.app+'.json'
         self.capabilities = ['CAPABILITY_IAM']
         self.stack_name = self.service.build_full_stack_name(self)
         self.template_uri = self.service.build_template_uri(self)
@@ -25,11 +26,9 @@ class Environment(object):
         return self.service.describe(self)
 
     def delete(self):
-        self.service.delete_key_pair()
         return self.service.delete(self)
 
     def create(self):
-        self.service.create_key_pair()
         return self.service.create(self)
 
     def update(self):
