@@ -8,8 +8,9 @@ def new_nested_stack_validator(cf_conn):
 
 
 class NestedStackValidator(object):
-    def __init__(self, conn):
+    def __init__(self, conn, root_path='../curbformation/'):
         self.conn = conn
+        self.root_path = root_path
 
     def __inputs(self, template_body):
         """
@@ -28,7 +29,6 @@ class NestedStackValidator(object):
                 inputs.append(key)
         return set(inputs)
 
-
     def __dependencies(self, template_body):
         """
         :return: the dependencies in a nested stacks resource parameter section
@@ -37,7 +37,7 @@ class NestedStackValidator(object):
         for resource in self.__stack_resources(template_body):
             properties = resource['Properties']
             template_url = properties['TemplateURL']['Fn::Join'][1][-1]
-            dependencies[template_url] = self.__inputs(template_body)
+            dependencies[template_url] = set(properties['Parameters'].keys())
         return dependencies.items()
 
     def __stack_resources(self, template_body):
@@ -51,19 +51,19 @@ class NestedStackValidator(object):
                 resources.append(value)
         return resources
 
-    def __handle_errors(self, undefined_inputs, undefined_params, nested_path):
+    def __handle_errors(self, undefined_inputs, undefined_params, path, template_path):
         has_errors = False
         if len(undefined_params) == 0 and len(undefined_inputs) == 0:
-            print('Successfully validated {} nesting {}'.format(self.template_path, nested_path))
+            print('Successfully validated {} nesting {}'.format(template_path, path))
         else:
             if len(undefined_inputs) > 0:
                 print('The following parameters are not defined in the nested template.')
-                print('{0} nested in {1}'.format(nested_path, self.template_path))
+                print('{0} nested in {1}'.format(path, template_path))
                 print(undefined_inputs)
                 has_errors = True
             if len(undefined_params) > 0:
                 print('The following parameters are missing inputs to the nested template.')
-                print('{0} nested in {1}'.format(nested_path, self.template_path))
+                print('{0} nested in {1}'.format(path, template_path))
                 print(undefined_params)
                 has_errors = True
         return has_errors
@@ -82,29 +82,33 @@ class NestedStackValidator(object):
         return True
 
     def __load_template(self, path):
-        return json.load(open('../curbformation/'+path))
+        with open(self.root_path + path) as f:
+            return json.load(f)
 
-    def __validate(self, template_body):
+    def __validate(self, template_body, template_path):
         """
         Validates a stacks syntax and input/output match ups for nested stacks resursively
         :return: True if all the stacks come back valid
         """
+
         if self.__validate_template_syntax(template_body):
             nested_valid = True
             for path, params in self.__dependencies(template_body):
                 depend_template_body = self.__load_template(path)
-                if self.__validate(depend_template_body):
+                if self.__validate(depend_template_body, path):
                     inputs = self.__inputs(depend_template_body)
                     default_inputs = self.__default_inputs(template_body)
 
                     undefined_inputs = params.difference(inputs)
                     undefined_params = inputs.difference(params).difference(default_inputs)
                     nested_valid = nested_valid and not self.__handle_errors(undefined_inputs,
-                                                                             undefined_params, path)
+                                                                             undefined_params,
+                                                                             path,
+                                                                             template_path)
                 else:
                     nested_valid = False
-                return nested_valid
+            return nested_valid
         return False
 
     def validate(self, stack):
-        return self.__validate(stack.template_body)
+        return self.__validate(stack.template_body, stack.template)
