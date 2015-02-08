@@ -41,8 +41,8 @@ class StackService(object):
             return params
         else:
             return params + [(out.key, out.value) for out in
-                             self.__describe(stack.env + '-env').outputs if
-                             out.key != 'Environment' and out.key in stack.inputs]
+                             self.__describe(stack.env + '-env').outputs
+                             if out.key in stack.inputs]
 
     def create_key_pair(self, stack):
         print("Creating key pair:", stack.env)
