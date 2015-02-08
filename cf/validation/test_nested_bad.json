@@ -17,6 +17,10 @@
     "AvailabilityZones": {
       "Description": "AvailabilityZones to launch networking stacks into.",
       "Type": "String"
+    },
+    "Missing": {
+      "Description": "AvailabilityZones to launch networking stacks into.",
+      "Type": "String"
     }
   },
   "Resources": {

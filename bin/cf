@@ -10,12 +10,12 @@ import cf.stacks.application
 
 
 def get_stack(options):
+
     cf_conn = cloudformation.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
-    if options.app:
-        return cf.stacks.application.new_application_stack(cf_conn, ec2_conn, options.environment,
-                                                           options.app)
-    return cf.stacks.environment.new_environment_stack(cf_conn, ec2_conn, options.environment)
+    if options.name == 'env':
+        return cf.stacks.environment.new_environment_stack(cf_conn, ec2_conn, vars(options))
+    return cf.stacks.application.new_application_stack(cf_conn, ec2_conn, vars(options))
 
 
 def validate(options):
@@ -37,7 +37,7 @@ def delete(options):
 def describe_resource(resources, cf_conn):
     for resource in resources:
         if resource.resource_type == 'AWS::CloudFormation::Stack':
-            time.sleep(2)
+            time.sleep(1)
             describe_resource(
                 cf_conn.describe_stacks(resource.physical_resource_id)[0].list_resources(), cf_conn)
         print(resource.logical_resource_id)
@@ -74,7 +74,7 @@ def register_subparser(subparsers, parent_parser, name, func):
 
 def get_parent_parser():
     parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument('-a', '--app', help='The application stack name.')
+    parent_parser.add_argument('-n', '--name', help='The stack name.', default='env')
     parent_parser.add_argument('-r', '--region', help='The AWS region to deploy this stack into.',
                                choices=['us-east-1', 'us-west-1'], default='us-east-1')
     parent_parser.add_argument('-e', '--environment',

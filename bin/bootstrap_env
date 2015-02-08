@@ -4,8 +4,8 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-if [ "curbformation" != "${PWD##*/}" ]; then
-	echo You must run this script from the curbformation root directory.
+if [ "curbformation-templates" != "${PWD##*/}" ]; then
+	echo You must run this script from the curbformation-templates root directory.
 	exit 1
 fi
 

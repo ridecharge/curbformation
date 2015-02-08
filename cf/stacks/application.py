@@ -1,23 +1,23 @@
 import cf.stacks.service
 
 
-def new_application_stack(cf_conn, ec2_conn, app, env):
+def new_application_stack(cf_conn, ec2_conn, options):
     service = cf.stacks.service.new_stack_service(cf_conn, ec2_conn)
-    return Application(service, app, env)
+    return Application(service, **options)
 
 
 class Application(object):
-    def __init__(self, service, env, app):
+    def __init__(self, service, **options):
         self.service = service
-        self.env = env
-        self.app = app
-        self.name = app
-        self.template = self.app+'.json'
+        self.env = options['environment']
+        self.name = options['name']
+        self.template = self.name+'.json'
         self.capabilities = ['CAPABILITY_IAM']
-        self.stack_name = self.service.build_full_stack_name(self)
+        self.stack_name = self.service.build_stack_name(self)
         self.template_uri = self.service.build_template_uri(self)
         self.template_body = self.service.load_template_body(self)
-        self.tags = self.service.build_base_tags(self)
+        self.tags = self.service.build_tags(self)
+        self.inputs = self.service.build_inputs(self)
         self.params = self.service.build_params(self)
 
     def validate(self):
