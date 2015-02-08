@@ -7,10 +7,10 @@ def new_application_stack(cf_conn, ec2_conn, app, env):
 
 
 class Application(object):
-    def __init__(self, service, app, env):
+    def __init__(self, service, env, app):
         self.service = service
-        self.app = app
         self.env = env
+        self.app = app
         self.name = app
         self.template = self.app+'.json'
         self.capabilities = ['CAPABILITY_IAM']
