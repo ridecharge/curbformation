@@ -29,14 +29,13 @@ class StackService(object):
         return tag
 
     def load_template_body(self, stack):
-        return json.load(open(stack.template))
+        with open(stack.template) as f:
+            return json.load(f)
 
     def build_inputs(self, stack):
         data = stack.template_body
-        inputs = []
-        for key in data['Parameters']:
-            inputs.append(key)
-        return inputs
+        return list(data['Parameters'].keys())
+
 
     def build_params(self, stack):
         # All stacks have the environment param, and

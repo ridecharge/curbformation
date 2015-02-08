@@ -20,14 +20,9 @@ class NestedStackValidator(object):
 
     def __default_inputs(self, template_body):
         """
-        Determine which inputs have default values
-        :return: list of inputs that have default values
+        :return: set of inputs that have default values
         """
-        inputs = []
-        for key, val in template_body['Parameters'].items():
-            if 'Default' in val:
-                inputs.append(key)
-        return set(inputs)
+        return set(key for key, val in template_body['Parameters'].items() if 'Default' in val)
 
     def __dependencies(self, template_body):
         """
@@ -42,14 +37,10 @@ class NestedStackValidator(object):
 
     def __stack_resources(self, template_body):
         """
-        Gets the items in resource block in the cloudformation template that is a nested stack
         :return: array of nested stack resources
         """
-        resources = []
-        for _, value in template_body['Resources'].items():
-            if value['Type'] == 'AWS::CloudFormation::Stack':
-                resources.append(value)
-        return resources
+        return [val for val in template_body['Resources'].values() if
+                val['Type'] == 'AWS::CloudFormation::Stack']
 
     def __handle_errors(self, undefined_inputs, undefined_params, path, template_path):
         has_errors = False
