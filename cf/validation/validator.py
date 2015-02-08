@@ -32,7 +32,7 @@ class NestedStackValidator(object):
         for resource in self.__stack_resources(template_body):
             properties = resource['Properties']
             template_url = properties['TemplateURL']['Fn::Join'][1][-1]
-            dependencies[template_url] = set(properties['Parameters'].keys())
+            dependencies[template_url] = self.__inputs(properties)
         return dependencies.items()
 
     def __stack_resources(self, template_body):
