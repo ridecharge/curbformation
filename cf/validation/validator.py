@@ -3,10 +3,6 @@ import time
 from boto.exception import BotoServerError
 
 
-def new_nested_stack_validator(cf_conn):
-    return NestedStackValidator(cf_conn)
-
-
 class NestedStackValidator(object):
     def __init__(self, conn, root_path='../curbformation-templates/'):
         self.conn = conn

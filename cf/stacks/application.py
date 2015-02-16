@@ -1,11 +1,3 @@
-import cf.stacks.service
-
-
-def new_application_stack(cf_conn, ec2_conn, options):
-    service = cf.stacks.service.new_stack_service(cf_conn, ec2_conn)
-    return Application(service, **options)
-
-
 class Application(object):
     def __init__(self, service, **options):
         self.service = service

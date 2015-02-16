@@ -2,24 +2,23 @@
 import argparse
 import time
 import sys
+from cf import stacks
+from boto import route53
 from boto import ec2
 from boto import cloudformation
-import boto.route53
 from boto.exception import BotoServerError
-import cf.stacks.environment
-import cf.stacks.application
 
 
 def get_stack(options):
     cf_conn = cloudformation.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
-    route53_conn = boto.route53.connect_to_region(options.region)
+    route53_conn = route53.connect_to_region(options.region)
     if options.name == 'env':
-        return cf.stacks.environment.new_environment_stack(cf_conn,
-                                                           ec2_conn,
-                                                           route53_conn,
-                                                           vars(options))
-    return cf.stacks.application.new_application_stack(cf_conn, ec2_conn, vars(options))
+        return stacks.new_environment_stack(cf_conn,
+                                            ec2_conn,
+                                            route53_conn,
+                                            vars(options))
+    return stacks.new_application_stack(cf_conn, ec2_conn, vars(options))
 
 
 def validate(options):

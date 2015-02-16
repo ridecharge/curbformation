@@ -1,10 +1,4 @@
 import json
-import cf.validation.validator
-
-
-def new_stack_service(cf_conn, ec2_conn, route53_conn=None):
-    validator = cf.validation.validator.new_nested_stack_validator(cf_conn)
-    return StackService(cf_conn, ec2_conn, route53_conn, validator)
 
 
 class StackService(object):
