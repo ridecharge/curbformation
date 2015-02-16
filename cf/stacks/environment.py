@@ -1,8 +1,8 @@
 import cf.stacks.service
 
 
-def new_environment_stack(cf_conn, ec2_conn, options):
-    service = cf.stacks.service.new_stack_service(cf_conn, ec2_conn)
+def new_environment_stack(cf_conn, ec2_conn, route53_conn, options):
+    service = cf.stacks.service.new_stack_service(cf_conn, ec2_conn, route53_conn)
     return Environment(service, **options)
 
 
@@ -19,6 +19,7 @@ class Environment(object):
         self.tags = self.service.build_tags(self)
         self.inputs = self.service.build_inputs(self)
         self.params = self.service.build_params(self)
+        self.public_internal_domain = 'gocurb.io' if self.env == 'prod' else self.env+'.gocurb.io'
 
     def validate(self):
         return self.service.validate(self)
@@ -27,6 +28,7 @@ class Environment(object):
         return self.service.describe(self)
 
     def delete(self):
+        self.service.delete_dynamic_record_sets(self)
         self.service.delete_key_pair(self)
         return self.service.delete(self)
 

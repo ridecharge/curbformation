@@ -2,15 +2,16 @@ import json
 import cf.validation.validator
 
 
-def new_stack_service(cf_conn, ec2_conn):
+def new_stack_service(cf_conn, ec2_conn, route53_conn=None):
     validator = cf.validation.validator.new_nested_stack_validator(cf_conn)
-    return StackService(cf_conn, ec2_conn, validator)
+    return StackService(cf_conn, ec2_conn, route53_conn, validator)
 
 
 class StackService(object):
-    def __init__(self, cf_conn, ec2_conn, validator):
+    def __init__(self, cf_conn, ec2_conn, route53_conn, validator):
         self.cf_conn = cf_conn
         self.ec2_conn = ec2_conn
+        self.route53_conn = route53_conn
         self.validator = validator
 
     def build_stack_name(self, stack):
@@ -40,13 +41,22 @@ class StackService(object):
         if stack.name == 'env':
             return params
         else:
+            if 'ApplicationName' in stack.inputs:
+                params.append(('ApplicationName', stack.name))
             return params + [(out.key, out.value) for out in
-                             self.__describe(stack.env + '-env').outputs
-                             if out.key in stack.inputs]
+                             self.__describe(stack.env + '-env').outputs if
+                             out.key in stack.inputs]
 
     def create_key_pair(self, stack):
         print("Creating key pair:", stack.env)
         self.ec2_conn.create_key_pair(stack.env)
+
+    def delete_dynamic_record_sets(self, stack):
+        zone = self.route53_conn.get_zone(stack.public_internal_domain)
+        zone.delete_a('bastion-us-east-1a-infrastructure.ops1.gocurb.io.')
+        zone.delete_a('bastion-us-east-1c-infrastructure.ops1.gocurb.io.')
+        zone.delete_a('bastion-us-east-1a-application.ops1.gocurb.io.')
+        zone.delete_a('bastion-us-east-1c-application.ops1.gocurb.io.')
 
     def delete_key_pair(self, stack):
         print("Deleting key pair:", stack.env)
