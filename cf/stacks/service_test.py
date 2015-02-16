@@ -14,7 +14,7 @@ class StackServiceTest(unittest.TestCase):
         self.stack = MagicMock()
         self.stack.env = 'test'
         self.stack.template = 'env.json'
-        self.stack.stack_name = self.stack.env+'-env'
+        self.stack.stack_name = self.stack.env + '-env'
         self.stack.capabilities = ['CAPABILITY_IAM']
         self.stack.tags = {
             'Environment': self.stack.env,

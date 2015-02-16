@@ -9,7 +9,7 @@ class EnvironmentTest(unittest.TestCase):
         self.service = MagicMock()
         self.env = 'test'
         self.template = 'env.json'
-        self.stack_name = self.env+'-env'
+        self.stack_name = self.env + '-env'
         self.capabilities = ['CAPABILITY_IAM']
         self.tags = {
             'Environment': self.env,

@@ -3,7 +3,7 @@ class Application(object):
         self.service = service
         self.env = options['environment']
         self.name = options['name']
-        self.template = self.name+'.json'
+        self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
         self.stack_name = self.service.build_stack_name(self)
         self.template_uri = self.service.build_template_uri(self)
