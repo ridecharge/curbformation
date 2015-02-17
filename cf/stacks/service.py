@@ -47,10 +47,10 @@ class StackService(object):
 
     def delete_dynamic_record_sets(self, stack):
         zone = self.route53_conn.get_zone(stack.public_internal_domain)
-        zone.delete_a('bastion-us-east-1a-infrastructure.ops1.gocurb.io.')
-        zone.delete_a('bastion-us-east-1c-infrastructure.ops1.gocurb.io.')
-        zone.delete_a('bastion-us-east-1a-application.ops1.gocurb.io.')
-        zone.delete_a('bastion-us-east-1c-application.ops1.gocurb.io.')
+        zone.delete_a("bastion-us-east-1a-infrastructure.{}".format(stack.public_internal_domain))
+        zone.delete_a("bastion-us-east-1c-infrastructure.{}".format(stack.public_internal_domain))
+        zone.delete_a("bastion-us-east-1a-application.{}".format(stack.public_internal_domain))
+        zone.delete_a("bastion-us-east-1c-application.{}".format(stack.public_internal_domain))
 
     def delete_key_pair(self, stack):
         print("Deleting key pair:", stack.env)

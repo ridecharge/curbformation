@@ -20,8 +20,8 @@ class Environment(object):
         return self.service.describe(self)
 
     def delete(self):
-        self.service.delete_dynamic_record_sets(self)
         self.service.delete_key_pair(self)
+        self.service.delete_dynamic_record_sets(self)
         return self.service.delete(self)
 
     def create(self):
