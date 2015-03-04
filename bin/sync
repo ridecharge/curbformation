@@ -1,18 +1,14 @@
 #!/bin/sh
-if [ -z "$1" ]; then
-	echo The first parameter must be an environment name.
-	exit 1
+if [ "curbformation-templates" != "${PWD##*/}" ]; then
+	echo This script must be run from the curbformation-templates project root
 fi
 
-S3_BUCKET_URI=s3://curbformation-$1-templates
+ENVIRONMENT=$1
+if [ -z "$ENVIRONMENT" ]; then
+	ENVIRONMENT=test
+fi
+
+S3_BUCKET_URI=s3://curbformation-$ENVIRONMENT-templates
 echo Syncing network templates to $S3_BUCKET_URI
 
-if [ "curbformation-templates" == "${PWD##*/}" ]; then
-    aws s3 sync . $S3_BUCKET_URI --delete --exclude "*" --include "*.json"
-else
-    if [ -z "$2" ]; then
-        echo The second parameter must be a app name if not in the curbformation-templates project
-        exit 1
-    fi
-    aws s3 sync . $S3_BUCKET_URI --delete --exclude "*" --include "$2.json"
-fi
+aws s3 sync . $S3_BUCKET_URI --delete --exclude "*" --include "*.json"

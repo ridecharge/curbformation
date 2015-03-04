@@ -22,7 +22,7 @@ def get_stack(options):
 
 
 def validate(options):
-    sys.exit(0 if get_stack(options).validate() else 1)
+    sys.exit(not get_stack(options).validate())
 
 
 def create(options):

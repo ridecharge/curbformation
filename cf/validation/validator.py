@@ -70,6 +70,7 @@ class NestedStackValidator(object):
         return True
 
     def __load_template(self, path):
+        print("Opening file", self.root_path + path)
         with open(self.root_path + path) as f:
             return json.load(f)
 
@@ -78,7 +79,6 @@ class NestedStackValidator(object):
         Validates a stacks syntax and input/output match ups for nested stacks resursively
         :return: True if all the stacks come back valid
         """
-
         if self.__validate_template_syntax(template_body, template_path):
             nested_valid = True
             for path, params in self.__dependencies(template_body):
@@ -95,6 +95,7 @@ class NestedStackValidator(object):
                                                                              template_path)
                 else:
                     nested_valid = False
+                    print("Nested_value set ot false")
             return nested_valid
         return False
 

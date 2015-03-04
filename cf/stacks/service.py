@@ -47,17 +47,20 @@ class StackService(object):
 
     def delete_dynamic_record_sets(self, stack):
         zone = self.route53_conn.get_zone(stack.public_internal_domain)
-        zone.delete_a("bastion-us-east-1a-infrastructure.{}".format(stack.public_internal_domain))
-        zone.delete_a("bastion-us-east-1c-infrastructure.{}".format(stack.public_internal_domain))
-        zone.delete_a("bastion-us-east-1a-application.{}".format(stack.public_internal_domain))
-        zone.delete_a("bastion-us-east-1c-application.{}".format(stack.public_internal_domain))
+        try:
+            zone.delete_a("bastion-us-east-1a-infrastructure.{}".format(stack.public_internal_domain))
+            zone.delete_a("bastion-us-east-1c-infrastructure.{}".format(stack.public_internal_domain))
+            zone.delete_a("bastion-us-east-1a-application.{}".format(stack.public_internal_domain))
+            zone.delete_a("bastion-us-east-1c-application.{}".format(stack.public_internal_domain))
+        except:
+            pass
 
     def delete_key_pair(self, stack):
         print("Deleting key pair:", stack.env)
         self.ec2_conn.delete_key_pair(stack.env)
 
     def validate(self, stack):
-        self.validator.validate(stack)
+        return self.validator.validate(stack)
 
     def __describe(self, stack_name):
         return self.cf_conn.describe_stacks(stack_name)[0]
