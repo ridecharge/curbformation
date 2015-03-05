@@ -27,7 +27,6 @@ class ApplicationTest(unittest.TestCase):
 
     def test_create(self):
         self.stack.create()
-        #self.service.create_key_pair.assert_called_with(self.stack)
         self.service.create(self.stack)
 
     def test_update(self):
@@ -36,7 +35,6 @@ class ApplicationTest(unittest.TestCase):
 
     def test_delete(self):
         self.stack.delete()
-        #self.service.delete_key_pair.assert_called_with(self.stack)
         self.service.delete.assert_called_with(self.stack)
 
     def test_describe(self):
