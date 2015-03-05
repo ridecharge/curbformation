@@ -11,6 +11,7 @@ class Application(object):
         self.tags = self.service.build_tags(self)
         self.inputs = self.service.build_inputs(self)
         self.params = self.service.build_params(self)
+        self.topic_name = self.service.build_topic_name(self)
 
     def validate(self):
         return self.service.validate(self)

@@ -3,17 +3,22 @@ from subprocess import call
 
 
 class StackService(object):
-    def __init__(self, cf_conn, ec2_conn, route53_conn, validator):
+    def __init__(self, cf_conn, ec2_conn, route53_conn, validator, namespace='curbformation'):
         self.cf_conn = cf_conn
         self.ec2_conn = ec2_conn
         self.route53_conn = route53_conn
         self.validator = validator
+        self.namespace = namespace
+
+    def build_topic_name(self, stack):
+        return 'arn:aws:sns:us-east-1:563891166287:' + build_topic_name(stack.env, self.namespace)
 
     def build_stack_name(self, stack):
         return "-".join(["{0.env}", "{0.name}"]).format(stack)
 
     def build_template_uri(self, stack):
-        return "https://s3.amazonaws.com/curbformation-{0.env}-templates/{0.template}".format(stack)
+        return "https://s3.amazonaws.com/{0}-{1.env}-templates/{1.template}".format(self.namespace,
+                                                                                    stack)
 
     def build_tags(self, stack):
         return {
@@ -79,7 +84,8 @@ class StackService(object):
             stack.params,
             capabilities=stack.capabilities,
             tags=stack.tags,
-            disable_rollback=True
+            disable_rollback=True,
+            notification_arns=stack.topic_name
         )
 
     def update(self, stack):
@@ -92,11 +98,16 @@ class StackService(object):
             stack.params,
             capabilities=stack.capabilities,
             tags=stack.tags,
-            disable_rollback=True
+            disable_rollback=True,
+            notification_arns=stack.topic_name
         )
 
 
-class BootstrapService(StackService):
+def build_topic_name(environment, namespace):
+    return "{}-{}-notifications".format(namespace, environment)
+
+
+class BootstrapService(object):
     def __init__(self, ec2_conn, s3_conn, sns_conn, namespace='curbformation'):
         self.ec2_conn = ec2_conn
         self.s3_conn = s3_conn
@@ -107,7 +118,7 @@ class BootstrapService(StackService):
         return "{}-{}-templates".format(self.namespace, bootstrap.env)
 
     def build_topic_name(self, bootstrap):
-        return "{}-{}-notifications".format(self.namespace, bootstrap.env)
+        return build_topic_name(bootstrap.env, self.namespace)
 
     def create_s3_bucket(self, bootstrap):
         print("Creating S3 Bucket:", bootstrap.bucket_name)
