@@ -39,8 +39,8 @@ class BootstrapEnvironment(object):
 
     def bootstrap(self):
         self.service.create_s3_bucket(self)
-        self.service.create_sns_topics(self)
         self.service.sync_s3_bucket(self)
+        self.service.create_sns_topics(self)
         self.service.create_key_pair(self)
 
     def cleanup(self):

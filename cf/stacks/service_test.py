@@ -63,5 +63,8 @@ class StackServiceTest(unittest.TestCase):
         self.cf_conn.describe_stacks.assert_called_with(self.stack.stack_name)
 
 
+class BootstrapServiceTest(unittest.TestCase):
+    pass
+
 if __name__ == '__main__':
     unittest.main()
