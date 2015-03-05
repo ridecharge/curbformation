@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import unittest
-import cf.stacks.service
+import cf.stacks
 import cf.stacks.environment
 from unittest.mock import MagicMock
 
@@ -22,15 +22,7 @@ class StackServiceTest(unittest.TestCase):
         }
         self.stack.params = [('Environment', self.stack.env)]
         self.stack.template_uri = 'https://s3.amazonaws.com/curbformation-test-templates/env.json'
-        self.service = cf.stacks.service.new_stack_service(self.cf_conn, self.ec2_conn)
-
-    def test_create_key_pair(self):
-        self.service.create_key_pair(self.stack)
-        self.ec2_conn.create_key_pair.assert_called_with(self.stack.env)
-
-    def test_delete_key_pair(self):
-        self.service.delete_key_pair(self.stack)
-        self.ec2_conn.delete_key_pair.assert_called_with(self.stack.env)
+        self.service = cf.stacks.new_stack_service(self.cf_conn, self.ec2_conn)
 
     def test_create(self):
         self.service.create(self.stack)
@@ -64,7 +56,32 @@ class StackServiceTest(unittest.TestCase):
 
 
 class BootstrapServiceTest(unittest.TestCase):
-    pass
+    def setUp(self):
+        self.ec2_conn = MagicMock()
+        self.s3_conn = MagicMock()
+        self.sns_conn = MagicMock()
+        self.service = cf.stacks.new_bootstrap_service(self.ec2_conn, self.s3_conn, self.sns_conn)
+        self.bootstrap = MagicMock()
+        self.bootstrap.env = 'env'
+        self.bootstrap.topic_name = 'topic'
+        self.bootstrap.bucket_name = 'bucket'
+
+    def test_create_s3_bucket(self):
+        self.service.create_s3_bucket(self.bootstrap)
+        self.s3_conn.create_bucket.assert_called_with(self.bootstrap.bucket_name)
+
+    def test_create_sns_topic(self):
+        self.service.create_sns_topics(self.bootstrap)
+        self.sns_conn.create_topic.assert_called_with(self.bootstrap.topic_name)
+
+    def test_create_key_pair(self):
+        self.service.create_key_pair(self.bootstrap)
+        self.ec2_conn.create_key_pair.assert_called_with(self.bootstrap.env)
+
+    def test_delete_key_pair(self):
+        self.service.delete_key_pair(self.bootstrap)
+        self.ec2_conn.delete_key_pair.assert_called_with(self.bootstrap.env)
+
 
 if __name__ == '__main__':
     unittest.main()
