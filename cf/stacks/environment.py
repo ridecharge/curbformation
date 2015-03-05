@@ -20,13 +20,33 @@ class Environment(object):
         return self.service.describe(self)
 
     def delete(self):
-        self.service.delete_key_pair(self)
         self.service.delete_dynamic_record_sets(self)
         return self.service.delete(self)
 
     def create(self):
-        self.service.create_key_pair(self)
         return self.service.create(self)
 
     def update(self):
         return self.service.update(self)
+
+
+class BootstrapEnvironment(object):
+    def __init__(self, service, **options):
+        self.service = service
+        self.env = options['environment']
+        self.bucket_name = self.service.build_s3_bucket_name(self)
+        self.topic_name = self.service.build_topic_name(self)
+
+    def bootstrap(self):
+        self.service.create_s3_bucket(self)
+        self.service.create_sns_topics(self)
+        self.service.sync_s3_bucket(self)
+        self.service.create_key_pair(self)
+
+    def cleanup(self):
+        self.service.delete_sns_topic(self)
+        self.service.delete_s3_bucket(self)
+        self.service.delete_key_pair(self)
+
+    def sync(self):
+        self.service.sync_s3_bucket(self)

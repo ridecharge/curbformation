@@ -2,10 +2,13 @@
 import argparse
 import time
 import sys
+import os
 from cf import stacks
 from boto import route53
 from boto import ec2
 from boto import cloudformation
+from boto import sns
+from boto import s3
 from boto.exception import BotoServerError
 
 
@@ -19,6 +22,13 @@ def get_stack(options):
                                             route53_conn,
                                             vars(options))
     return stacks.new_application_stack(cf_conn, ec2_conn, vars(options))
+
+
+def get_bootstrap_environment(options):
+    sns_conn = sns.connect_to_region(options.region)
+    s3_conn = s3.connect_to_region(options.region)
+    ec2_conn = ec2.connect_to_region(options.region)
+    return stacks.new_bootstrap_environment(ec2_conn, s3_conn, sns_conn, vars(options))
 
 
 def validate(options):
@@ -35,6 +45,25 @@ def update(options):
 
 def delete(options):
     print(get_stack(options).delete())
+
+
+def bootstrap(options):
+    templates_dir_exists()
+    print(get_bootstrap_environment(options).bootstrap())
+
+
+def sync(options):
+    print(get_bootstrap_environment(options).sync())
+
+
+def templates_dir_exists():
+    if not os.path.isdir('../curbformation'):
+        print('The directory ../curbformation must exist to run this command')
+        sys.exit(1)
+
+
+def cleanup(options):
+    print(get_bootstrap_environment(options).cleanup())
 
 
 def describe_resource(resources, cf_conn):
@@ -60,30 +89,43 @@ def describe(options):
     print(stack.stack_status)
 
 
-def register_subparsers(parser, parent_parser):
-    subparsers = parser.add_subparsers(title='subcommands', description='valid subcommands',
-                                       help='additional help')
-    register_subparser(subparsers, parent_parser, 'update', update)
-    register_subparser(subparsers, parent_parser, 'delete', delete)
-    register_subparser(subparsers, parent_parser, 'create', create)
-    register_subparser(subparsers, parent_parser, 'describe', describe)
-    register_subparser(subparsers, parent_parser, 'validate', validate)
+def register_subparsers(parser):
+    subparsers = parser.add_subparsers(title='subcommands', description='stack subcommands',
+                                       help='subcommands')
+    subparsers.required = True
+    subparsers.dest = 'subcommand'
+    register_subparser(subparsers, 'bootstrap', bootstrap)
+    register_subparser(subparsers, 'sync', sync)
+    register_subparser(subparsers, 'cleanup', cleanup)
+    register_stack_subparser(subparsers, 'update', update)
+    register_stack_subparser(subparsers, 'delete', delete)
+    register_stack_subparser(subparsers, 'create', create)
+    register_stack_subparser(subparsers, 'describe', describe)
+    register_stack_subparser(subparsers, 'validate', validate)
 
 
-def register_subparser(subparsers, parent_parser, name, func):
-    parser = subparsers.add_parser(name, help='{0} a Stack.'.format(name), parents=[parent_parser])
+def register_stack_subparser(subparsers, name, func):
+    parser = register_subparser(subparsers, name, func)
+    parser.add_argument('-n', '--name', help='The stack name',
+                        default='env')
+
+
+def register_subparser(subparsers, name, func):
+    parser = subparsers.add_parser(name)
+    parser.add_argument('-r', '--region', help='The AWS region to deploy this stack into.',
+                        choices=['us-east-1', 'us-west-1'], default='us-east-1')
+    parser.add_argument('-e', '--environment',
+                        help='The environment name.',
+                        default='test')
     parser.set_defaults(func=func)
+    return parser
 
 
-def get_parent_parser():
-    parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument('-n', '--name', help='The stack name.', default='env')
-    parent_parser.add_argument('-r', '--region', help='The AWS region to deploy this stack into.',
-                               choices=['us-east-1', 'us-west-1'], default='us-east-1')
-    parent_parser.add_argument('-e', '--environment',
-                               help='The environment name.',
-                               default='test')
-    return parent_parser
+def get_parser():
+    parser = argparse.ArgumentParser(
+        description='Performs operations for Curbformation.',
+        prog="cf")
+    return parser
 
 
 def error_handler(args):
@@ -100,9 +142,8 @@ def args_error(message, parser):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Performs operations for Cloudformation Stacks.')
-    register_subparsers(parser, get_parent_parser())
+    parser = get_parser()
+    register_subparsers(parser)
     args = parser.parse_args()
 
     error_handler(args)

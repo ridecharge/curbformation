@@ -1,4 +1,5 @@
 import json
+from subprocess import call
 
 
 class StackService(object):
@@ -41,23 +42,18 @@ class StackService(object):
                              self.__describe(stack.env + '-env').outputs if
                              out.key in stack.inputs]
 
-    def create_key_pair(self, stack):
-        print("Creating key pair:", stack.env)
-        self.ec2_conn.create_key_pair(stack.env)
 
     def delete_dynamic_record_sets(self, stack):
         zone = self.route53_conn.get_zone(stack.public_internal_domain)
         try:
-            zone.delete_a("bastion-us-east-1a-infrastructure.{}".format(stack.public_internal_domain))
-            zone.delete_a("bastion-us-east-1c-infrastructure.{}".format(stack.public_internal_domain))
+            zone.delete_a(
+                "bastion-us-east-1a-infrastructure.{}".format(stack.public_internal_domain))
+            zone.delete_a(
+                "bastion-us-east-1c-infrastructure.{}".format(stack.public_internal_domain))
             zone.delete_a("bastion-us-east-1a-application.{}".format(stack.public_internal_domain))
             zone.delete_a("bastion-us-east-1c-application.{}".format(stack.public_internal_domain))
         except:
             pass
-
-    def delete_key_pair(self, stack):
-        print("Deleting key pair:", stack.env)
-        self.ec2_conn.delete_key_pair(stack.env)
 
     def validate(self, stack):
         return self.validator.validate(stack)
@@ -98,3 +94,49 @@ class StackService(object):
             tags=stack.tags,
             disable_rollback=True
         )
+
+
+class BootstrapService(StackService):
+    def __init__(self, ec2_conn, s3_conn, sns_conn, namespace='curbformation'):
+        self.ec2_conn = ec2_conn
+        self.s3_conn = s3_conn
+        self.sns_conn = sns_conn
+        self.namespace = namespace
+
+    def build_s3_bucket_name(self, bootstrap):
+        return "{}-{}-templates".format(self.namespace, bootstrap.env)
+
+    def build_topic_name(self, bootstrap):
+        return "{}-{}-notifications".format(self.namespace, bootstrap.env)
+
+    def create_s3_bucket(self, bootstrap):
+        print("Creating S3 Bucket:", bootstrap.bucket_name)
+        self.s3_conn.create_bucket(bootstrap.bucket_name)
+
+    def delete_s3_bucket(self, bootstrap):
+        print("Deleting S3 Bucket and contents:", bootstrap.bucket_name)
+        call(['aws', 's3', 'rm', 's3://' + bootstrap.bucket_name, '--recursive'])
+        self.s3_conn.delete_bucket(bootstrap.bucket_name)
+
+    def create_sns_topics(self, bootstrap):
+        print("Creating SNS Topic:", bootstrap.topic_name)
+        self.sns_conn.create_topic(bootstrap.topic_name)
+
+    def delete_sns_topic(self, bootstrap):
+        print("Deleting SNS Topic:", bootstrap.topic_name)
+        self.sns_conn.delete_topic('arn:aws:sns:us-east-1:563891166287:' + bootstrap.topic_name)
+
+    def create_key_pair(self, bootstrap):
+        print("Creating key pair:", bootstrap.env)
+        try:
+            self.ec2_conn.create_key_pair(bootstrap.env)
+        except:
+            print("Key pair exists skipping.")
+
+    def delete_key_pair(self, bootstrap):
+        print("Deleting key pair:", bootstrap.env)
+        self.ec2_conn.delete_key_pair(bootstrap.env)
+
+    def sync_s3_bucket(self, bootstrap):
+        call(['aws', 's3', 'sync', '../{}-templates'.format(self.namespace),
+              's3://' + bootstrap.bucket_name, '--delete', '--exclude', '*', '--include', '*.json'])

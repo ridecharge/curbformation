@@ -9,9 +9,18 @@ def new_stack_service(cf_conn, ec2_conn, route53_conn=None):
     return service.StackService(cf_conn, ec2_conn, route53_conn, stack_validator)
 
 
+def new_bootstrap_environment_service(ec2_conn, s3_conn, sns_conn):
+    return service.BootstrapService(ec2_conn, s3_conn, sns_conn)
+
+
 def new_environment_stack(cf_conn, ec2_conn, route53_conn, options):
     stack_service = new_stack_service(cf_conn, ec2_conn, route53_conn)
     return environment.Environment(stack_service, **options)
+
+
+def new_bootstrap_environment(ec2_conn, s3_conn, sns_conn, options):
+    bootstrap_stack_service = new_bootstrap_environment_service(ec2_conn, s3_conn, sns_conn)
+    return environment.BootstrapEnvironment(bootstrap_stack_service, **options)
 
 
 def new_application_stack(cf_conn, ec2_conn, options):
