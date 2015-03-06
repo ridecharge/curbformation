@@ -3,11 +3,13 @@ from subprocess import call
 
 
 class StackService(object):
-    def __init__(self, cf_conn, ec2_conn, route53_conn, validator, namespace='curbformation'):
+    def __init__(self, cf_conn, ec2_conn, route53_conn, validator, debug=False,
+                 namespace='curbformation'):
         self.cf_conn = cf_conn
         self.ec2_conn = ec2_conn
         self.route53_conn = route53_conn
         self.validator = validator
+        self.debug = debug
         self.namespace = namespace
 
     def build_topic_name(self, stack):
@@ -47,16 +49,15 @@ class StackService(object):
                              self.__describe(stack.env + '-env').outputs if
                              out.key in stack.inputs]
 
-
     def delete_dynamic_record_sets(self, stack):
         zone = self.route53_conn.get_zone(stack.public_internal_domain)
         try:
             zone.delete_a(
-                "bastion-us-east-1a-infrastructure.{}".format(stack.public_internal_domain))
+                "bastion-us-east-1a.infrastructure.{}".format(stack.public_internal_domain))
             zone.delete_a(
-                "bastion-us-east-1c-infrastructure.{}".format(stack.public_internal_domain))
-            zone.delete_a("bastion-us-east-1a-application.{}".format(stack.public_internal_domain))
-            zone.delete_a("bastion-us-east-1c-application.{}".format(stack.public_internal_domain))
+                "bastion-us-east-1c.infrastructure.{}".format(stack.public_internal_domain))
+            zone.delete_a("bastion-us-east-1a.application.{}".format(stack.public_internal_domain))
+            zone.delete_a("bastion-us-east-1c.application.{}".format(stack.public_internal_domain))
         except:
             pass
 
@@ -84,7 +85,7 @@ class StackService(object):
             stack.params,
             capabilities=stack.capabilities,
             tags=stack.tags,
-            disable_rollback=True,
+            disable_rollback=self.debug,
             notification_arns=stack.topic_name
         )
 
@@ -98,7 +99,7 @@ class StackService(object):
             stack.params,
             capabilities=stack.capabilities,
             tags=stack.tags,
-            disable_rollback=True,
+            disable_rollback=self.debug,
             notification_arns=stack.topic_name
         )
 
