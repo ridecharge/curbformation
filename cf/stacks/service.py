@@ -1,5 +1,6 @@
 import json
 from subprocess import call
+from os.path import expanduser
 
 
 class StackService(object):
@@ -19,8 +20,7 @@ class StackService(object):
         return "-".join(["{0.env}", "{0.name}"]).format(stack)
 
     def build_template_uri(self, stack):
-        return "https://s3.amazonaws.com/{0}-{1.env}-templates/{1.template}".format(self.namespace,
-                                                                                    stack)
+        return "https://s3.amazonaws.com/" + build_bucket_name(stack.env, self.namespace)
 
     def build_tags(self, stack):
         return {
@@ -41,7 +41,7 @@ class StackService(object):
         # from the environment stack
         params = [('Environment', stack.env)]
         if stack.name == 'env':
-            return params
+            return params + self.__read_config(stack)
         else:
             if 'ApplicationName' in stack.inputs:
                 params.append(('ApplicationName', stack.name))
@@ -49,17 +49,18 @@ class StackService(object):
                              self.__describe(stack.env + '-env').outputs if
                              out.key in stack.inputs]
 
+    def __read_config(self, stack):
+        config_path = expanduser("~") + "/.cf/" + stack.env + ".json"
+        print("Using config:", config_path)
+        with open(config_path, 'r') as f:
+            return list(json.load(f).items())
+
     def delete_dynamic_record_sets(self, stack):
         zone = self.route53_conn.get_zone(stack.public_internal_domain)
-        try:
-            zone.delete_a(
-                "bastion-us-east-1a.infrastructure.{}".format(stack.public_internal_domain))
-            zone.delete_a(
-                "bastion-us-east-1c.infrastructure.{}".format(stack.public_internal_domain))
-            zone.delete_a("bastion-us-east-1a.application.{}".format(stack.public_internal_domain))
-            zone.delete_a("bastion-us-east-1c.application.{}".format(stack.public_internal_domain))
-        except:
-            pass
+        for record in zone.get_records():
+            if record.type not in ['NS', 'SOA']:
+                print("Deleting record", record.name)
+                zone.delete_record(record)
 
     def validate(self, stack):
         return self.validator.validate(stack)
@@ -108,6 +109,10 @@ def build_topic_name(environment, namespace):
     return "{}-{}-notifications".format(namespace, environment)
 
 
+def build_bucket_name(environment, namespace):
+    return "{}-{}-templates".format(namespace, environment)
+
+
 class BootstrapService(object):
     def __init__(self, ec2_conn, s3_conn, sns_conn, namespace='curbformation'):
         self.ec2_conn = ec2_conn
@@ -116,7 +121,7 @@ class BootstrapService(object):
         self.namespace = namespace
 
     def build_s3_bucket_name(self, bootstrap):
-        return "{}-{}-templates".format(self.namespace, bootstrap.env)
+        return build_bucket_name(bootstrap.env, self.namespace)
 
     def build_topic_name(self, bootstrap):
         return build_topic_name(bootstrap.env, self.namespace)
@@ -152,3 +157,4 @@ class BootstrapService(object):
     def sync_s3_bucket(self, bootstrap):
         call(['aws', 's3', 'sync', '../{}-templates'.format(self.namespace),
               's3://' + bootstrap.bucket_name, '--delete', '--exclude', '*', '--include', '*.json'])
+
