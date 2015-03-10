@@ -18,9 +18,12 @@ class StackService(object):
 
     def build_stack_name(self, stack):
         return "-".join(["{0.env}", "{0.name}"]).format(stack)
+    
+    def build_s3_bucket_name(self, bootstrap):
+        return build_bucket_name(bootstrap.env, self.namespace)
 
     def build_template_uri(self, stack):
-        return "https://s3.amazonaws.com/" + build_bucket_name(stack.env, self.namespace)
+        return "https://s3.amazonaws.com/" + stack.bucket_name + "/" + stack.template
 
     def build_tags(self, stack):
         return {
@@ -77,13 +80,13 @@ class StackService(object):
         return self.cf_conn.delete_stack(stack.stack_name)
 
     def create(self, stack):
+        print(stack.template_uri)
         print("Creating:", stack.stack_name)
         print("with params:", stack.params)
         return self.cf_conn.create_stack(
             stack.stack_name,
-            None,
-            stack.template_uri,
-            stack.params,
+            template_url=stack.template_uri,
+            parameters=stack.params,
             capabilities=stack.capabilities,
             tags=stack.tags,
             disable_rollback=self.debug,
@@ -95,9 +98,8 @@ class StackService(object):
         print("with params:", stack.params)
         return self.cf_conn.update_stack(
             stack.stack_name,
-            None,
-            stack.template_uri,
-            stack.params,
+            template_url=stack.template_uri,
+            parameters=stack.params,
             capabilities=stack.capabilities,
             tags=stack.tags,
             disable_rollback=self.debug,

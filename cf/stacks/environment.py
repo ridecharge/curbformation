@@ -3,10 +3,12 @@ class Environment(object):
         self.service = service
         self.env = options['environment']
         self.name = options['name']
+        self.bucket_name = self.service.build_s3_bucket_name(self)
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
         self.stack_name = self.service.build_stack_name(self)
         self.template_uri = self.service.build_template_uri(self)
+        print(self.template_uri)
         self.template_body = self.service.load_template_body(self)
         self.tags = self.service.build_tags(self)
         self.inputs = self.service.build_inputs(self)
