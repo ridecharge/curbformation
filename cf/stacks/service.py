@@ -18,7 +18,7 @@ class StackService(object):
 
     def build_stack_name(self, stack):
         return "-".join(["{0.env}", "{0.name}"]).format(stack)
-    
+
     def build_s3_bucket_name(self, bootstrap):
         return build_bucket_name(bootstrap.env, self.namespace)
 

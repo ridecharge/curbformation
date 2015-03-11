@@ -5,6 +5,7 @@ class Application(object):
         self.name = options['name']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
+        self.bucket_name = self.service.build_s3_bucket_name(self)
         self.stack_name = self.service.build_stack_name(self)
         self.template_uri = self.service.build_template_uri(self)
         self.template_body = self.service.load_template_body(self)
