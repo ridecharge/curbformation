@@ -32,7 +32,7 @@ class StackService(object):
         }
 
     def load_template_body(self, stack):
-        with open(stack.template) as f:
+        with open("../"+self.namespace+"-templates/"+stack.template) as f:
             return json.load(f)
 
     def build_inputs(self, stack):
