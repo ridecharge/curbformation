@@ -29,9 +29,8 @@ class StackServiceTest(unittest.TestCase):
         self.service.create(self.stack)
         self.cf_conn.create_stack. \
             assert_called_with(self.stack.stack_name,
-                               None,
-                               self.stack.template_uri,
-                               self.stack.params,
+                               template_url=self.stack.template_uri,
+                               parameters=self.stack.params,
                                capabilities=self.stack.capabilities,
                                tags=self.stack.tags,
                                disable_rollback=False,
@@ -41,9 +40,8 @@ class StackServiceTest(unittest.TestCase):
         self.service.update(self.stack)
         self.cf_conn.update_stack. \
             assert_called_with(self.stack.stack_name,
-                               None,
-                               self.stack.template_uri,
-                               self.stack.params,
+                               template_url=self.stack.template_uri,
+                               parameters=self.stack.params,
                                capabilities=self.stack.capabilities,
                                tags=self.stack.tags,
                                disable_rollback=False,
