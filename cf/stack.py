@@ -1,13 +1,14 @@
-import json
 import cf.helpers
-from os.path import expanduser
 
 
 class Stack(object):
     def __init__(self, service, **options):
         self.service = service
         self.env = options['environment']
+        self.region = options['region']
         self.name = options['name']
+        self.config = cf.helpers.config(self.env)
+        self.secrets = self.config['secrets']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
@@ -16,8 +17,8 @@ class Stack(object):
         self.template_body = cf.helpers.template_body(self.template)
         self.tags = cf.helpers.tags(self.env, self.template)
         self.inputs = cf.helpers.inputs(self.template_body)
-        self.params = self.service.build_params(self)
-        self.topic_arn = cf.helpers.topic_arn(self.env)
+        self.params = cf.helpers.params(self)
+        self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.config['AccountId'])
 
     def validate(self):
         return self.service.validate(self)
@@ -42,35 +43,12 @@ class StackService(object):
         self.validator = validator
         self.debug = debug
 
-    def build_params(self, stack):
-        # All stacks have the environment param, and
-        # stacks with more inputs will call out and get them
-        # from the environment stack
-        params = [('Environment', stack.env)]
-        if stack.name == 'env':
-            return params + self.__read_config(stack)
-        else:
-            if 'ApplicationName' in stack.inputs:
-                params.append(('ApplicationName', stack.name))
-            return params + [(out.key, out.value) for out in
-                             self.__describe(stack.env + '-env').outputs if
-                             out.key in stack.inputs]
-
-    def __read_config(self, stack):
-        config_path = expanduser("~") + "/.cf/" + stack.env + ".json"
-        print("Using config:", config_path)
-        with open(config_path, 'r') as f:
-            return list(json.load(f).items())
-
     def validate(self, stack):
         return self.validator.validate(stack)
 
-    def __describe(self, stack_name):
-        return self.cf_conn.describe_stacks(stack_name)[0]
-
     def describe(self, stack):
         print("Describing:", stack.stack_name)
-        return self.__describe(stack.stack_name)
+        return cf.helpers.describe_stack(self.cf_conn, stack.stack_name)
 
     def delete(self, stack):
         print("Deleting:", stack.stack_name)

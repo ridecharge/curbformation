@@ -1,12 +1,54 @@
 import json
+import cf
+from boto import ec2
+from boto import cloudformation
+from boto import sns
+from boto import s3
+from os.path import expanduser
+from subprocess import call
+
+
+def config(env):
+    config_path = expanduser("~") + "/.cf/" + env + ".json"
+    print("Using config:", config_path)
+    with open(config_path, 'r') as f:
+        return json.load(f)
+
+
+def get_stack(options):
+    cf_conn = cloudformation.connect_to_region(options.region)
+    ec2_conn = ec2.connect_to_region(options.region)
+    return cf.new_stack(cf_conn, ec2_conn, vars(options))
+
+
+def get_environment(options):
+    sns_conn = sns.connect_to_region(options.region)
+    s3_conn = s3.connect_to_region(options.region)
+    ec2_conn = ec2.connect_to_region(options.region)
+    return cf.new_environment(ec2_conn, s3_conn, sns_conn, vars(options))
+
+
+def params(stack):
+    p = [('Environment', stack.env)]
+    if stack.name == 'env':
+        return p + list(stack.secrets.items())
+    else:
+        p += ('ApplicationName', stack.name)
+        return p + [(out.key, out.value) for out in
+                    describe_stack.outputs if
+                    out.key in stack.inputs]
 
 
 def topic_name(env):
     return "curbformation-{}-notifications".format(env)
 
 
-def topic_arn(env):
-    return "arn:aws:sns:us-east-1:563891166287:" + topic_name(env)
+def describe_stack(cf_conn, name):
+    return cf_conn.describe_stacks(name)[0]
+
+
+def topic_arn(env, region, account_id):
+    return ":".join(["arn:aws:sns", region, account_id, topic_name(env)])
 
 
 def stack_name(env, name):
@@ -53,3 +95,12 @@ def nested_stack_dependencies(temp_body):
         template_url = properties['TemplateURL']['Fn::Join'][1][-1]
         dependencies[template_url] = inputs(properties)
     return dependencies.items()
+
+
+def sync_s3_bucket(name):
+    call(['aws', 's3', 'sync', '../curbformation-templates',
+          's3://' + name, '--delete', '--exclude', '*', '--include', '*.json'])
+
+
+def delete_s3_bucket_contents(name):
+    call(['aws', 's3', 'rm', 's3://' + name, '--recursive'])

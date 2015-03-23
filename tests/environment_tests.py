@@ -5,11 +5,11 @@ from cf.environment import EnvironmentService
 from unittest.mock import MagicMock
 
 
-class BootstrapEnvironmentTest(unittest.TestCase):
+class EnvironmentTest(unittest.TestCase):
     def setUp(self):
         self.service = MagicMock()
         self.env = 'test'
-        self.options = {'environment': self.env}
+        self.options = {'environment': self.env, 'region': 'us-east-1', 'account_id': '123'}
         self.bootstrap = Environment(self.service, **self.options)
 
     def test_sync(self):

@@ -4,49 +4,32 @@ import time
 import sys
 import os
 import cf
-from boto import ec2
-from boto import cloudformation
-from boto import sns
-from boto import s3
+import cf.helpers
 from boto.exception import BotoServerError
 
 
-def get_stack(options):
-    cf_conn = cloudformation.connect_to_region(options.region)
-    ec2_conn = ec2.connect_to_region(options.region)
-    return cf.new_stack(cf_conn, ec2_conn, vars(options))
-
-
-def get_environment(options):
-    sns_conn = sns.connect_to_region(options.region)
-    s3_conn = s3.connect_to_region(options.region)
-    ec2_conn = ec2.connect_to_region(options.region)
-    return cf.new_environment(ec2_conn, s3_conn, sns_conn, vars(options))
-
-
 def validate(options):
-    sys.exit(not get_stack(options).validate())
+    sys.exit(not cf.helpers.get_stack(options).validate())
 
 
 def create(options):
-    print(get_stack(options).create())
+    print(cf.helpers.get_stack(options).create())
 
 
 def update(options):
-    print(get_stack(options).update())
+    print(cf.helpers.get_stack(options).update())
 
 
 def delete(options):
-    print(get_stack(options).delete())
+    print(cf.helpers.get_stack(options).delete())
 
 
 def bootstrap(options):
-    templates_dir_exists()
-    print(get_environment(options).bootstrap())
+    print(cf.helpers.get_environment(options).bootstrap())
 
 
 def sync(options):
-    print(get_environment(options).sync())
+    print(cf.helpers.get_environment(options).sync())
 
 
 def templates_dir_exists():
@@ -56,7 +39,7 @@ def templates_dir_exists():
 
 
 def cleanup(options):
-    print(get_environment(options).cleanup())
+    print(cf.helpers.get_environment(options).cleanup())
 
 
 def describe_resource(resources, cf_conn):
@@ -74,7 +57,7 @@ def describe_resource(resources, cf_conn):
 
 def describe(options):
     cf_conn = cloudformation.connect_to_region(options.region)
-    stack = get_stack(options).describe()
+    stack = cf.helpers.get_stack(options).describe()
     describe_resource(stack.list_resources(), cf_conn)
 
     print(stack.outputs)
@@ -135,6 +118,7 @@ def args_error(message, parser):
 
 
 def main():
+    templates_dir_exists()
     parser = get_parser()
     register_subparsers(parser)
     args = parser.parse_args()
