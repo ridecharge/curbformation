@@ -17,17 +17,17 @@ class Stack(object):
         self.template_body = cf.helpers.template_body(self.template)
         self.tags = cf.helpers.tags(self.env, self.template)
         self.inputs = cf.helpers.inputs(self.template_body)
-        self.params = cf.helpers.params(self)
+        self.params = self.service.params(self)
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.accountId)
 
     def validate(self):
         return self.service.validate(self)
 
     def describe(self):
-        return self.service.describe(self)
+        return self.service.describe(self.stack_name)
 
     def delete(self):
-        return self.service.delete(self)
+        return self.service.delete(self.stack_name)
 
     def create(self):
         return self.service.create(self)
@@ -43,16 +43,24 @@ class StackService(object):
         self.validator = validator
         self.debug = debug
 
+    def params(self, stack):
+        if stack.name == 'env':
+            return [('Environment', stack.env)] + list(stack.config['env_params'].items())
+        else:
+            return [('ApplicationName', stack.name)] + [(out.key, out.value) for out in
+                                                        self.describe(stack.env + "-env").outputs if
+                                                        out.key in stack.inputs]
+
     def validate(self, stack):
         return self.validator.validate(stack)
 
-    def describe(self, stack):
-        print("Describing:", stack.stack_name)
-        return cf.helpers.describe_stack(self.cf_conn, stack.stack_name)
+    def describe(self, stack_name):
+        print("Describing:", stack_name)
+        return cf.helpers.describe_stack(self.cf_conn, stack_name)
 
-    def delete(self, stack):
-        print("Deleting:", stack.stack_name)
-        return self.cf_conn.delete_stack(stack.stack_name)
+    def delete(self, stack_name):
+        print("Deleting:", stack_name)
+        return self.cf_conn.delete_stack(stack_name)
 
     def create(self, stack):
         print(stack.template_uri)

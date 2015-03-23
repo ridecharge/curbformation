@@ -1,5 +1,8 @@
 import json
 import cf
+import sys
+import time
+import os
 from boto import ec2
 from boto import cloudformation
 from boto import sns
@@ -26,17 +29,6 @@ def get_environment(options):
     s3_conn = s3.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
     return cf.new_environment(ec2_conn, s3_conn, sns_conn, vars(options))
-
-
-def params(stack):
-    p = [('Environment', stack.env)]
-    if stack.name == 'env':
-        return p + list(stack.config['env_params'].items())
-    else:
-        p += ('ApplicationName', stack.name)
-        return p + [(out.key, out.value) for out in
-                    describe_stack.outputs if
-                    out.key in stack.inputs]
 
 
 def topic_name(env):
@@ -104,3 +96,31 @@ def sync_s3_bucket(name):
 
 def delete_s3_bucket_contents(name):
     call(['aws', 's3', 'rm', 's3://' + name, '--recursive'])
+
+
+def templates_dir_exists():
+    if not os.path.isdir('../curbformation'):
+        print('The directory ../curbformation must exist to run this command')
+        sys.exit(1)
+
+
+def describe_nested_stacks(name, region):
+    cf_conn = cloudformation.connect_to_region(region)
+    stack = describe_stack_resource(cf_conn, name)
+    print(stack.outputs)
+    print(stack.parameters)
+    print(stack.stack_status)
+
+
+def describe_stack_resource(cf_conn, name):
+    stack = describe_stack(cf_conn, name)
+    for resource in stack.list_resources():
+        if resource.resource_type == 'AWS::CloudFormation::Stack':
+            time.sleep(1)
+            describe_stack_resource(cf_conn, resource.physical_resource_id)
+        print(resource.logical_resource_id)
+        print(resource.physical_resource_id)
+        print(resource.resource_type)
+        print(resource.resource_status)
+        print(resource.resource_status_reason)
+    return stack

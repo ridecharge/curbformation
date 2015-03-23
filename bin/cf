@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import argparse
-import time
 import sys
-import os
 import cf
 import cf.helpers
 from boto.exception import BotoServerError
@@ -32,37 +30,13 @@ def sync(options):
     print(cf.helpers.get_environment(options).sync())
 
 
-def templates_dir_exists():
-    if not os.path.isdir('../curbformation'):
-        print('The directory ../curbformation must exist to run this command')
-        sys.exit(1)
-
-
 def cleanup(options):
     print(cf.helpers.get_environment(options).cleanup())
 
 
-def describe_resource(resources, cf_conn):
-    for resource in resources:
-        if resource.resource_type == 'AWS::CloudFormation::Stack':
-            time.sleep(1)
-            describe_resource(
-                cf_conn.describe_stacks(resource.physical_resource_id)[0].list_resources(), cf_conn)
-        print(resource.logical_resource_id)
-        print(resource.physical_resource_id)
-        print(resource.resource_type)
-        print(resource.resource_status)
-        print(resource.resource_status_reason)
-
-
 def describe(options):
-    cf_conn = cloudformation.connect_to_region(options.region)
-    stack = cf.helpers.get_stack(options).describe()
-    describe_resource(stack.list_resources(), cf_conn)
-
-    print(stack.outputs)
-    print(stack.parameters)
-    print(stack.stack_status)
+    stack_name = options.environment + "-" + options.name
+    cf.helpers.describe_nested_stacks(stack_name, options.region)
 
 
 def register_subparsers(parser):
@@ -118,7 +92,7 @@ def args_error(message, parser):
 
 
 def main():
-    templates_dir_exists()
+    cf.helpers.templates_dir_exists()
     parser = get_parser()
     register_subparsers(parser)
     args = parser.parse_args()

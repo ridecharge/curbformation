@@ -36,11 +36,11 @@ class StackTest(unittest.TestCase):
 
     def test_delete(self):
         self.stack.delete()
-        self.service.delete.assert_called_with(self.stack)
+        self.service.delete.assert_called_with(self.stack.stack_name)
 
     def test_describe(self):
         self.stack.describe()
-        self.service.describe.assert_called_with(self.stack)
+        self.service.describe.assert_called_with(self.stack.stack_name)
 
 
 class StackServiceTest(unittest.TestCase):
@@ -88,7 +88,7 @@ class StackServiceTest(unittest.TestCase):
                                notification_arns=self.stack.topic_arn)
 
     def test_delete(self):
-        self.service.delete(self.stack)
+        self.service.delete(self.stack.stack_name)
         self.cf_conn.delete_stack.assert_called_with(self.stack.stack_name)
 
     def test_validate(self):
@@ -96,7 +96,7 @@ class StackServiceTest(unittest.TestCase):
         self.validator.validate.assert_called_with(self.stack)
 
     def test_describe(self):
-        self.service.describe(self.stack)
+        self.service.describe(self.stack.stack_name)
         self.cf_conn.describe_stacks.assert_called_with(self.stack.stack_name)
 
 
