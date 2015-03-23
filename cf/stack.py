@@ -8,7 +8,7 @@ class Stack(object):
         self.region = options.region
         self.name = options.name
         self.config = cf.helpers.config(self.env)
-        self.accountId = self.config['AccountId']
+        self.account_id = self.config['AccountId']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
@@ -18,7 +18,7 @@ class Stack(object):
         self.tags = cf.helpers.tags(self.env, self.template)
         self.inputs = cf.helpers.inputs(self.template_body)
         self.params = self.service.params(self)
-        self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.accountId)
+        self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
 
     def validate(self):
         return self.service.validate(self)
