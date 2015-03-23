@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import unittest
-from cf.validation.validator import NestedStackValidator
+from cf.validator import NestedStackValidator
 from unittest.mock import MagicMock
 from boto.exception import BotoServerError
 from unittest.mock import patch
@@ -16,10 +16,10 @@ class NestedStackValidatorTest(unittest.TestCase):
     def setUp(self):
         self.cf_conn = MagicMock()
         self.cf_conn.validate_template = MagicMock(return_value=True)
-        self.validator = NestedStackValidator(self.cf_conn, './')
-        with open('test.json') as file:
+        self.validator = NestedStackValidator(self.cf_conn, 'tests/data/')
+        with open('tests/data/test.json') as file:
             self.data = json.load(file)
-        with open('test_bad.json') as bad_file:
+        with open('tests/data/test_bad.json') as bad_file:
             self.bad_data = json.load(bad_file)
         self.stack = MagicMock()
         self.stack.template_body = self.data
