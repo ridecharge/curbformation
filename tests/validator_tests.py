@@ -3,17 +3,13 @@ import unittest
 from cf.validator import NestedStackValidator
 from unittest.mock import MagicMock
 from boto.exception import BotoServerError
-from unittest.mock import patch
 import json
+import time
 
 
-def do_pass(_):
-    pass
-
-
-@patch('time.sleep', do_pass)
 class NestedStackValidatorTest(unittest.TestCase):
     def setUp(self):
+        time.sleep = MagicMock()
         self.cf_conn = MagicMock()
         self.cf_conn.validate_template = MagicMock(return_value=True)
         self.validator = NestedStackValidator(self.cf_conn, 'tests/data/')
