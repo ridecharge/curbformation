@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import unittest
 import subprocess
-import unittest.mock
 from cf.environment import Environment
 from cf.environment import EnvironmentService
 from unittest.mock import MagicMock
