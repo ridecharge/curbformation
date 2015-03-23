@@ -16,8 +16,8 @@ class Stack(object):
         self.template_body = cf.helpers.template_body(self.template)
         self.tags = cf.helpers.tags(self.env, self.template)
         self.inputs = cf.helpers.inputs(self.template_body)
-        self.params = self.service.params(self)
-        self.topic_name = cf.helpers.topic_name(self.env)
+        self.params = self.service.build_params(self)
+        self.topic_arn = cf.helpers.topic_arn(self.env)
 
     def validate(self):
         return self.service.validate(self)
@@ -41,7 +41,6 @@ class StackService(object):
         self.ec2_conn = ec2_conn
         self.validator = validator
         self.debug = debug
-
 
     def build_params(self, stack):
         # All stacks have the environment param, and
@@ -88,7 +87,7 @@ class StackService(object):
             capabilities=stack.capabilities,
             tags=stack.tags,
             disable_rollback=self.debug,
-            notification_arns=stack.topic_name
+            notification_arns=stack.topic_arn
         )
 
     def update(self, stack):
@@ -101,5 +100,5 @@ class StackService(object):
             capabilities=stack.capabilities,
             tags=stack.tags,
             disable_rollback=self.debug,
-            notification_arns=stack.topic_name
+            notification_arns=stack.topic_arn
         )

@@ -54,7 +54,7 @@ class StackServiceTest(unittest.TestCase):
         self.stack = MagicMock()
         self.stack.env = 'test'
         self.stack.template = 'env.json'
-        self.stack.topic_name = 'topic'
+        self.stack.topic_arn = 'topic'
         self.stack.stack_name = self.stack.env + '-env'
         self.stack.capabilities = ['CAPABILITY_IAM']
         self.stack.tags = {
@@ -74,7 +74,7 @@ class StackServiceTest(unittest.TestCase):
                                capabilities=self.stack.capabilities,
                                tags=self.stack.tags,
                                disable_rollback=False,
-                               notification_arns=self.stack.topic_name)
+                               notification_arns=self.stack.topic_arn)
 
     def test_update(self):
         self.service.update(self.stack)
@@ -85,7 +85,7 @@ class StackServiceTest(unittest.TestCase):
                                capabilities=self.stack.capabilities,
                                tags=self.stack.tags,
                                disable_rollback=False,
-                               notification_arns=self.stack.topic_name)
+                               notification_arns=self.stack.topic_arn)
 
     def test_delete(self):
         self.service.delete(self.stack)

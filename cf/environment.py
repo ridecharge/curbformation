@@ -1,6 +1,7 @@
 import cf.helpers
 from subprocess import call
 
+
 class Environment(object):
     def __init__(self, service, **options):
         self.service = service
@@ -10,7 +11,7 @@ class Environment(object):
 
     def bootstrap(self):
         self.service.create_s3_bucket(self)
-        self.service.sync_s3_bucket(self)
+        self.sync()
         self.service.create_sns_topics(self)
         self.service.create_key_pair(self)
 
@@ -58,6 +59,6 @@ class EnvironmentService(object):
         self.ec2_conn.delete_key_pair(bootstrap.env)
 
     def sync_s3_bucket(self, bootstrap):
-        call(['aws', 's3', 'sync', '../{}-templates'.format(self.namespace),
+        call(['aws', 's3', 'sync', '../curbformation-templates',
               's3://' + bootstrap.bucket_name, '--delete', '--exclude', '*', '--include', '*.json'])
 
