@@ -14,18 +14,18 @@ class Environment(object):
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
 
     def bootstrap(self):
-        self.service.create_s3_bucket(self)
+        self.service.create_s3_bucket(self.bucket_name)
         self.sync()
-        self.service.create_sns_topics(self)
-        self.service.create_key_pair(self)
+        self.service.create_sns_topics(self.topic_name)
+        self.service.create_key_pair(self.env)
 
     def cleanup(self):
-        self.service.delete_sns_topic(self)
-        self.service.delete_s3_bucket(self)
-        self.service.delete_key_pair(self)
+        self.service.delete_sns_topic(self.topic_arn)
+        self.service.delete_s3_bucket(self.bucket_name)
+        self.service.delete_key_pair(self.env)
 
     def sync(self):
-        self.service.sync_s3_bucket(self)
+        self.service.sync_s3_bucket(self.bucket_name)
 
 
 class EnvironmentService(object):
@@ -34,34 +34,34 @@ class EnvironmentService(object):
         self.s3_conn = s3_conn
         self.sns_conn = sns_conn
 
-    def create_s3_bucket(self, bootstrap):
-        print("Creating S3 Bucket:", bootstrap.bucket_name)
-        self.s3_conn.create_bucket(bootstrap.bucket_name)
+    def create_s3_bucket(self, bucket_name):
+        print("Creating S3 Bucket:", bucket_name)
+        self.s3_conn.create_bucket(bucket_name)
 
-    def delete_s3_bucket(self, bootstrap):
-        print("Deleting S3 Bucket and contents:", bootstrap.bucket_name)
-        call(['aws', 's3', 'rm', 's3://' + bootstrap.bucket_name, '--recursive'])
-        self.s3_conn.delete_bucket(bootstrap.bucket_name)
+    def delete_s3_bucket(self, bucket_name):
+        print("Deleting S3 Bucket and contents:", bucket_name)
+        call(['aws', 's3', 'rm', 's3://' + bucket_name, '--recursive'])
+        self.s3_conn.delete_bucket(bucket_name)
 
-    def create_sns_topics(self, bootstrap):
-        print("Creating SNS Topic:", bootstrap.topic_name)
-        self.sns_conn.create_topic(bootstrap.topic_name)
+    def create_sns_topics(self, topic_name):
+        print("Creating SNS Topic:", topic_name)
+        self.sns_conn.create_topic(topic_name)
 
-    def delete_sns_topic(self, bootstrap):
-        print("Deleting SNS Topic:", bootstrap.topic_arn)
-        self.sns_conn.delete_topic(bootstrap.topic_arn)
+    def delete_sns_topic(self, topic_arn):
+        print("Deleting SNS Topic:", topic_arn)
+        self.sns_conn.delete_topic(topic_arn)
 
-    def create_key_pair(self, bootstrap):
-        print("Creating key pair:", bootstrap.env)
+    def create_key_pair(self, env):
+        print("Creating key pair:", env)
         try:
-            self.ec2_conn.create_key_pair(bootstrap.env)
+            self.ec2_conn.create_key_pair(env)
         except:
             print("Key pair exists skipping.")
 
-    def delete_key_pair(self, bootstrap):
-        print("Deleting key pair:", bootstrap.env)
-        self.ec2_conn.delete_key_pair(bootstrap.env)
+    def delete_key_pair(self, env):
+        print("Deleting key pair:", env)
+        self.ec2_conn.delete_key_pair(env)
 
-    def sync_s3_bucket(self, bootstrap):
-        cf.helpers.sync_s3_bucket(bootstrap.bucket_name)
+    def sync_s3_bucket(self, bucket_name):
+        cf.helpers.sync_s3_bucket(bucket_name)
 

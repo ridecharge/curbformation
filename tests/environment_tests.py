@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import unittest
+import subprocess
+import unittest.mock
 from cf.environment import Environment
 from cf.environment import EnvironmentService
 from unittest.mock import MagicMock
@@ -14,24 +16,29 @@ class EnvironmentTest(unittest.TestCase):
 
     def test_sync(self):
         self.bootstrap.sync()
-        self.service.sync_s3_bucket.assert_called_with(self.bootstrap)
+        self.service.sync_s3_bucket.assert_called_with(self.bootstrap.bucket_name)
 
     def test_bootstrap(self):
         self.bootstrap.bootstrap()
-        self.service.create_s3_bucket.assert_called_with(self.bootstrap)
-        self.service.sync_s3_bucket.assert_called_with(self.bootstrap)
-        self.service.create_sns_topics.assert_called_with(self.bootstrap)
-        self.service.create_key_pair.assert_called_with(self.bootstrap)
+        self.service.create_s3_bucket.assert_called_with(self.bootstrap.bucket_name)
+        self.service.sync_s3_bucket.assert_called_with(self.bootstrap.bucket_name)
+        self.service.create_sns_topics.assert_called_with(self.bootstrap.topic_name)
+        self.service.create_key_pair.assert_called_with(self.bootstrap.env)
 
     def test_cleanup(self):
         self.bootstrap.cleanup()
-        self.service.delete_key_pair.assert_called_with(self.bootstrap)
-        self.service.delete_s3_bucket.assert_called_with(self.bootstrap)
-        self.service.delete_sns_topic.assert_called_with(self.bootstrap)
+        self.service.delete_key_pair.assert_called_with(self.bootstrap.env)
+        self.service.delete_s3_bucket.assert_called_with(self.bootstrap.bucket_name)
+        self.service.delete_sns_topic.assert_called_with(self.bootstrap.topic_arn)
+
+
+def mock_call(*a, **kw):
+    print(a, kw)
 
 
 class EnvironmentServiceTest(unittest.TestCase):
     def setUp(self):
+        subprocess.call = mock_call
         self.ec2_conn = MagicMock()
         self.s3_conn = MagicMock()
         self.sns_conn = MagicMock()
@@ -42,19 +49,19 @@ class EnvironmentServiceTest(unittest.TestCase):
         self.bootstrap.bucket_name = 'bucket'
 
     def test_create_s3_bucket(self):
-        self.service.create_s3_bucket(self.bootstrap)
+        self.service.create_s3_bucket(self.bootstrap.bucket_name)
         self.s3_conn.create_bucket.assert_called_with(self.bootstrap.bucket_name)
 
     def test_create_sns_topic(self):
-        self.service.create_sns_topics(self.bootstrap)
+        self.service.create_sns_topics(self.bootstrap.topic_name)
         self.sns_conn.create_topic.assert_called_with(self.bootstrap.topic_name)
 
     def test_create_key_pair(self):
-        self.service.create_key_pair(self.bootstrap)
+        self.service.create_key_pair(self.bootstrap.env)
         self.ec2_conn.create_key_pair.assert_called_with(self.bootstrap.env)
 
     def test_delete_key_pair(self):
-        self.service.delete_key_pair(self.bootstrap)
+        self.service.delete_key_pair(self.bootstrap.env)
         self.ec2_conn.delete_key_pair.assert_called_with(self.bootstrap.env)
 
 
