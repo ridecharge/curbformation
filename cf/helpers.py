@@ -31,7 +31,7 @@ def get_environment(options):
 def params(stack):
     p = [('Environment', stack.env)]
     if stack.name == 'env':
-        return p + list(stack.secrets.items())
+        return p + list(stack.config['env_params'].items())
     else:
         p += ('ApplicationName', stack.name)
         return p + [(out.key, out.value) for out in
