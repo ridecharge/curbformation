@@ -3,8 +3,7 @@ import argparse
 import time
 import sys
 import os
-from cf import stacks
-from boto import route53
+import cf
 from boto import ec2
 from boto import cloudformation
 from boto import sns
@@ -15,20 +14,14 @@ from boto.exception import BotoServerError
 def get_stack(options):
     cf_conn = cloudformation.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
-    route53_conn = route53.connect_to_region(options.region)
-    if options.name == 'env':
-        return stacks.new_environment_stack(cf_conn,
-                                            ec2_conn,
-                                            route53_conn,
-                                            vars(options))
-    return stacks.new_application_stack(cf_conn, ec2_conn, vars(options))
+    return cf.new_stack(cf_conn, ec2_conn, vars(options))
 
 
-def get_bootstrap_environment(options):
+def get_environment(options):
     sns_conn = sns.connect_to_region(options.region)
     s3_conn = s3.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
-    return stacks.new_bootstrap_environment(ec2_conn, s3_conn, sns_conn, vars(options))
+    return cf.new_environment(ec2_conn, s3_conn, sns_conn, vars(options))
 
 
 def validate(options):
@@ -49,11 +42,11 @@ def delete(options):
 
 def bootstrap(options):
     templates_dir_exists()
-    print(get_bootstrap_environment(options).bootstrap())
+    print(get_environment(options).bootstrap())
 
 
 def sync(options):
-    print(get_bootstrap_environment(options).sync())
+    print(get_environment(options).sync())
 
 
 def templates_dir_exists():
@@ -63,7 +56,7 @@ def templates_dir_exists():
 
 
 def cleanup(options):
-    print(get_bootstrap_environment(options).cleanup())
+    print(get_environment(options).cleanup())
 
 
 def describe_resource(resources, cf_conn):

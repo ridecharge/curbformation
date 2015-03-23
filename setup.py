@@ -7,5 +7,5 @@ setup(name='curbformation',
       ],
       url='https://github.com/ridecharge/curbformation',
       packages=['cf.stacks', 'cf.validation', 'cf'],
-      install_requires=['boto>=2.34.0','awscli>=1.7.5']
+      install_requires=['boto>=2.34.0','awscli>=1.7.5', 'nose>=1.3.4']
 )

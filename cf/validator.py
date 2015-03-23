@@ -70,6 +70,7 @@ class NestedStackValidator(object):
         return True
 
     def __load_template(self, path):
+
         print("Opening file", self.root_path + path)
         with open(self.root_path + path) as f:
             return json.load(f)
