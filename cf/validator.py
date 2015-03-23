@@ -5,7 +5,7 @@ from boto.exception import BotoServerError
 
 
 class NestedStackValidator(object):
-    def __init__(self, conn, root_path="../curbformation-templates/"):
+    def __init__(self, conn, root_path='../curbformation-templates/'):
         self.conn = conn
         self.root_path = root_path
 
@@ -44,7 +44,6 @@ class NestedStackValidator(object):
                                                                       template_path)
                 else:
                     nested_valid = False
-                    print("Nested_value set ot false")
             return nested_valid
         return False
 
