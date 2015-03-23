@@ -58,13 +58,6 @@ class StackService(object):
         with open(config_path, 'r') as f:
             return list(json.load(f).items())
 
-    def delete_dynamic_record_sets(self, stack):
-        zone = self.route53_conn.get_zone(stack.public_internal_domain)
-        for record in zone.get_records():
-            if record.type not in ['NS', 'SOA']:
-                print("Deleting record", record.name)
-                zone.delete_record(record)
-
     def validate(self, stack):
         return self.validator.validate(stack)
 
