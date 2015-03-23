@@ -1,12 +1,8 @@
 import json
-import cf
 import sys
 import time
 import os
-from boto import ec2
 from boto import cloudformation
-from boto import sns
-from boto import s3
 from os.path import expanduser
 from subprocess import call
 
@@ -16,19 +12,6 @@ def config(env):
     print("Using config:", config_path)
     with open(config_path, 'r') as f:
         return json.load(f)
-
-
-def get_stack(options):
-    cf_conn = cloudformation.connect_to_region(options.region)
-    ec2_conn = ec2.connect_to_region(options.region)
-    return cf.new_stack(cf_conn, ec2_conn, vars(options))
-
-
-def get_environment(options):
-    sns_conn = sns.connect_to_region(options.region)
-    s3_conn = s3.connect_to_region(options.region)
-    ec2_conn = ec2.connect_to_region(options.region)
-    return cf.new_environment(ec2_conn, s3_conn, sns_conn, vars(options))
 
 
 def topic_name(env):

@@ -2,11 +2,11 @@ import cf.helpers
 
 
 class Stack(object):
-    def __init__(self, service, **options):
+    def __init__(self, service, options):
         self.service = service
-        self.env = options['environment']
-        self.region = options['region']
-        self.name = options['name']
+        self.env = options.environment
+        self.region = options.region
+        self.name = options.name
         self.config = cf.helpers.config(self.env)
         self.accountId = self.config['AccountId']
         self.template = self.name + '.json'

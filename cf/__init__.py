@@ -3,15 +3,24 @@ from cf.stack import StackService
 from cf.validator import NestedStackValidator
 from cf.environment import Environment
 from cf.environment import EnvironmentService
+from boto import ec2
+from boto import cloudformation
+from boto import sns
+from boto import s3
 
 
-def new_environment(ec2_conn, s3_conn, sns_conn, options):
+def new_environment(options):
+    sns_conn = sns.connect_to_region(options.region)
+    s3_conn = s3.connect_to_region(options.region)
+    ec2_conn = ec2.connect_to_region(options.region)
     environment_service = EnvironmentService(ec2_conn, s3_conn, sns_conn)
-    return Environment(environment_service, **options)
+    return Environment(environment_service, options)
 
 
-def new_stack(cf_conn, ec2_conn, options):
+def new_stack(options):
+    cf_conn = cloudformation.connect_to_region(options.region)
+    ec2_conn = ec2.connect_to_region(options.region)
     stack_validator = NestedStackValidator(cf_conn)
     stack_service = StackService(cf_conn, ec2_conn, stack_validator)
-    return Stack(stack_service, **options)
+    return Stack(stack_service, options)
 

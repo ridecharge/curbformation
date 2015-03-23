@@ -7,31 +7,31 @@ from boto.exception import BotoServerError
 
 
 def validate(options):
-    sys.exit(not cf.helpers.get_stack(options).validate())
+    sys.exit(not cf.new_stack(options).validate())
 
 
 def create(options):
-    print(cf.helpers.get_stack(options).create())
+    print(cf.new_stack(options).create())
 
 
 def update(options):
-    print(cf.helpers.get_stack(options).update())
+    print(cf.new_stack(options).update())
 
 
 def delete(options):
-    print(cf.helpers.get_stack(options).delete())
+    print(cf.new_stack(options).delete())
 
 
 def bootstrap(options):
-    print(cf.helpers.get_environment(options).bootstrap())
+    print(cf.new_environment(options).bootstrap())
 
 
 def sync(options):
-    print(cf.helpers.get_environment(options).sync())
+    print(cf.new_environment(options).sync())
 
 
 def cleanup(options):
-    print(cf.helpers.get_environment(options).cleanup())
+    print(cf.new_environment(options).cleanup())
 
 
 def describe(options):
