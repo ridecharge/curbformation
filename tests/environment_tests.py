@@ -31,13 +31,9 @@ class EnvironmentTest(unittest.TestCase):
         self.service.delete_sns_topic.assert_called_with(self.bootstrap.topic_arn)
 
 
-def mock_call(*a, **kw):
-    print(a, kw)
-
-
 class EnvironmentServiceTest(unittest.TestCase):
     def setUp(self):
-        subprocess.call = mock_call
+        subprocess.call = MagicMock()
         self.ec2_conn = MagicMock()
         self.s3_conn = MagicMock()
         self.sns_conn = MagicMock()
