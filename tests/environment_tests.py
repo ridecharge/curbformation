@@ -10,8 +10,11 @@ class EnvironmentTest(unittest.TestCase):
     def setUp(self):
         self.service = MagicMock()
         self.env = 'test'
-        self.options = {'environment': self.env, 'region': 'us-east-1', 'account_id': '123'}
-        self.bootstrap = Environment(self.service, **self.options)
+        self.options = MagicMock()
+        self.options.environment = self.env
+        self.options.region = 'us-east-1'
+        self.options.account_id = '123'
+        self.bootstrap = Environment(self.service, self.options)
 
     def test_sync(self):
         self.bootstrap.sync()

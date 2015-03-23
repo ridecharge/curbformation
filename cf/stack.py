@@ -14,7 +14,7 @@ class Stack(object):
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
         self.stack_name = cf.helpers.stack_name(self.env, self.name)
         self.template_uri = cf.helpers.template_uri(self.bucket_name, self.template)
-        self.template_body = cf.helpers.template_body(self.template)
+        self.template_body = self.service.load_template_body(self.template)
         self.tags = cf.helpers.tags(self.env, self.template)
         self.inputs = cf.helpers.inputs(self.template_body)
         self.params = self.service.params(self)
@@ -42,6 +42,9 @@ class StackService(object):
         self.ec2_conn = ec2_conn
         self.validator = validator
         self.debug = debug
+
+    def load_template_body(self, template):
+        return cf.helpers.template_body(template)
 
     def params(self, stack):
         if stack.name == 'env':

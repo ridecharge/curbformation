@@ -19,8 +19,12 @@ class StackTest(unittest.TestCase):
         }
         self.params = [('Environment', self.env)]
         self.template_uri = 'https://s3.amazonaws.com/curbformation-test-templates/env.json'
-        self.options = {'environment': self.env, 'name': self.name, 'region': 'us-east-1', 'account_id': '123'}
-        self.stack = Stack(self.service, **self.options)
+        self.options = MagicMock()
+        self.options.environment = self.env
+        self.options.region = 'us-east-1'
+        self.options.account_id = '123'
+        self.options.name = 'name'
+        self.stack = Stack(self.service, self.options)
 
     def test_validate(self):
         self.stack.validate()
