@@ -3,12 +3,11 @@ import sys
 import time
 import os
 from boto import cloudformation
-from os.path import expanduser
 from subprocess import call
 
 
 def config(env):
-    config_path = expanduser("~") + "/.cf/" + env + ".json"
+    config_path = os.path.expanduser("~") + "/.cf/" + env + ".json"
     print("Using config:", config_path)
     with open(config_path, 'r') as f:
         return json.load(f)
