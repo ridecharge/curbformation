@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import unittest
 from cf.stack import Stack
 from cf.stack import StackService

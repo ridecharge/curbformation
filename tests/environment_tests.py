@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import unittest
 import subprocess
 from cf.environment import Environment

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import unittest
 from cf.validator import NestedStackValidator
 from unittest.mock import MagicMock
