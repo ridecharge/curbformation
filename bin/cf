@@ -83,6 +83,7 @@ def error_handler(args):
         args.func(args)
     except BotoServerError as e:
         print(e.body)
+        exit(1)
 
 
 def args_error(message, parser):
