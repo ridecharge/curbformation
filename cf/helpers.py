@@ -89,8 +89,8 @@ def templates_dir_exists():
 def update_version_param(version, template, path):
     print("Updating", path, "Version to", version)
     template['Parameters']['Version']['Default'] = version
-    with open(path, 'w') as of:
-        json.dump(template, of)
+    with open("../curbformation-templates/" + path, 'w') as of:
+        json.dump(template, of, sort_keys=True, indent=2)
 
 
 def describe_nested_stacks(name, region):
