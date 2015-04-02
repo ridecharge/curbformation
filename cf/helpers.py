@@ -86,6 +86,13 @@ def templates_dir_exists():
         sys.exit(1)
 
 
+def update_version_param(version, template, path):
+    print("Updating", path, "Version to", version)
+    template['Parameters']['Version']['Default'] = version
+    with open(path, 'w') as of:
+        json.dump(template, of)
+
+
 def describe_nested_stacks(name, region):
     cf_conn = cloudformation.connect_to_region(region)
     stack = describe_stack_resource(cf_conn, name)

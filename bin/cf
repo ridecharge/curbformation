@@ -14,6 +14,10 @@ def create(options):
     print(cf.new_stack(options).create())
 
 
+def deploy(options):
+    print(cf.new_stack(options).deploy())
+
+
 def update(options):
     print(cf.new_stack(options).update())
 
@@ -24,10 +28,6 @@ def delete(options):
 
 def bootstrap(options):
     print(cf.new_environment(options).bootstrap())
-
-
-def sync(options):
-    print(cf.new_environment(options).sync())
 
 
 def cleanup(options):
@@ -45,8 +45,9 @@ def register_subparsers(parser):
     subparsers.required = True
     subparsers.dest = 'subcommand'
     register_subparser(subparsers, 'bootstrap', bootstrap)
-    register_subparser(subparsers, 'sync', sync)
     register_subparser(subparsers, 'cleanup', cleanup)
+    register_stack_subparser(subparsers, 'deploy', deploy).\
+        add_argument('-v', '--version', help='The application version to deploy.', default='latest')
     register_stack_subparser(subparsers, 'update', update)
     register_stack_subparser(subparsers, 'delete', delete)
     register_stack_subparser(subparsers, 'create', create)
@@ -58,6 +59,7 @@ def register_stack_subparser(subparsers, name, func):
     parser = register_subparser(subparsers, name, func)
     parser.add_argument('-n', '--name', help='The stack name',
                         default='env')
+    return parser
 
 
 def register_subparser(subparsers, name, func):
