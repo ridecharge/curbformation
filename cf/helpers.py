@@ -104,8 +104,7 @@ def check_docker_tag_exists(version, name, https_conn, cfg):
                 dh_config["https://" + cfg['repository']['index'] + "/v1/"]['auth'])}
     https_conn.request('GET', cfg['repository']['tag_path'].format(name, version),
                        headers=headers)
-    resp = https_conn.getresponse().read().decode("utf-8")
-    return resp != 'Tag not found'
+    return https_conn.getresponse().read().decode('utf-8') != 'Tag not found'
 
 
 def update_version_param(version, template, path):
