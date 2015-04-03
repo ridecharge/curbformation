@@ -1,4 +1,5 @@
 import cf.helpers
+from http.client import HTTPSConnection
 
 
 class Stack(object):
@@ -70,12 +71,16 @@ class StackService(object):
         return self.validator.validate(stack)
 
     def deploy(self, version, stack):
-        if cf.helpers.check_if_version_exists(version, stack.name):
+        if version.startswith('ami-'):
+            self.ec2_conn.get_image(version)
+            cf.helpers.update_base_image_param(version, stack.template_body, stack.template)
+        elif cf.helpers.check_docker_tag_exists(version, stack.name, HTTPSConnection(
+                stack.config['repository']['index']), stack.config):
             cf.helpers.update_version_param(version, stack.template_body, stack.template)
-            return self.update(stack)
         else:
-            print("Cloud not find docker container {} with tag {} for ".format(stack.name, version))
+            print("Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
             return False
+        return self.update(stack)
 
     def describe(self, stack_name):
         print("Describing:", stack_name)

@@ -1,8 +1,6 @@
 import json
-import sys
 import time
 import os
-from http.client import HTTPSConnection
 from boto import cloudformation
 from subprocess import call
 
@@ -84,25 +82,48 @@ def delete_s3_bucket_contents(name):
 def templates_dir_exists():
     if not os.path.isdir('../curbformation'):
         print('The directory ../curbformation must exist to run this command')
-        sys.exit(1)
+        exit(1)
 
 
-def check_if_version_exists(version, name):
-    cfg_path = os.path.expanduser("~") + "/.dockercfg"
-    with open(cfg_path) as f:
-        cfg = json.load(f)
-        auth = cfg['https://index.docker.io/v1/']['auth']
-        headers = {'Authorization': 'Basic %s' % auth}
-    c = HTTPSConnection('index.docker.io')
-    c.request('GET', "/v1/repositories/ridecharge/{}/tags/{}".format(name, version),
-              headers=headers)
-    resp = c.getresponse().read().decode("utf-8")
+def dockerhub_config():
+    config_path = os.path.expanduser("~") + "/.dockercfg"
+    print("Using dockercfg:", config_path)
+    with open(config_path, 'r') as f:
+        return json.load(f)
+
+
+"/v1/repositories/ridecharge/{}/tags/{}"
+
+
+def check_docker_tag_exists(version, name, https_conn, cfg):
+    dh_config = dockerhub_config()
+    headers = {
+        'Authorization': "Basic {}".format(
+            dh_config["https://" + cfg['repository']['index'] + "/v1/"]['auth'])}
+    https_conn.request('GET', cfg['repository']['tag_path'].format(name, version),
+                       headers=headers)
+    resp = https_conn.getresponse().read().decode("utf-8")
     return resp != 'Tag not found'
 
 
 def update_version_param(version, template, path):
     print("Updating", path, "Version to", version)
-    template['Parameters']['Version']['Default'] = version
+    try:
+        template['Parameters']['Version']['Default'] = version
+    except KeyError:
+        print("Error: This template does not have a Default Version parameter.")
+        exit(1)
+    with open("../curbformation-templates/" + path, 'w') as of:
+        json.dump(template, of, sort_keys=True, indent=2)
+
+
+def update_base_image_param(image_id, template, path):
+    print("Updating", path, "ImageId to", image_id)
+    try:
+        template['Parameters']['ImageId']['Default'] = image_id
+    except KeyError:
+        print("Error: This template does not have a Default ImageId parameter.")
+        exit(1)
     with open("../curbformation-templates/" + path, 'w') as of:
         json.dump(template, of, sort_keys=True, indent=2)
 
