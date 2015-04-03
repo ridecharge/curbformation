@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import argparse
-import sys
 import cf
 import cf.helpers
 from boto.exception import BotoServerError
 
 
 def validate(options):
-    sys.exit(not cf.new_stack(options).validate())
+    exit(not cf.new_stack(options).validate())
 
 
 def create(options):
@@ -89,12 +88,6 @@ def error_handler(args):
     except BotoServerError as e:
         print("Error:", e.message)
         exit(1)
-
-
-def args_error(message, parser):
-    parser.print_help()
-    print(message)
-    exit(1)
 
 
 def main():
