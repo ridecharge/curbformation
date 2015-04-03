@@ -22,9 +22,6 @@ class Stack(object):
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
         self.options = options
 
-    def sync(self):
-        return self.service.sync_s3_bucket(self.bucket_name)
-
     def validate(self):
         return self.service.validate(self)
 
@@ -41,12 +38,12 @@ class Stack(object):
 
     def create(self):
         self.exit_when_invalid()
-        self.sync()
+        self.service.sync_s3_bucket(self.bucket_name)
         return self.service.create(self)
 
     def update(self):
         self.exit_when_invalid()
-        self.sync()
+        self.service.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
     def rollback(self):
@@ -55,7 +52,7 @@ class Stack(object):
 
     def deploy(self):
         self.exit_when_invalid()
-        self.sync()
+        self.service.sync_s3_bucket(self.bucket_name)
         return self.service.deploy(self.options.version, self)
 
 
@@ -93,7 +90,7 @@ class StackService(object):
         else:
             print("Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
             return False
-        #return self.update(stack)
+        return self.update(stack)
 
     def describe(self, stack_name):
         print("Describing:", stack_name)
