@@ -88,18 +88,20 @@ def templates_dir_exists():
 def dockerhub_config():
     config_path = os.path.expanduser("~") + "/.dockercfg"
     print("Using dockercfg:", config_path)
-    with open(config_path, 'r') as f:
-        return json.load(f)
-
-
-"/v1/repositories/ridecharge/{}/tags/{}"
+    try:
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
 
 
 def check_docker_tag_exists(version, name, https_conn, cfg):
     dh_config = dockerhub_config()
-    headers = {
-        'Authorization': "Basic {}".format(
-            dh_config["https://" + cfg['repository']['index'] + "/v1/"]['auth'])}
+    headers = {}
+    if dh_config:
+        headers = {
+            'Authorization': "Basic {}".format(
+                dh_config["https://" + cfg['repository']['index'] + "/v1/"]['auth'])}
     https_conn.request('GET', cfg['repository']['tag_path'].format(name, version),
                        headers=headers)
     resp = https_conn.getresponse().read().decode("utf-8")
