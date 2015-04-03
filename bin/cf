@@ -11,19 +11,19 @@ def validate(options):
 
 
 def create(options):
-    print(cf.new_stack(options).create())
+    return cf.new_stack(options).create()
 
 
 def deploy(options):
-    print(cf.new_stack(options).deploy())
+    return cf.new_stack(options).deploy()
 
 
 def update(options):
-    print(cf.new_stack(options).update())
+    return cf.new_stack(options).update()
 
 
 def delete(options):
-    print(cf.new_stack(options).delete())
+    return cf.new_stack(options).delete()
 
 
 def bootstrap(options):
@@ -82,7 +82,10 @@ def get_parser():
 
 def error_handler(args):
     try:
-        args.func(args)
+        out = args.func(args)
+        if not out:
+            sys.exit(1)
+        print(out)
     except BotoServerError as e:
         print(e.body)
         exit(1)

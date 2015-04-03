@@ -2,6 +2,7 @@ import json
 import sys
 import time
 import os
+from http.client import HTTPSConnection
 from boto import cloudformation
 from subprocess import call
 
@@ -84,6 +85,19 @@ def templates_dir_exists():
     if not os.path.isdir('../curbformation'):
         print('The directory ../curbformation must exist to run this command')
         sys.exit(1)
+
+
+def check_if_version_exists(version, name):
+    cfg_path = os.path.expanduser("~") + "/.dockercfg"
+    with open(cfg_path) as f:
+        cfg = json.load(f)
+        auth = cfg['https://index.docker.io/v1/']['auth']
+        headers = {'Authorization': 'Basic %s' % auth}
+    c = HTTPSConnection('index.docker.io')
+    c.request('GET', "/v1/repositories/ridecharge/{}/tags/{}".format(name, version),
+              headers=headers)
+    resp = c.getresponse().read().decode("utf-8")
+    return resp != 'Tag not found'
 
 
 def update_version_param(version, template, path):

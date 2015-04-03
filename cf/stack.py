@@ -70,8 +70,12 @@ class StackService(object):
         return self.validator.validate(stack)
 
     def deploy(self, version, stack):
-        cf.helpers.update_version_param(version, stack.template_body, stack.template)
-        return self.update(stack)
+        if cf.helpers.check_if_version_exists(version, stack.name):
+            cf.helpers.update_version_param(version, stack.template_body, stack.template)
+            return self.update(stack)
+        else:
+            print("Cloud not find docker container {} with tag {} for ".format(stack.name, version))
+            return False
 
     def describe(self, stack_name):
         print("Describing:", stack_name)
