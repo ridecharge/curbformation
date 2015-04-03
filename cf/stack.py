@@ -19,6 +19,10 @@ class Stack(object):
         self.inputs = cf.helpers.inputs(self.template_body)
         self.params = self.service.params(self)
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
+        self.options = options
+
+    def sync(self):
+        return self.service.sync_s3_bucket(self.bucket_name)
 
     def validate(self):
         return self.service.validate(self)
@@ -30,10 +34,15 @@ class Stack(object):
         return self.service.delete(self.stack_name)
 
     def create(self):
+        self.sync()
         return self.service.create(self)
 
     def update(self):
+        self.sync()
         return self.service.update(self)
+
+    def deploy(self):
+        return self.service.deploy(self.options.version, self)
 
 
 class StackService(object):
@@ -54,8 +63,19 @@ class StackService(object):
                                                         self.describe(stack.env + "-env").outputs if
                                                         out.key in stack.inputs]
 
+    def sync_s3_bucket(self, bucket_name):
+        cf.helpers.sync_s3_bucket(bucket_name)
+
     def validate(self, stack):
         return self.validator.validate(stack)
+
+    def deploy(self, version, stack):
+        if cf.helpers.check_if_version_exists(version, stack.name):
+            cf.helpers.update_version_param(version, stack.template_body, stack.template)
+            return self.update(stack)
+        else:
+            print("Cloud not find docker container {} with tag {} for ".format(stack.name, version))
+            return False
 
     def describe(self, stack_name):
         print("Describing:", stack_name)

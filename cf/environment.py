@@ -15,7 +15,6 @@ class Environment(object):
 
     def bootstrap(self):
         self.service.create_s3_bucket(self.bucket_name)
-        self.sync()
         self.service.create_sns_topics(self.topic_name)
         self.service.create_key_pair(self.env)
 
@@ -61,7 +60,4 @@ class EnvironmentService(object):
     def delete_key_pair(self, env):
         print("Deleting key pair:", env)
         self.ec2_conn.delete_key_pair(env)
-
-    def sync_s3_bucket(self, bucket_name):
-        cf.helpers.sync_s3_bucket(bucket_name)
 

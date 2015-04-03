@@ -22,7 +22,6 @@ class EnvironmentTest(unittest.TestCase):
     def test_bootstrap(self):
         self.bootstrap.bootstrap()
         self.service.create_s3_bucket.assert_called_with(self.bootstrap.bucket_name)
-        self.service.sync_s3_bucket.assert_called_with(self.bootstrap.bucket_name)
         self.service.create_sns_topics.assert_called_with(self.bootstrap.topic_name)
         self.service.create_key_pair.assert_called_with(self.bootstrap.env)
 
