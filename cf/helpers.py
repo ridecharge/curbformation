@@ -56,6 +56,17 @@ def default_inputs(temp_body):
     return set(key for key, val in temp_body['Parameters'].items() if 'Default' in val)
 
 
+def previous_version(temp_body):
+    try:
+        return temp_body['Parameters']['PreviousVersion']['Default']
+    except KeyError:
+        try:
+            return temp_body['Parameters']['PreviousImageId']['Default']
+        except KeyError:
+            print('Error: Cloud not find Default Previous Version or Default ImageId parameters')
+            exit(1)
+
+
 def nested_stack_resources(temp_body):
     return [val for val in temp_body['Resources'].values() if
             val['Type'] == 'AWS::CloudFormation::Stack']
@@ -110,7 +121,9 @@ def check_docker_tag_exists(version, name, https_conn, cfg):
 def update_version_param(version, template, path):
     print("Updating", path, "Version to", version)
     try:
+        prev_version = template['Parameters']['Version']['Default']
         template['Parameters']['Version']['Default'] = version
+        template['Parameters']['PreviousVersion']['Default'] = prev_version
     except KeyError:
         print("Error: This template does not have a Default Version parameter.")
         exit(1)
@@ -121,7 +134,9 @@ def update_version_param(version, template, path):
 def update_base_image_param(image_id, template, path):
     print("Updating", path, "ImageId to", image_id)
     try:
+        prev_image_id = template['Parameters']['ImageId']['Default']
         template['Parameters']['ImageId']['Default'] = image_id
+        template['Parameters']['PreviousImageId']['Default'] = prev_image_id
     except KeyError:
         print("Error: This template does not have a Default ImageId parameter.")
         exit(1)

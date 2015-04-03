@@ -49,6 +49,10 @@ class Stack(object):
         self.sync()
         return self.service.update(self)
 
+    def rollback(self):
+        self.options.version = cf.helpers.previous_version(self.template_body)
+        self.deploy()
+
     def deploy(self):
         self.exit_when_invalid()
         self.sync()
@@ -89,7 +93,7 @@ class StackService(object):
         else:
             print("Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
             return False
-        return self.update(stack)
+        #return self.update(stack)
 
     def describe(self, stack_name):
         print("Describing:", stack_name)
