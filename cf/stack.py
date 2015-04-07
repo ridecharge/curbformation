@@ -3,6 +3,9 @@ from http.client import HTTPSConnection
 
 
 class Stack(object):
+    VALID_DEPLOYMENT_STATES = ['CREATE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE',
+                               'ROLLBACK_COMPLETE']
+
     def __init__(self, service, options):
         self.service = service
         self.env = options.environment
@@ -46,14 +49,22 @@ class Stack(object):
         self.service.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
+    def is_deployable(self):
+        return self.describe().stack_status in Stack.VALID_DEPLOYMENT_STATES
+
     def rollback(self):
         self.options.version = cf.helpers.previous_version(self.template_body)
         self.deploy()
 
     def deploy(self):
+        if not self.is_deployable():
+            print('The current stack is in progress of updating and cannot be deployed.')
+            exit(1)
         self.exit_when_invalid()
         self.service.sync_s3_bucket(self.bucket_name)
-        return self.service.deploy(self.options.version, self)
+        if not self.service.update_template_versions(self.options.version, self):
+            exit(1)
+        return self.service.update(self)
 
 
 class StackService(object):
@@ -80,7 +91,7 @@ class StackService(object):
     def validate(self, stack):
         return self.validator.validate(stack)
 
-    def deploy(self, version, stack):
+    def update_template_versions(self, version, stack):
         if version.startswith('ami-'):
             self.ec2_conn.get_image(version)
             cf.helpers.update_base_image_param(version, stack.template_body, stack.template)
@@ -88,9 +99,10 @@ class StackService(object):
                 stack.config['repository']['index']), stack.config):
             cf.helpers.update_version_param(version, stack.template_body, stack.template)
         else:
-            print("Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
+            print(
+                "Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
             return False
-        return self.update(stack)
+        return True
 
     def describe(self, stack_name):
         print("Describing:", stack_name)
