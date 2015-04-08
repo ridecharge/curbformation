@@ -72,7 +72,7 @@ def register_subparser(subparsers, name, func):
                         choices=['us-east-1', 'us-west-1'], default='us-east-1')
     parser.add_argument('-e', '--environment',
                         help='The environment name.',
-                        default='test')
+                        default='stage')
     parser.set_defaults(func=func)
     return parser
 
