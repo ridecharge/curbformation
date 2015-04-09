@@ -1,7 +1,7 @@
 import json
 import time
 import os
-import datetime
+import time
 from boto import cloudformation
 from subprocess import call
 
@@ -121,7 +121,7 @@ def check_docker_tag_exists(version, name, https_conn, cfg):
 
 def update_serial_param(template, path):
     try:
-        template['Parameters']['Serial']['Default'] = str(datetime.datetime.now())
+        template['Parameters']['Serial']['Default'] = str(int(time.time()))
     except KeyError:
         print('Error: This template does not have a default Serial parameter.')
         exit(1)
