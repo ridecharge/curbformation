@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import datetime
 from boto import cloudformation
 from subprocess import call
 
@@ -116,6 +117,16 @@ def check_docker_tag_exists(version, name, https_conn, cfg):
     https_conn.request('GET', cfg['repository']['tag_path'].format(name, version),
                        headers=headers)
     return https_conn.getresponse().read().decode('utf-8') != 'Tag not found'
+
+
+def update_serial_param(template, path):
+    try:
+        template['Parameters']['Serial']['Default'] = str(datetime.datetime.now())
+    except KeyError:
+        print('Error: This template does not have a default Serial parameter.')
+        exit(1)
+    with open("../curbformation-templates/" + path, 'w') as of:
+        json.dump(template, of, sort_keys=True, indent=2)
 
 
 def update_version_param(version, template, path):

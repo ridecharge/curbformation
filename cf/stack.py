@@ -56,6 +56,10 @@ class Stack(object):
         self.options.version = cf.helpers.previous_version(self.template_body)
         self.deploy()
 
+    def redeploy(self):
+        self.service.update_serial(self)
+        return self.service.update(self)
+
     def deploy(self):
         if not self.is_deployable():
             print('The current stack is in progress of updating and cannot be deployed.')
@@ -103,6 +107,9 @@ class StackService(object):
                 "Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
             return False
         return True
+
+    def update_serial(self, stack):
+        return cf.helpers.update_serial_param(stack.template_body, stack.template)
 
     def describe(self, stack_name):
         print("Describing:", stack_name)
