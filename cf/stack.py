@@ -11,7 +11,7 @@ class Stack(object):
         self.env = options.environment
         self.region = options.region
         self.name = options.name
-        self.config = cf.helpers.config(self)
+        self.config = cf.helpers.config(self.env)
         self.account_id = self.config['account_id']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
