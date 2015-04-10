@@ -8,7 +8,7 @@ class Environment(object):
         self.env = options.environment
         self.region = options.region
         self.config = cf.helpers.config(self.env)
-        self.account_id = self.config['AccountId']
+        self.account_id = self.config['account_id']
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
         self.topic_name = cf.helpers.topic_name(self.env)
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)

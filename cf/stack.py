@@ -12,7 +12,7 @@ class Stack(object):
         self.region = options.region
         self.name = options.name
         self.config = cf.helpers.config(self.env)
-        self.account_id = self.config['AccountId']
+        self.account_id = self.config['account_id']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
@@ -85,8 +85,7 @@ class StackService(object):
         if stack.name == 'env':
             return [('Environment', stack.env)] + list(stack.config['env_params'].items())
         else:
-            return [('ApplicationName', stack.name),
-                    ('DockerRepository', stack.config['DockerRepository'])] + \
+            return [('ApplicationName', stack.name)] + \
                    [(out.key, out.value)
                     for out in
                     self.describe(
