@@ -1,5 +1,4 @@
 import json
-import time
 import os
 import time
 from boto import cloudformation
