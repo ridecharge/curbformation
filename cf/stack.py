@@ -11,7 +11,7 @@ class Stack(object):
         self.env = options.environment
         self.region = options.region
         self.name = options.name
-        self.config = cf.helpers.config(self.env)
+        self.config = cf.helpers.config(self)
         self.account_id = self.config['account_id']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
@@ -35,13 +35,13 @@ class Stack(object):
         return self.service.delete(self.stack_name)
 
     def create(self):
-        cf.helpers.exit_when_invalid()
+        cf.helpers.exit_when_invalid(self)
         self.service.sync_s3_bucket(self.bucket_name)
         return self.service.create(self)
 
     def update(self):
-        cf.helpers.exit_when_invalid()
-        self.service.sync_s3_bucket(self.bucket_name)
+        cf.helpers.exit_when_invalid(self)
+        cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
     def is_deployable(self):
@@ -52,18 +52,18 @@ class Stack(object):
         self.deploy()
 
     def redeploy(self):
-        self.service.update_serial(self)
-        self.service.sync_s3_bucket(self.bucket_name)
+        cf.helpers.update_serial_param(self.template_body, self.template)
+        cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
     def deploy(self):
         if not self.is_deployable():
             print('The current stack is in progress of updating and cannot be deployed.')
             exit(1)
-        cf.helpers.exit_when_invalid()
+        cf.helpers.exit_when_invalid(self)
         if not self.service.update_template_versions(self.options.version, self):
             exit(1)
-        self.service.sync_s3_bucket(self.bucket_name)
+        cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
 
@@ -73,9 +73,6 @@ class StackService(object):
         self.ec2_conn = ec2_conn
         self.validator = validator
         self.debug = debug
-
-    def load_template_body(self, template):
-        return cf.helpers.template_body(template)
 
     def params(self, stack):
         if stack.name == 'env':
@@ -89,8 +86,8 @@ class StackService(object):
                     if
                     out.key in stack.inputs]
 
-    def sync_s3_bucket(self, bucket_name):
-        cf.helpers.sync_s3_bucket(bucket_name)
+    def load_template_body(self, template):
+        return cf.helpers.template_body(template)
 
     def validate(self, stack):
         return self.validator.validate(stack)
@@ -107,9 +104,6 @@ class StackService(object):
                 "Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
             return False
         return True
-
-    def update_serial(self, stack):
-        return cf.helpers.update_serial_param(stack.template_body, stack.template)
 
     def describe(self, stack_name):
         print("Describing:", stack_name)

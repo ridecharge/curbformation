@@ -1,4 +1,5 @@
 import unittest
+import cf.helpers
 from cf.stack import Stack
 from cf.stack import StackService
 from unittest.mock import MagicMock
@@ -16,6 +17,7 @@ class StackTest(unittest.TestCase):
             'Environment': self.env,
             'Template': self.template
         }
+        cf.helpers.config = MagicMock(return_value={'account_id': '123'})
         self.params = [('Environment', self.env)]
         self.template_uri = 'https://s3.amazonaws.com/curbformation-test-templates/env.json'
         self.options = MagicMock()

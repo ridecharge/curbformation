@@ -1,5 +1,6 @@
 import unittest
 import subprocess
+import cf.helpers
 from cf.environment import Environment
 from cf.environment import EnvironmentService
 from unittest.mock import MagicMock
@@ -13,6 +14,7 @@ class EnvironmentTest(unittest.TestCase):
         self.options.environment = self.env
         self.options.region = 'us-east-1'
         self.options.account_id = '123'
+        cf.helpers.config = MagicMock(return_value={'account_id': '123'})
         self.bootstrap = Environment(self.service, self.options)
 
     def test_sync(self):
