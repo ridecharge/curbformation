@@ -97,6 +97,12 @@ def templates_dir_exists():
         exit(1)
 
 
+def exit_when_invalid(stack):
+    if not stack.validate():
+        print("Error: Template Validation Failed")
+        exit(1)
+
+
 def dockerhub_config():
     config_path = os.path.expanduser("~") + "/.dockercfg"
     print("Using dockercfg:", config_path)

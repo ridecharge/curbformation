@@ -28,11 +28,6 @@ class Stack(object):
     def validate(self):
         return self.service.validate(self)
 
-    def exit_when_invalid(self):
-        if not self.validate():
-            print("Error: Template Validation Failed")
-            exit(1)
-
     def describe(self):
         return self.service.describe(self.stack_name)
 
@@ -40,12 +35,12 @@ class Stack(object):
         return self.service.delete(self.stack_name)
 
     def create(self):
-        self.exit_when_invalid()
+        cf.helpers.exit_when_invalid()
         self.service.sync_s3_bucket(self.bucket_name)
         return self.service.create(self)
 
     def update(self):
-        self.exit_when_invalid()
+        cf.helpers.exit_when_invalid()
         self.service.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
@@ -58,13 +53,14 @@ class Stack(object):
 
     def redeploy(self):
         self.service.update_serial(self)
+        self.service.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
     def deploy(self):
         if not self.is_deployable():
             print('The current stack is in progress of updating and cannot be deployed.')
             exit(1)
-        self.exit_when_invalid()
+        cf.helpers.exit_when_invalid()
         if not self.service.update_template_versions(self.options.version, self):
             exit(1)
         self.service.sync_s3_bucket(self.bucket_name)
