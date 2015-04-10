@@ -65,9 +65,9 @@ class Stack(object):
             print('The current stack is in progress of updating and cannot be deployed.')
             exit(1)
         self.exit_when_invalid()
-        self.service.sync_s3_bucket(self.bucket_name)
         if not self.service.update_template_versions(self.options.version, self):
             exit(1)
+        self.service.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
 
