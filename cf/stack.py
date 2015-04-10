@@ -85,9 +85,14 @@ class StackService(object):
         if stack.name == 'env':
             return [('Environment', stack.env)] + list(stack.config['env_params'].items())
         else:
-            return [('ApplicationName', stack.name)] + [(out.key, out.value) for out in
-                                                        self.describe(stack.env + "-env").outputs if
-                                                        out.key in stack.inputs]
+            return [('ApplicationName', stack.name),
+                    ('DockerRepository', stack.config['DockerRepository'])] + \
+                   [(out.key, out.value)
+                    for out in
+                    self.describe(
+                        stack.env + "-env").outputs
+                    if
+                    out.key in stack.inputs]
 
     def sync_s3_bucket(self, bucket_name):
         cf.helpers.sync_s3_bucket(bucket_name)
