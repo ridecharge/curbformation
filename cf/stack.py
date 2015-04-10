@@ -36,7 +36,7 @@ class Stack(object):
 
     def create(self):
         cf.helpers.exit_when_invalid(self)
-        self.service.sync_s3_bucket(self.bucket_name)
+        cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.create(self)
 
     def update(self):
