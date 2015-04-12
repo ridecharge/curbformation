@@ -66,6 +66,12 @@ class Stack(object):
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
+    def lock(self):
+        self.service.lock(self.stack_name)
+
+    def unlock(self):
+        self.service.unlock(self.stack_name)
+
 
 class StackService(object):
     def __init__(self, cf_conn, ec2_conn, validator, debug=False):
@@ -101,9 +107,28 @@ class StackService(object):
             cf.helpers.update_version_param(version, stack.template_body, stack.template)
         else:
             print(
-                "Error: Cloud not find docker container {} with tag {}".format(stack.name, version))
+                "Error: Cloud not find docker container {} with tag {}".format(stack.name,
+                                                                               version))
             return False
         return True
+
+    def lock(self, stack_name):
+        return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Deny'))
+
+    def __stack_policy(self, effect):
+        return """{
+                  "Statement" : [
+                    {
+                      "Effect" : \""""+effect+"""\",
+                      "Action" : "Update:*",
+                      "Principal": "*",
+                      "Resource" : "*"
+                    }
+                  ]
+                }"""
+
+    def unlock(self, stack_name):
+        return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Allow'))
 
     def describe(self, stack_name):
         print("Describing:", stack_name)

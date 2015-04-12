@@ -33,6 +33,14 @@ def delete(options):
     return cf.new_stack(options).delete()
 
 
+def lock(options):
+    print(cf.new_stack(options).lock())
+
+
+def unlock(options):
+    print(cf.new_stack(options).unlock())
+
+
 def bootstrap(options):
     print(cf.new_environment(options).bootstrap())
 
@@ -55,6 +63,8 @@ def register_subparsers(parser):
     register_subparser(subparsers, 'cleanup', cleanup)
     register_stack_subparser(subparsers, 'deploy', deploy).\
         add_argument('-v', '--version', help='The application version to deploy.', default='latest')
+    register_stack_subparser(subparsers, 'lock', lock)
+    register_stack_subparser(subparsers, 'unlock', unlock)
     register_stack_subparser(subparsers, 'redeploy', redeploy)
     register_stack_subparser(subparsers, 'rollback', rollback)
     register_stack_subparser(subparsers, 'update', update)
