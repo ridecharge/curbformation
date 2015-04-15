@@ -111,7 +111,6 @@ def error_handler(args):
 
 
 def main():
-    cf.helpers.templates_dir_exists()
     parser = get_parser()
     register_subparsers(parser)
     args = parser.parse_args()

@@ -17,10 +17,6 @@ class EnvironmentTest(unittest.TestCase):
         cf.helpers.config = MagicMock(return_value={'account_id': '123'})
         self.bootstrap = Environment(self.service, self.options)
 
-    def test_sync(self):
-        self.bootstrap.sync()
-        self.service.sync_s3_bucket.assert_called_with(self.bootstrap.bucket_name)
-
     def test_bootstrap(self):
         self.bootstrap.bootstrap()
         self.service.create_s3_bucket.assert_called_with(self.bootstrap.bucket_name)

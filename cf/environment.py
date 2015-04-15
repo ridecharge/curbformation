@@ -23,9 +23,6 @@ class Environment(object):
         self.service.delete_s3_bucket(self.bucket_name)
         self.service.delete_key_pair(self.env)
 
-    def sync(self):
-        self.service.sync_s3_bucket(self.bucket_name)
-
 
 class EnvironmentService(object):
     def __init__(self, ec2_conn, s3_conn, sns_conn):

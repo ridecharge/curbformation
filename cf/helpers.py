@@ -43,7 +43,7 @@ def tags(env, template):
     }
 
 
-def template_body(template, path="../curbformation-templates/"):
+def template_body(template, path="./"):
     with open(path + template) as f:
         return json.load(f)
 
@@ -82,18 +82,21 @@ def nested_stack_dependencies(temp_body):
 
 
 def sync_s3_bucket(name):
-    call(['aws', 's3', 'sync', '../curbformation-templates',
-          's3://' + name, '--delete', '--exclude', '*', '--include', '*.json'])
+    __sync_s3_bucket(name, '../curbformation-templates', True)
+    __sync_s3_bucket(name, '../curbformation-templates-private', False)
+
+
+def __sync_s3_bucket(name, templates_path, delete=False):
+    cmd = ['aws', 's3', 'sync', templates_path,
+           's3://' + name]
+    if delete:
+        cmd += ['--delete']
+    cmd += ['--exclude', '*', '--include', '*.json']
+    call(cmd)
 
 
 def delete_s3_bucket_contents(name):
     call(['aws', 's3', 'rm', 's3://' + name, '--recursive'])
-
-
-def templates_dir_exists():
-    if not os.path.isdir('../curbformation'):
-        print('The directory ../curbformation must exist to run this command')
-        exit(1)
 
 
 def exit_when_invalid(stack):
@@ -130,7 +133,7 @@ def update_serial_param(template, path):
     except KeyError:
         print('Error: This template does not have a default Serial parameter.')
         exit(1)
-    with open("../curbformation-templates/" + path, 'w') as of:
+    with open("./" + path, 'w') as of:
         json.dump(template, of, sort_keys=True, indent=2)
 
 
@@ -143,7 +146,7 @@ def update_version_param(version, template, path):
     except KeyError:
         print("Error: This template does not have a Default Version parameter.")
         exit(1)
-    with open("../curbformation-templates/" + path, 'w') as of:
+    with open("./" + path, 'w') as of:
         json.dump(template, of, sort_keys=True, indent=2)
 
 
@@ -156,7 +159,7 @@ def update_base_image_param(image_id, template, path):
     except KeyError:
         print("Error: This template does not have a Default ImageId parameter.")
         exit(1)
-    with open("../curbformation-templates/" + path, 'w') as of:
+    with open("./" + path, 'w') as of:
         json.dump(template, of, sort_keys=True, indent=2)
 
 
