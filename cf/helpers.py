@@ -43,9 +43,13 @@ def tags(env, template):
     }
 
 
-def template_body(template, path="./"):
-    with open(path + template) as f:
-        return json.load(f)
+def template_body(template):
+    try:
+        with open('../curbformation-templates/' + template) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        with open('../curbformation-templates-private/' + template) as f:
+            return json.load(f)
 
 
 def inputs(temp_body):

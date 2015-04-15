@@ -5,9 +5,8 @@ from boto.exception import BotoServerError
 
 
 class NestedStackValidator(object):
-    def __init__(self, conn, root_path='../curbformation-templates/'):
+    def __init__(self, conn):
         self.conn = conn
-        self.root_path = root_path
 
     def __validate_template_syntax(self, template_body, path):
         """
@@ -31,7 +30,7 @@ class NestedStackValidator(object):
         if self.__validate_template_syntax(template_body, template_path):
             nested_valid = True
             for path, params in cf.helpers.nested_stack_dependencies(template_body):
-                depend_template_body = cf.helpers.template_body(path, self.root_path)
+                depend_template_body = cf.helpers.template_body(path)
                 if self.__validate(depend_template_body, path):
                     inputs = cf.helpers.inputs(depend_template_body)
                     default_inputs = cf.helpers.default_inputs(depend_template_body)
