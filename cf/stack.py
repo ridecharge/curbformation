@@ -99,10 +99,12 @@ class StackService(object):
         return self.validator.validate(stack)
 
     def update_template_versions(self, version, stack):
+        skip_check = stack.options.skip_version_check
         if version.startswith('ami-'):
-            self.ec2_conn.get_image(version)
+            if not skip_check:
+                self.ec2_conn.get_image(version)
             cf.helpers.update_base_image_param(version, stack.template_body, stack.template)
-        elif cf.helpers.check_docker_tag_exists(version, stack.name, HTTPSConnection(
+        elif skip_check or cf.helpers.check_docker_tag_exists(version, stack.name, HTTPSConnection(
                 stack.config['repository']['index']), stack.config):
             cf.helpers.update_version_param(version, stack.template_body, stack.template)
         else:

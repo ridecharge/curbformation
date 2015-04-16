@@ -78,6 +78,8 @@ def register_stack_subparser(subparsers, name, func):
     parser = register_subparser(subparsers, name, func)
     parser.add_argument('-n', '--name', help='The stack name',
                         default='env')
+    parser.add_argument('--skip-version-check', help='Skips version check before deploying',
+                        default=False)
     return parser
 
 

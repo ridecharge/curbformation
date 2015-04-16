@@ -86,17 +86,13 @@ def nested_stack_dependencies(temp_body):
 
 
 def sync_s3_bucket(name):
-    __sync_s3_bucket(name, '../curbformation-templates', True)
-    __sync_s3_bucket(name, '../curbformation-templates-private', False)
+    __sync_s3_bucket(name, '../curbformation-templates')
+    __sync_s3_bucket(name, '../curbformation-templates-private')
 
 
-def __sync_s3_bucket(name, templates_path, delete=False):
-    cmd = ['aws', 's3', 'sync', templates_path,
-           's3://' + name]
-    if delete:
-        cmd += ['--delete']
-    cmd += ['--exclude', '*', '--include', '*.json']
-    call(cmd)
+def __sync_s3_bucket(name, templates_path):
+    call(['aws', 's3', 'sync', templates_path,
+           's3://' + name, '--exclude', '*', '--include', '*.json'])
 
 
 def delete_s3_bucket_contents(name):
