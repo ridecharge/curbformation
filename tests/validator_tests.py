@@ -2,8 +2,14 @@ import unittest
 from cf.validator import NestedStackValidator
 from unittest.mock import MagicMock
 from boto.exception import BotoServerError
+import cf.helpers
 import json
 import time
+
+
+def template_body(template):
+    with open('./tests/data/' + template) as f:
+        return json.load(f)
 
 
 class NestedStackValidatorTest(unittest.TestCase):
@@ -11,7 +17,8 @@ class NestedStackValidatorTest(unittest.TestCase):
         time.sleep = MagicMock()
         self.cf_conn = MagicMock()
         self.cf_conn.validate_template = MagicMock(return_value=True)
-        self.validator = NestedStackValidator(self.cf_conn, 'tests/data/')
+        self.validator = NestedStackValidator(self.cf_conn)
+        cf.helpers.template_body = template_body
         with open('tests/data/test.json') as file:
             self.data = json.load(file)
         with open('tests/data/test_bad.json') as bad_file:

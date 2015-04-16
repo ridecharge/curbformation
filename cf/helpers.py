@@ -105,6 +105,12 @@ def exit_when_invalid(stack):
         exit(1)
 
 
+def exit_when_not_deployable(stack):
+    if not stack.is_deployable():
+        print('The current stack is in progress of updating and cannot be deployed.')
+        exit(1)
+
+
 def dockerhub_config():
     config_path = os.path.expanduser("~") + "/.dockercfg"
     print("Using dockercfg:", config_path)

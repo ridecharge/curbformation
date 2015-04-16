@@ -57,12 +57,9 @@ class Stack(object):
         return self.service.update(self)
 
     def deploy(self):
-        if not self.is_deployable():
-            print('The current stack is in progress of updating and cannot be deployed.')
-            exit(1)
+        cf.helpers.exit_when_not_deployable(self)
         cf.helpers.exit_when_invalid(self)
-        if not self.service.update_template_versions(self.options.version, self):
-            exit(1)
+        self.service.update_template_versions(self.options.version, self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
@@ -102,6 +99,7 @@ class StackService(object):
         skip_check = stack.options.skip_version_check
         if version.startswith('ami-'):
             if not skip_check:
+                # throws and exception if the ami doesnt exists
                 self.ec2_conn.get_image(version)
             cf.helpers.update_base_image_param(version, stack.template_body, stack.template)
         elif skip_check or cf.helpers.check_docker_tag_exists(version, stack.name, HTTPSConnection(
@@ -111,8 +109,7 @@ class StackService(object):
             print(
                 "Error: Cloud not find docker container {} with tag {}".format(stack.name,
                                                                                version))
-            return False
-        return True
+            exit(1)
 
     def lock(self, stack_name):
         return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Deny'))
