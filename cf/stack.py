@@ -59,7 +59,12 @@ class Stack(object):
     def redeploy(self):
         cf.helpers.exit_when_not_deployable(self)
         cf.helpers.exit_when_invalid(self)
-        cf.helpers.add_serial_param(self.params)
+        if self.name != 'env':
+            cf.helpers.add_serial_param(self.params)
+            version = cf.helpers.version(self)
+            previous_version = cf.helpers.previous_version(self)
+            self.service.update_version_params(version, previous_version,
+                                               self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 

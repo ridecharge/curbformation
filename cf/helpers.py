@@ -61,10 +61,11 @@ def default_inputs(temp_body):
 
 
 def previous_version(stack):
+    return 'ami-982727f0'
     for out in stack.describe().outputs:
         if out.key == 'PreviousVersion':
             return out.value
-    print('Error: Cloud not find PreviousVersion')
+    print('Error: Could not find PreviousVersion')
     exit(1)
 
 
@@ -72,7 +73,7 @@ def version(stack):
     for out in stack.describe().outputs:
         if out.key == 'Version':
             return out.value
-    print('Error: Cloud not find Version')
+    print('Error: Could not find Version')
     exit(1)
 
 
@@ -137,7 +138,7 @@ def exit_if_docker_tag_not_exist(vers, name, https_conn, cfg):
                        headers=headers)
     if https_conn.getresponse().read().decode('utf-8') != 'Tag not found':
         print(
-            "Error: Cloud not find docker container {} with tag {}".format(name,
+            "Error: Could not find docker container {} with tag {}".format(name,
                                                                            vers))
         exit(1)
 
