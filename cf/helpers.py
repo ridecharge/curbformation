@@ -61,7 +61,6 @@ def default_inputs(temp_body):
 
 
 def previous_version(stack):
-    return 'ami-982727f0'
     for out in stack.describe().outputs:
         if out.key == 'PreviousVersion':
             return out.value
