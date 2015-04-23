@@ -60,15 +60,20 @@ def default_inputs(temp_body):
     return set(key for key, val in temp_body['Parameters'].items() if 'Default' in val)
 
 
-def previous_version(temp_body):
-    try:
-        return temp_body['Parameters']['PreviousVersion']['Default']
-    except KeyError:
-        try:
-            return temp_body['Parameters']['PreviousImageId']['Default']
-        except KeyError:
-            print('Error: Cloud not find Default Previous Version or Default ImageId parameters')
-            exit(1)
+def previous_version(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'PreviousVersion':
+            return out.value
+    print('Error: Cloud not find PreviousVersion')
+    exit(1)
+
+
+def version(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'Version':
+            return out.value
+    print('Error: Cloud not find Version')
+    exit(1)
 
 
 def nested_stack_resources(temp_body):
@@ -92,7 +97,7 @@ def sync_s3_bucket(name):
 
 def __sync_s3_bucket(name, templates_path):
     call(['aws', 's3', 'sync', templates_path,
-           's3://' + name, '--exclude', '*', '--include', '*.json'])
+          's3://' + name, '--exclude', '*', '--include', '*.json'])
 
 
 def delete_s3_bucket_contents(name):
@@ -121,7 +126,7 @@ def dockerhub_config():
         return None
 
 
-def check_docker_tag_exists(version, name, https_conn, cfg):
+def exit_if_docker_tag_not_exist(vers, name, https_conn, cfg):
     dh_config = dockerhub_config()
     headers = {}
     if dh_config:
@@ -130,43 +135,24 @@ def check_docker_tag_exists(version, name, https_conn, cfg):
                 dh_config["https://" + cfg['repository']['index'] + "/v1/"]['auth'])}
     https_conn.request('GET', cfg['repository']['tag_path'].format(name, version),
                        headers=headers)
-    return https_conn.getresponse().read().decode('utf-8') != 'Tag not found'
-
-
-def update_serial_param(template, path):
-    try:
-        template['Parameters']['Serial']['Default'] = str(int(time.time()))
-    except KeyError:
-        print('Error: This template does not have a default Serial parameter.')
+    if https_conn.getresponse().read().decode('utf-8') != 'Tag not found':
+        print(
+            "Error: Cloud not find docker container {} with tag {}".format(name,
+                                                                           vers))
         exit(1)
-    with open("./" + path, 'w') as of:
-        json.dump(template, of, sort_keys=True, indent=2)
 
 
-def update_version_param(version, template, path):
-    print("Updating", path, "Version to", version)
-    try:
-        prev_version = template['Parameters']['Version']['Default']
-        template['Parameters']['Version']['Default'] = version
-        template['Parameters']['PreviousVersion']['Default'] = prev_version
-    except KeyError:
-        print("Error: This template does not have a Default Version parameter.")
+def add_serial_param(params):
+    params.append(('Serial', str(int(time.time()))))
+
+
+def add_version_param(vers, previous_vers, params):
+    print("Updating Version to", vers)
+    if not vers or not previous_vers:
+        print("Error: Missing values vers:", vers, "previous_vers:", previous_vers)
         exit(1)
-    with open("./" + path, 'w') as of:
-        json.dump(template, of, sort_keys=True, indent=2)
-
-
-def update_base_image_param(image_id, template, path):
-    print("Updating", path, "ImageId to", image_id)
-    try:
-        prev_image_id = template['Parameters']['ImageId']['Default']
-        template['Parameters']['ImageId']['Default'] = image_id
-        template['Parameters']['PreviousImageId']['Default'] = prev_image_id
-    except KeyError:
-        print("Error: This template does not have a Default ImageId parameter.")
-        exit(1)
-    with open("./" + path, 'w') as of:
-        json.dump(template, of, sort_keys=True, indent=2)
+    params.append(('Version', vers))
+    params.append(('PreviousVersion', previous_vers))
 
 
 def describe_nested_stacks(name, region):

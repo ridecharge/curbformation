@@ -23,6 +23,7 @@ class Stack(object):
         self.inputs = cf.helpers.inputs(self.template_body)
         self.params = self.service.params(self)
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
+        self.version = options.version
         self.options = options
 
     def validate(self):
@@ -37,29 +38,37 @@ class Stack(object):
     def create(self):
         cf.helpers.exit_when_invalid(self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
+        if self.version:
+            self.service.update_version_params(self.version, self.version,
+                                               self)
         return self.service.create(self)
-
-    def update(self):
-        cf.helpers.exit_when_invalid(self)
-        cf.helpers.sync_s3_bucket(self.bucket_name)
-        return self.service.update(self)
 
     def is_deployable(self):
         return self.describe().stack_status in Stack.VALID_DEPLOYMENT_STATES
 
     def rollback(self):
-        self.options.version = cf.helpers.previous_version(self.template_body)
-        self.deploy()
+        cf.helpers.exit_when_not_deployable(self)
+        cf.helpers.exit_when_invalid(self)
+        version = cf.helpers.previous_version(self)
+        previous_version = cf.helpers.version(self)
+        self.service.update_version_params(version, previous_version,
+                                           self)
+        cf.helpers.sync_s3_bucket(self.bucket_name)
+        return self.service.update(self)
 
     def redeploy(self):
-        cf.helpers.update_serial_param(self.template_body, self.template)
+        cf.helpers.exit_when_not_deployable(self)
+        cf.helpers.exit_when_invalid(self)
+        cf.helpers.add_serial_param(self.params)
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
     def deploy(self):
         cf.helpers.exit_when_not_deployable(self)
         cf.helpers.exit_when_invalid(self)
-        self.service.update_template_versions(self.options.version, self)
+        previous_version = cf.helpers.version(self)
+        self.service.update_version_params(self.version, previous_version,
+                                           self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
@@ -95,21 +104,16 @@ class StackService(object):
     def validate(self, stack):
         return self.validator.validate(stack)
 
-    def update_template_versions(self, version, stack):
+    def update_version_params(self, version, previous_version, stack):
         skip_check = stack.options.skip_version_check
-        if version.startswith('ami-'):
-            if not skip_check:
-                # throws and exception if the ami doesnt exists
+        if not skip_check:
+            if version.startswith('ami-'):
                 self.ec2_conn.get_image(version)
-            cf.helpers.update_base_image_param(version, stack.template_body, stack.template)
-        elif skip_check or cf.helpers.check_docker_tag_exists(version, stack.name, HTTPSConnection(
-                stack.config['repository']['index']), stack.config):
-            cf.helpers.update_version_param(version, stack.template_body, stack.template)
-        else:
-            print(
-                "Error: Cloud not find docker container {} with tag {}".format(stack.name,
-                                                                               version))
-            exit(1)
+            else:
+                cf.helpers.exit_if_docker_tag_not_exist(version, stack.name, HTTPSConnection(
+                    stack.config['repository']['index']), stack.config)
+
+        cf.helpers.add_version_param(version, previous_version, stack.params)
 
     def lock(self, stack_name):
         return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Deny'))
@@ -118,7 +122,7 @@ class StackService(object):
         return """{
                   "Statement" : [
                     {
-                      "Effect" : \""""+effect+"""\",
+                      "Effect" : \"""" + effect + """\",
                       "Action" : "Update:*",
                       "Principal": "*",
                       "Resource" : "*"

@@ -26,6 +26,7 @@ class StackTest(unittest.TestCase):
         self.options.region = 'us-east-1'
         self.options.account_id = '123'
         self.options.name = 'name'
+        self.options.version = 'abc'
         self.stack = Stack(self.service, self.options)
 
     def test_validate(self):
@@ -35,10 +36,6 @@ class StackTest(unittest.TestCase):
     def test_create(self):
         self.stack.create()
         self.service.create(self.stack)
-
-    def test_update(self):
-        self.stack.update()
-        self.service.update.assert_called_with(self.stack)
 
     def test_delete(self):
         self.stack.delete()
