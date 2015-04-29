@@ -1,0 +1,8 @@
+.coverage
+.dockerignore
+.gitignore
+.python-version
+curbformation.iml
+Dockerfile
+README.md
+requirements.yml
