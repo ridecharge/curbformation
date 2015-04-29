@@ -11,5 +11,5 @@ nose:
 	nosetests --with-coverage --cover-inclusive --cover-package=cf
 
 clean:
-	docker rmi curbformation-test
+	docker rmi -f curbformation-test
 	rm -r roles
