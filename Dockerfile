@@ -7,4 +7,4 @@ RUN mkdir -p /opt/curbformation
 WORKDIR /opt/curbformation
 COPY . .
 RUN pip install -e .
-ENTRYPOINT ["make", "test"]
+ENTRYPOINT ["make", "nose"]
