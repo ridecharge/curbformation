@@ -5,13 +5,6 @@ from boto import cloudformation
 from subprocess import call
 
 
-def config(env):
-    config_path = os.path.expanduser("~") + "/.cf/" + env + ".json"
-    print("Using config:", config_path)
-    with open(config_path, 'r') as f:
-        return json.load(f)
-
-
 def topic_name(env):
     return "curbformation-{}-notifications".format(env)
 

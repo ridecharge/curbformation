@@ -7,6 +7,7 @@ from boto import ec2
 from boto import cloudformation
 from boto import sns
 from boto import s3
+from consul import Consul
 
 
 def new_environment(options):
@@ -18,9 +19,10 @@ def new_environment(options):
 
 
 def new_stack(options):
+    consul_conn = Consul('192.168.59.103', '8500')
     cf_conn = cloudformation.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
     stack_validator = NestedStackValidator(cf_conn)
-    stack_service = StackService(cf_conn, ec2_conn, stack_validator)
+    stack_service = StackService(cf_conn, ec2_conn, consul_conn, stack_validator)
     return Stack(stack_service, options)
 

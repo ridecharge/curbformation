@@ -18,7 +18,7 @@ class StackTest(unittest.TestCase):
             'Template': self.template
         }
         cf.helpers.sync_s3_bucket = MagicMock()
-        cf.helpers.config = MagicMock(return_value={'account_id': '123'})
+        self.service.load_config = MagicMock(return_value={'account_id': '123'})
         self.params = [('Environment', self.env)]
         self.template_uri = 'https://s3.amazonaws.com/curbformation-test-templates/env.json'
         self.options = MagicMock()
@@ -50,6 +50,7 @@ class StackServiceTest(unittest.TestCase):
     def setUp(self):
         self.ec2_conn = MagicMock()
         self.cf_conn = MagicMock()
+        self.consul_conn = MagicMock()
         self.validator = MagicMock()
         self.cf_conn.update_stack = MagicMock(return_value="")
         self.cf_conn.create_stack = MagicMock(return_value="")
@@ -66,7 +67,7 @@ class StackServiceTest(unittest.TestCase):
         }
         self.stack.params = [('Environment', self.stack.env)]
         self.stack.template_uri = 'https://s3.amazonaws.com/curbformation-test-templates/env.json'
-        self.service = StackService(self.cf_conn, self.ec2_conn, self.validator)
+        self.service = StackService(self.cf_conn, self.ec2_conn, self.consul_conn, self.validator)
 
     def test_create(self):
         self.service.create(self.stack)

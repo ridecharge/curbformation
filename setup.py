@@ -7,5 +7,6 @@ setup(name='curbformation',
       ],
       url='https://github.com/ridecharge/curbformation',
       packages=['cf'],
-      install_requires=['boto>=2.34.0','awscli>=1.7.5', 'nose>=1.3.4', 'coverage>=3.7.1']
+      install_requires=['boto>=2.34.0', 'awscli>=1.7.5', 'nose>=1.3.4', 'coverage>=3.7.1',
+                        'python-consul>=0.3.3']
 )

@@ -11,7 +11,7 @@ class Stack(object):
         self.env = options.environment
         self.region = options.region
         self.name = options.name
-        self.config = cf.helpers.config(self.env)
+        self.config = self.service.load_config()
         self.account_id = self.config['account_id']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
@@ -85,11 +85,30 @@ class Stack(object):
 
 
 class StackService(object):
-    def __init__(self, cf_conn, ec2_conn, validator, debug=False):
+    def __init__(self, cf_conn, ec2_conn, consul_conn, validator, debug=False):
         self.cf_conn = cf_conn
         self.ec2_conn = ec2_conn
+        self.consul_conn = consul_conn
         self.validator = validator
         self.debug = debug
+
+    def load_config(self):
+        env_params = {}
+        for param in self.consul_conn.kv.get('cf/env_params', recurse=True)[1]:
+            key = param['Key'].split('/')[-1]
+            value = param['Value'].decode('utf-8')
+            env_params[key] = value
+
+        repository = {}
+        for param in self.consul_conn.kv.get('cf/repository', recurse=True)[1]:
+            key = param['Key'].split('/')[-1]
+            print(key)
+            value = param['Value'].decode('utf-8')
+            repository[key] = value
+
+        account_id = self.consul_conn.kv.get('cf/account_id')[1]['Value'].decode('utf-8')
+
+        return {'account_id': account_id, 'env_params': env_params, 'repository': repository}
 
     def params(self, stack):
         if stack.name == 'env':

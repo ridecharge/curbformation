@@ -1,0 +1,8 @@
+---
+
+- pkgng: name={{ item }} state=present
+  with_items:
+  - lang/python34
+  - devel/py-setuptools34
+
+- shell: easy_install-3.4 pip
