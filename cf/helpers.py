@@ -100,25 +100,11 @@ def exit_when_not_deployable(stack):
         exit(1)
 
 
-def dockerhub_config():
-    config_path = os.path.expanduser("~") + "/.dockercfg"
-    print("Using dockercfg:", config_path)
-    try:
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return None
-
-
-def exit_if_docker_tag_not_exist(vers, name, https_conn, cfg):
-    dh_config = dockerhub_config()
-    headers = {}
-    if dh_config:
-        headers = {
-            'Authorization': "Basic {}".format(
-                dh_config["https://" + cfg['repository']['index'] + "/v1/"]['auth'])}
-    https_conn.request('GET', cfg['repository']['tag_path'].format(name, version),
-                       headers=headers)
+def exit_if_docker_tag_not_exist(vers, name, https_conn, config):
+    https_conn.request('GET',
+                       config['repository']['index'] +
+                       config['repository']['tag_path'].format(name,
+                                                               vers))
     if https_conn.getresponse().read().decode('utf-8') != 'Tag not found':
         print(
             "Error: Could not find docker container {} with tag {}".format(name,
