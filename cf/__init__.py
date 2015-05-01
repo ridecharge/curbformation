@@ -19,7 +19,7 @@ def new_environment(options):
 
 
 def new_stack(options):
-    consul_conn = Consul('192.168.59.103', '8500')
+    consul_conn = Consul('consul', '8500')
     cf_conn = cloudformation.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
     stack_validator = NestedStackValidator(cf_conn)
