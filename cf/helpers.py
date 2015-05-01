@@ -101,10 +101,10 @@ def exit_when_not_deployable(stack):
 
 
 def exit_if_docker_tag_not_exist(vers, name, https_conn, config):
-    https_conn.request('GET',
-                       config['repository']['index'] +
-                       config['repository']['tag_path'].format(name,
-                                                               vers))
+    tag_path = config['repository']['index'] + config['repository']['tag_path'].format(name,
+                                                                                       vers)
+    print(tag_path)
+    https_conn.request('GET', tag_path)
     if https_conn.getresponse().read().decode('utf-8') != 'Tag not found':
         print(
             "Error: Could not find docker container {} with tag {}".format(name,
