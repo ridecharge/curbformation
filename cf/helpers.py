@@ -44,12 +44,8 @@ def tags(env, template):
 
 
 def template_body(template):
-    try:
-        with open('../curbformation-templates/' + template) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        with open('../curbformation-templates-private/' + template) as f:
-            return json.load(f)
+    with open('../curbformation-templates/' + template) as f:
+        return json.load(f)
 
 
 def inputs(temp_body):
@@ -91,12 +87,7 @@ def nested_stack_dependencies(temp_body):
 
 
 def sync_s3_bucket(name):
-    __sync_s3_bucket(name, '../curbformation-templates')
-    __sync_s3_bucket(name, '../curbformation-templates-private')
-
-
-def __sync_s3_bucket(name, templates_path):
-    call(['aws', 's3', 'sync', templates_path,
+    call(['aws', 's3', 'sync', 'curbformation-templates',
           's3://' + name, '--exclude', '*', '--include', '*.json'])
 
 
