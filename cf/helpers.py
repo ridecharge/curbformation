@@ -80,7 +80,7 @@ def nested_stack_dependencies(temp_body):
 
 
 def sync_s3_bucket(name):
-    call(['aws', 's3', 'sync', 'curbformation-templates',
+    call(['aws', 's3', 'sync', '../curbformation-templates',
           's3://' + name, '--exclude', '*', '--include', '*.json'])
 
 
