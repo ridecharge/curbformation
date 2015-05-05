@@ -30,24 +30,24 @@ def delete(options):
 
 
 def lock(options):
-    print(cf.new_stack(options).lock())
+    return cf.new_stack(options).lock())
 
 
 def unlock(options):
-    print(cf.new_stack(options).unlock())
+    return cf.new_stack(options).unlock())
 
 
 def bootstrap(options):
-    print(cf.new_environment(options).bootstrap())
+    return cf.new_environment(options).bootstrap())
 
 
 def cleanup(options):
-    print(cf.new_environment(options).cleanup())
+    return (cf.new_environment(options).cleanup())
 
 
 def describe(options):
     stack_name = options.environment + "-" + options.name
-    cf.helpers.describe_nested_stacks(stack_name, options.region)
+    return cf.helpers.describe_nested_stacks(stack_name, options.region)
 
 
 def register_subparsers(parser):
