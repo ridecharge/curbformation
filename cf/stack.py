@@ -11,8 +11,8 @@ class Stack(object):
         self.env = options.environment
         self.region = options.region
         self.name = options.name
-        self.config = self.service.load_config()
-        self.account_id = self.config['account_id']
+        #self.config = self.service.load_config()
+        #self.account_id = self.config['account_id']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
@@ -22,7 +22,7 @@ class Stack(object):
         self.tags = cf.helpers.tags(self.env, self.template)
         self.inputs = cf.helpers.inputs(self.template_body)
         self.params = self.service.params(self)
-        self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
+        #self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
         self.version = options.version
         self.options = options
 
@@ -78,10 +78,10 @@ class Stack(object):
         return self.service.update(self)
 
     def lock(self):
-        self.service.lock(self.stack_name)
+        return self.service.lock(self.stack_name)
 
     def unlock(self):
-        self.service.unlock(self.stack_name)
+        return self.service.unlock(self.stack_name)
 
 
 class StackService(object):
@@ -140,7 +140,7 @@ class StackService(object):
         cf.helpers.add_version_param(version, previous_version, stack.params)
 
     def lock(self, stack_name):
-        return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Deny'))
+         return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Deny'))
 
     def __stack_policy(self, effect):
         return """{

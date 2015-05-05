@@ -1,5 +1,4 @@
 import json
-import os
 import time
 from boto import cloudformation
 from subprocess import call
