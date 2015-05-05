@@ -30,19 +30,19 @@ def delete(options):
 
 
 def lock(options):
-    return cf.new_stack(options).lock())
+    return cf.new_stack(options).lock()
 
 
 def unlock(options):
-    return cf.new_stack(options).unlock())
+    return cf.new_stack(options).unlock()
 
 
 def bootstrap(options):
-    return cf.new_environment(options).bootstrap())
+    return cf.new_environment(options).bootstrap()
 
 
 def cleanup(options):
-    return (cf.new_environment(options).cleanup())
+    return (cf.new_environment(options).cleanup()
 
 
 def describe(options):
