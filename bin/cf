@@ -42,7 +42,7 @@ def bootstrap(options):
 
 
 def cleanup(options):
-    return (cf.new_environment(options).cleanup()
+    return cf.new_environment(options).cleanup()
 
 
 def describe(options):
