@@ -104,7 +104,7 @@ def exit_if_docker_tag_not_exist(vers, name, https_conn, config):
                                                                                        vers)
     print(tag_path)
     https_conn.request('GET', tag_path)
-    if https_conn.getresponse().read().decode('utf-8') != 'Tag not found':
+    if https_conn.getresponse().status != 200:
         print(
             "Error: Could not find docker container {} with tag {}".format(name,
                                                                            vers))
