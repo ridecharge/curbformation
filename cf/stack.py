@@ -1,5 +1,5 @@
 import cf.helpers
-from http.client import HTTPSConnection
+from http.client import HTTPConnection
 
 
 class Stack(object):
@@ -102,7 +102,6 @@ class StackService(object):
         repository = {}
         for param in self.consul_conn.kv.get('cf/repository', recurse=True)[1]:
             key = param['Key'].split('/')[-1]
-            print(key)
             value = param['Value'].decode('utf-8')
             repository[key] = value
 
@@ -134,7 +133,7 @@ class StackService(object):
             if version.startswith('ami-'):
                 self.ec2_conn.get_image(version)
             else:
-                cf.helpers.exit_if_docker_tag_not_exist(version, stack.name, HTTPSConnection(
+                cf.helpers.exit_if_docker_tag_not_exist(version, stack.name, HTTPConnection(
                     stack.config['repository']['index']), stack.config)
 
         cf.helpers.add_version_param(version, previous_version, stack.params)
