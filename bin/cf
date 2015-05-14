@@ -57,24 +57,29 @@ def register_subparsers(parser):
     subparsers.dest = 'subcommand'
     register_subparser(subparsers, 'bootstrap', bootstrap)
     register_subparser(subparsers, 'cleanup', cleanup)
-    register_stack_subparser(subparsers, 'deploy', deploy)
+    register_versioned_stack_subparser(subparsers, 'deploy', deploy)
     register_stack_subparser(subparsers, 'lock', lock)
     register_stack_subparser(subparsers, 'unlock', unlock)
     register_stack_subparser(subparsers, 'redeploy', redeploy)
     register_stack_subparser(subparsers, 'rollback', rollback)
     register_stack_subparser(subparsers, 'delete', delete)
-    register_stack_subparser(subparsers, 'create', create)
+    register_versioned_stack_subparser(subparsers, 'create', create)
     register_stack_subparser(subparsers, 'describe', describe)
     register_stack_subparser(subparsers, 'validate', validate)
+
+
+def register_versioned_stack_subparser(subparsers, name, func):
+    parser = register_stack_subparser(subparsers, name, func)
+    parser.add_argument('--skip-version-check', help='Skips version check before deploying',
+                        default=False)
+    parser.add_argument('-v', '--version', help='The application version to deploy.')
+    return parser
 
 
 def register_stack_subparser(subparsers, name, func):
     parser = register_subparser(subparsers, name, func)
     parser.add_argument('-n', '--name', help='The stack name',
                         default='env')
-    parser.add_argument('--skip-version-check', help='Skips version check before deploying',
-                        default=False)
-    parser.add_argument('-v', '--version', help='The application version to deploy.')
     return parser
 
 
@@ -82,9 +87,6 @@ def register_subparser(subparsers, name, func):
     parser = subparsers.add_parser(name)
     parser.add_argument('-r', '--region', help='The AWS region to deploy this stack into.',
                         choices=['us-east-1', 'us-west-1'], default='us-east-1')
-    parser.add_argument('-e', '--environment',
-                        help='The environment name.',
-                        default='stage')
     parser.set_defaults(func=func)
     return parser
 

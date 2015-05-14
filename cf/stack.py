@@ -8,10 +8,10 @@ class Stack(object):
 
     def __init__(self, service, options):
         self.service = service
-        self.env = options.environment
         self.region = options.region
         self.name = options.name
         self.config = self.service.load_config()
+        self.env = self.config['environment']
         self.account_id = self.config['account_id']
         self.template = self.name + '.json'
         self.capabilities = ['CAPABILITY_IAM']
@@ -106,8 +106,9 @@ class StackService(object):
             repository[key] = value
 
         account_id = self.consul_conn.kv.get('cf/config/account_id')[1]['Value'].decode('utf-8')
-
-        return {'account_id': account_id, 'env_params': env_params, 'repository': repository}
+        environment = self.consul_conn.kv.get('cf/config/environment')
+        return {'environment': environment, 'account_id': account_id, 'env_params': env_params,
+                'repository': repository}
 
     def params(self, stack):
         if stack.name == 'env':
@@ -139,7 +140,7 @@ class StackService(object):
         cf.helpers.add_version_param(version, previous_version, stack.params)
 
     def lock(self, stack_name):
-         return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Deny'))
+        return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Deny'))
 
     def __stack_policy(self, effect):
         return """{
