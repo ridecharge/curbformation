@@ -106,7 +106,7 @@ class StackService(object):
             repository[key] = value
 
         account_id = self.consul_conn.kv.get('cf/config/account_id')[1]['Value'].decode('utf-8')
-        environment = self.consul_conn.kv.get('cf/config/environment')
+        environment = self.consul_conn.kv.get('cf/config/environment')[1]['Value'].decode('utf-8')
         return {'environment': environment, 'account_id': account_id, 'env_params': env_params,
                 'repository': repository}
 
