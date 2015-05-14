@@ -23,7 +23,6 @@ class Stack(object):
         self.inputs = cf.helpers.inputs(self.template_body)
         self.params = self.service.params(self)
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
-        self.version = options.version
         self.options = options
 
     def validate(self):
@@ -36,10 +35,11 @@ class Stack(object):
         return self.service.delete(self.stack_name)
 
     def create(self):
+        version = self.options.version
         cf.helpers.exit_when_invalid(self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
-        if self.version:
-            self.service.update_version_params(self.version, self.version,
+        if version:
+            self.service.update_version_params(version, version,
                                                self)
         return self.service.create(self)
 
@@ -72,7 +72,8 @@ class Stack(object):
         cf.helpers.exit_when_not_deployable(self)
         cf.helpers.exit_when_invalid(self)
         previous_version = cf.helpers.version(self)
-        self.service.update_version_params(self.version, previous_version,
+        version = self.options.version
+        self.service.update_version_params(version, previous_version,
                                            self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
