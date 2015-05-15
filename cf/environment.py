@@ -7,7 +7,7 @@ class Environment(object):
         self.service = service
         self.env = options.environment
         self.region = options.region
-        self.config = cf.helpers.config(self.env)
+        self.config = self.service.load_config()
         self.account_id = self.config['account_id']
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
         self.topic_name = cf.helpers.topic_name(self.env)
@@ -25,10 +25,14 @@ class Environment(object):
 
 
 class EnvironmentService(object):
-    def __init__(self, ec2_conn, s3_conn, sns_conn):
+    def __init__(self, ec2_conn, s3_conn, sns_conn, consul_conn):
         self.ec2_conn = ec2_conn
         self.s3_conn = s3_conn
         self.sns_conn = sns_conn
+        self.consul_conn = consul_conn
+
+    def load_config(self):
+        return cf.helpers.load_config(self.consul_conn)
 
     def create_s3_bucket(self, bucket_name):
         print("Creating S3 Bucket:", bucket_name)

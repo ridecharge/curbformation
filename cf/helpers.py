@@ -109,6 +109,25 @@ def exit_if_docker_tag_not_exist(vers, name, https_conn, config):
         exit(1)
 
 
+def load_config(consul_conn):
+        env_params = {}
+        for param in consul_conn.kv.get('cf/config/env_params', recurse=True)[1]:
+            key = param['Key'].split('/')[-1]
+            value = param['Value'].decode('utf-8')
+            env_params[key] = value
+
+        repository = {}
+        for param in consul_conn.kv.get('cf/config/repository', recurse=True)[1]:
+            key = param['Key'].split('/')[-1]
+            value = param['Value'].decode('utf-8')
+            repository[key] = value
+
+        account_id = consul_conn.kv.get('cf/config/account_id')[1]['Value'].decode('utf-8')
+        environment = consul_conn.kv.get('cf/config/environment')[1]['Value'].decode('utf-8')
+        return {'environment': environment, 'account_id': account_id, 'env_params': env_params,
+                'repository': repository}
+
+
 def add_serial_param(params):
     params.append(('Serial', str(int(time.time()))))
 

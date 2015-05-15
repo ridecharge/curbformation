@@ -94,22 +94,7 @@ class StackService(object):
         self.debug = debug
 
     def load_config(self):
-        env_params = {}
-        for param in self.consul_conn.kv.get('cf/config/env_params', recurse=True)[1]:
-            key = param['Key'].split('/')[-1]
-            value = param['Value'].decode('utf-8')
-            env_params[key] = value
-
-        repository = {}
-        for param in self.consul_conn.kv.get('cf/config/repository', recurse=True)[1]:
-            key = param['Key'].split('/')[-1]
-            value = param['Value'].decode('utf-8')
-            repository[key] = value
-
-        account_id = self.consul_conn.kv.get('cf/config/account_id')[1]['Value'].decode('utf-8')
-        environment = self.consul_conn.kv.get('cf/config/environment')[1]['Value'].decode('utf-8')
-        return {'environment': environment, 'account_id': account_id, 'env_params': env_params,
-                'repository': repository}
+        return cf.helpers.load_config(self.consul_conn)
 
     def params(self, stack):
         if stack.name == 'env':

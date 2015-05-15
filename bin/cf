@@ -80,6 +80,8 @@ def register_stack_subparser(subparsers, name, func):
     parser = register_subparser(subparsers, name, func)
     parser.add_argument('-n', '--name', help='The stack name',
                         default='env')
+    parser.add_argument('-H', '--host', help='The consul host.', default='consul')
+    parser.add_argument('-p', '--port', help='The consul port.', default='8500')
     return parser
 
 
