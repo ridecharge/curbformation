@@ -14,7 +14,8 @@ class EnvironmentTest(unittest.TestCase):
         self.options.environment = self.env
         self.options.region = 'us-east-1'
         self.options.account_id = '123'
-        cf.helpers.config = MagicMock(return_value={'account_id': '123'})
+        self.service.load_config = MagicMock(
+            return_value={'account_id': '123', 'environment': 'test'})
         self.bootstrap = Environment(self.service, self.options)
 
     def test_bootstrap(self):
@@ -36,7 +37,9 @@ class EnvironmentServiceTest(unittest.TestCase):
         self.ec2_conn = MagicMock()
         self.s3_conn = MagicMock()
         self.sns_conn = MagicMock()
-        self.service = EnvironmentService(self.ec2_conn, self.s3_conn, self.sns_conn)
+        self.consul_conn = MagicMock()
+        self.service = EnvironmentService(self.ec2_conn, self.s3_conn, self.sns_conn,
+                                          self.consul_conn)
         self.bootstrap = MagicMock()
         self.bootstrap.env = 'env'
         self.bootstrap.topic_name = 'topic'

@@ -5,10 +5,10 @@ from subprocess import call
 class Environment(object):
     def __init__(self, service, options):
         self.service = service
-        self.env = options.environment
         self.region = options.region
         self.config = self.service.load_config()
         self.account_id = self.config['account_id']
+        self.env = self.config['environment']
         self.bucket_name = cf.helpers.s3_bucket_name(self.env)
         self.topic_name = cf.helpers.topic_name(self.env)
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
