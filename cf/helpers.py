@@ -1,5 +1,6 @@
 import json
 import time
+from http.client import HTTPConnection
 from boto import cloudformation
 from subprocess import call
 

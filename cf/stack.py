@@ -1,5 +1,4 @@
 import cf.helpers
-from http.client import HTTPConnection
 
 
 class Stack(object):
