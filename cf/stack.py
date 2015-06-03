@@ -115,14 +115,8 @@ class StackService(object):
         return self.validator.validate(stack)
 
     def update_version_params(self, version, previous_version, stack):
-        skip_check = stack.options.skip_version_check
-        if not skip_check:
-            if version.startswith('ami-'):
-                self.ec2_conn.get_image(version)
-            else:
-                cf.helpers.exit_if_docker_tag_not_exist(version, stack.name, HTTPConnection(
-                    stack.config['repository']['index']), stack.config)
-
+        if not stack.options.skip_version_check:
+            cf.helpers.exist_when_version_not_found()
         cf.helpers.add_version_param(version, previous_version, stack.params)
 
     def lock(self, stack_name):
