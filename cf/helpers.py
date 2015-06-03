@@ -36,7 +36,7 @@ def tags(env, template):
 
 
 def template_body(template):
-    with open('../curbformation-templates-private/' + template) as f:
+    with open('../curbformation-templates/' + template) as f:
         return json.load(f)
 
 
