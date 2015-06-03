@@ -100,17 +100,17 @@ def exit_when_not_deployable(stack):
         exit(1)
 
 
-def exit_when_version_not_found(version, stack):
-    if version.startswith('ami-'):
-        exit_if_ami_not_exist(version)
+def exit_when_version_not_found(ver, stack, ec2_conn):
+    if ver.startswith('ami-'):
+        exit_if_ami_not_exist(ver, ec2_conn)
     else:
-        exit_if_docker_tag_not_exist(version, stack.name, HTTPConnection(
+        exit_if_docker_tag_not_exist(ver, stack.name, HTTPConnection(
             stack.config['repository']['index']), stack.config)
 
 
-def exit_if_ami_not_exist(version):
-    if not self.ec2_conn.get_image(version):
-        print("Error: Could not find ami: {}".format(version))
+def exit_if_ami_not_exist(ver, ec2_conn):
+    if not ec2_conn.get_image(ver):
+        print("Error: Could not find ami: {}".format(ver))
         exit(1)
 
 
