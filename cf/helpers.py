@@ -99,7 +99,7 @@ def exit_when_not_deployable(stack):
         exit(1)
 
 
-def exit_when_version_not_found(version):
+def exit_when_version_not_found(version, stack):
     if version.startswith('ami-'):
         exit_if_ami_not_exist(version)
     else:
