@@ -116,7 +116,7 @@ class StackService(object):
 
     def update_version_params(self, version, previous_version, stack):
         if not stack.options.skip_version_check:
-            cf.helpers.exist_when_version_not_found()
+            cf.helpers.exit_when_version_not_found(version)
         cf.helpers.add_version_param(version, previous_version, stack.params)
 
     def lock(self, stack_name):
