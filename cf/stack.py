@@ -48,33 +48,15 @@ class Stack(object):
     def is_deployable(self):
         return self.describe().stack_status in Stack.VALID_DEPLOYMENT_STATES
 
-    def rollback(self):
-        cf.helpers.exit_when_not_deployable(self)
-        cf.helpers.exit_when_invalid(self)
-        version = cf.helpers.previous_version(self)
-        previous_version = cf.helpers.version(self)
-        self.service.update_version_params(version, previous_version,
-                                           self)
-        cf.helpers.sync_s3_bucket(self.bucket_name)
-        return self.service.update(self)
-
-    def redeploy(self):
-        cf.helpers.exit_when_not_deployable(self)
-        cf.helpers.exit_when_invalid(self)
-        if self.name != 'env':
-            cf.helpers.add_serial_param(self.params)
-            version = cf.helpers.version(self)
-            previous_version = cf.helpers.previous_version(self)
-            self.service.update_version_params(version, previous_version,
-                                               self)
-        cf.helpers.sync_s3_bucket(self.bucket_name)
-        return self.service.update(self)
-
     def deploy(self):
         cf.helpers.exit_when_not_deployable(self)
         cf.helpers.exit_when_invalid(self)
-        previous_version = cf.helpers.version(self)
+        if self.name == 'env':
+            return self.service.update(self)
         version = self.options.version
+        previous_version = cf.helpers.version(self)
+        if previous_version == version:
+            cf.helpers.add_serial_param(self.params)
         self.service.update_version_params(version, previous_version,
                                            self)
         if cf.helpers.is_ab_deploying(self):

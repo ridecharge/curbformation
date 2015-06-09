@@ -17,14 +17,6 @@ def deploy(options):
     return cf.new_stack(options).deploy()
 
 
-def redeploy(options):
-    return cf.new_stack(options).redeploy()
-
-
-def rollback(options):
-    return cf.new_stack(options).rollback()
-
-
 def delete(options):
     return cf.new_stack(options).delete()
 
@@ -60,18 +52,10 @@ def register_subparsers(parser):
     register_deploy_stack_subparser(subparsers, 'deploy', deploy)
     register_stack_subparser(subparsers, 'lock', lock)
     register_stack_subparser(subparsers, 'unlock', unlock)
-    register_versioned_stack_subparser(subparsers, 'redeploy', redeploy)
-    register_rollback_stack_subparser(subparsers, 'rollback', rollback)
     register_stack_subparser(subparsers, 'delete', delete)
     register_versioned_stack_subparser(subparsers, 'create', create)
     register_stack_subparser(subparsers, 'describe', describe)
     register_stack_subparser(subparsers, 'validate', validate)
-
-
-def register_rollback_stack_subparser(parser, name, func):
-    parser = register_stack_subparser(parser, name, func)
-    add_skip_version_check_arg(parser)
-    return parser
 
 
 def register_deploy_stack_subparser(parser, name, func):
@@ -81,14 +65,10 @@ def register_deploy_stack_subparser(parser, name, func):
     return parser
 
 
-def add_skip_version_check_arg(parser):
-    parser.add_argument('--skip-version-check', help='Skips version check before deploying',
-                        action='store_true')
-
-
 def register_versioned_stack_subparser(subparsers, name, func):
     parser = register_stack_subparser(subparsers, name, func)
-    add_skip_version_check_arg(parser)
+    parser.add_argument('--skip-version-check', help='Skips version check before deploying',
+                        action='store_true')
     parser.add_argument('-v', '--version', help='The application version to deploy.')
     return parser
 
