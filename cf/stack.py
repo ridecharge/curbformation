@@ -51,16 +51,23 @@ class Stack(object):
     def deploy(self):
         cf.helpers.exit_when_not_deployable(self)
         cf.helpers.exit_when_invalid(self)
+
         if self.name == 'env':
             return self.service.update(self)
-        version = self.options.version
-        previous_version = cf.helpers.version(self)
-        if previous_version == version:
-            cf.helpers.add_serial_param(self.params)
-        self.service.update_version_params(version, previous_version,
-                                           self)
-        if cf.helpers.is_ab_deploying(self):
+
+        is_ab_deploying = cf.helpers.is_ab_deploying(self)
+        if is_ab_deploying:
             cf.helpers.update_ab_deploy_params(self)
+
+        if self.options.version:
+            version = self.options.version
+        else:
+            version = cf.helpers.version(self)
+            if not is_ab_deploying:
+                cf.helpers.add_serial_param(self.params)
+        previous_version = cf.helpers.version(self)
+        self.service.update_version_params(version, previous_version, self)
+
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
