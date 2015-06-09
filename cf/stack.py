@@ -77,7 +77,7 @@ class Stack(object):
         version = self.options.version
         self.service.update_version_params(version, previous_version,
                                            self)
-        if not self.options.rolling:
+        if cf.helpers.is_ab_deploying(self):
             cf.helpers.update_ab_deploy_params(self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)

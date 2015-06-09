@@ -78,6 +78,13 @@ def deploying(stack):
     exit(1)
 
 
+def is_ab_deploying(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'Deploying':
+            return True
+    return False
+
+
 def version(stack):
     for out in stack.describe().outputs:
         if out.key == 'Version':
@@ -179,20 +186,17 @@ def add_version_param(vers, previous_vers, params):
 
 def update_ab_deploy_params(stack):
     is_deploying = deploying(stack)
-    if is_deploying:
-        if not stack.options.finish and not stack.options.rollback:
-            print(
-                "Deployment currently in progress. " +
-                "Please use --finish or --rollback to continue.")
-            exit(1)
-        stack.params += [('Deploying', False)]
-        if stack.options.rollback:
-            stack.params += [('DeployedAsg', next_deploy_asg(stack))]
-        else:
-            stack.params += [('DeployedAsg', deploy_asg(stack))]
+    if is_deploying and not stack.options.commit and not stack.options.rollback:
+        print(
+            """Deployment currently in progress.
+            Please use --commit or --rollback to continue.""")
+        exit(1)
+    stack.params += [('Deploying', not is_deploying)]
+    if not is_deploying or stack.options.rollback:
+        asg = next_deploy_asg(stack)
     else:
-        stack.params += [('Deploying', True),
-                         ('DeployedAsg', next_deploy_asg(stack))]
+        asg = deploy_asg(stack)
+    stack.params += [('DeployedAsg', asg)]
 
 
 def describe_nested_stacks(name, region):
