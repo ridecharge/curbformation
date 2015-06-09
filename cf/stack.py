@@ -59,11 +59,15 @@ class Stack(object):
         if is_ab_deploying:
             cf.helpers.update_ab_deploy_params(self)
 
-        if self.options.version:
+        if cf.helpers.deploying(self):
+            version = cf.helpers.version(self)
+            previous_version = cf.helpers.previous_version(self)
+        elif self.options.version:
             version = self.options.version
+            previous_version = cf.helpers.version(self)
         else:
             version = cf.helpers.version(self)
-        previous_version = cf.helpers.version(self)
+            previous_version = version
         self.service.update_version_params(version, previous_version, self)
 
         if not is_ab_deploying and previous_version == version:
