@@ -77,6 +77,8 @@ class Stack(object):
         version = self.options.version
         self.service.update_version_params(version, previous_version,
                                            self)
+        if not self.options.rolling:
+            cf.helpers.update_ab_deploy_params(self)
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
@@ -126,15 +128,15 @@ class StackService(object):
 
     def __stack_policy(self, effect):
         return """{
-                  "Statement" : [
-                    {
-                      "Effect" : \"""" + effect + """\",
-                      "Action" : "Update:*",
-                      "Principal": "*",
-                      "Resource" : "*"
-                    }
-                  ]
-                }"""
+              "Statement" : [
+                {
+                  "Effect" : \"""" + effect + """\",
+                  "Action" : "Update:*",
+                  "Principal": "*",
+                  "Resource" : "*"
+                }
+              ]
+            }"""
 
     def unlock(self, stack_name):
         return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Allow'))

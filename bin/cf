@@ -76,8 +76,9 @@ def register_rollback_stack_subparser(parser, name, func):
 
 def register_deploy_stack_subparser(parser, name, func):
     parser = register_versioned_stack_subparser(parser, name, func)
-    parser.add_argument('--continue', default=False)
+    parser.add_argument('--finish', default=False)
     parser.add_argument('--rollback', default=False)
+    parser.add_argument('--rolling', default=False)
     return parser
 
 

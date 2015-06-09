@@ -57,6 +57,27 @@ def previous_version(stack):
     exit(1)
 
 
+def next_deploy_asg(stack):
+    asg = deploy_asg(stack)
+    return 'B' if asg == 'A' else 'A'
+
+
+def deploy_asg(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'DeployedAsg':
+            return out.value
+    print('Error: Could not find DeployedAsg')
+    exit(1)
+
+
+def deploying(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'Deploying':
+            return True if out.value == 'True' else False
+    print('Error: Could not find Deploying param.')
+    exit(1)
+
+
 def version(stack):
     for out in stack.describe().outputs:
         if out.key == 'Version':
@@ -96,7 +117,7 @@ def exit_when_invalid(stack):
 
 def exit_when_not_deployable(stack):
     if not stack.is_deployable():
-        print('The current stack is in progress of updating and cannot be deployed.')
+        print('Cannot deploy stack.  Are you already in the middle of a deployment?')
         exit(1)
 
 
@@ -154,6 +175,24 @@ def add_version_param(vers, previous_vers, params):
         exit(1)
     params.append(('Version', vers))
     params.append(('PreviousVersion', previous_vers))
+
+
+def update_ab_deploy_params(stack):
+    is_deploying = deploying(stack)
+    if is_deploying:
+        if not stack.options.finish and not stack.options.rollback:
+            print(
+                "Deployment currently in progress. " +
+                "Please use --finish or --rollback to continue.")
+            exit(1)
+        stack.params += [('Deploying', False)]
+        if stack.options.rollback:
+            stack.params += [('DeployedAsg', next_deploy_asg(stack))]
+        else:
+            stack.params += [('DeployedAsg', deploy_asg(stack))]
+    else:
+        stack.params += [('Deploying', True),
+                         ('DeployedAsg', next_deploy_asg(stack))]
 
 
 def describe_nested_stacks(name, region):
