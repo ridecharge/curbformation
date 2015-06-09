@@ -76,14 +76,14 @@ def register_rollback_stack_subparser(parser, name, func):
 
 def register_deploy_stack_subparser(parser, name, func):
     parser = register_versioned_stack_subparser(parser, name, func)
-    parser.add_argument('--commit', default=False)
-    parser.add_argument('--rollback', default=False)
+    parser.add_argument('--commit',  action='store_true')
+    parser.add_argument('--rollback',  action='store_true')
     return parser
 
 
 def add_skip_version_check_arg(parser):
     parser.add_argument('--skip-version-check', help='Skips version check before deploying',
-                        default=False)
+                        action='store_true')
 
 
 def register_versioned_stack_subparser(subparsers, name, func):
