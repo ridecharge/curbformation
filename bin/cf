@@ -69,13 +69,13 @@ def register_versioned_stack_subparser(subparsers, name, func):
     parser = register_stack_subparser(subparsers, name, func)
     parser.add_argument('--skip-version-check', help='Skips version check before deploying',
                         action='store_true')
-    parser.add_argument('-v', '--version', help='The application version to deploy.', default=False)
+    parser.add_argument('-v', '--version', help='The application version to deploy.')
     return parser
 
 
 def register_stack_subparser(subparsers, name, func):
     parser = register_subparser(subparsers, name, func)
-    parser.add_argument('-n', '--name', help='The stack name')
+    parser.add_argument('-n', '--name', help='The stack name', required=True)
     parser.add_argument('-H', '--host', help='The consul host.', default='consul')
     parser.add_argument('-p', '--port', help='The consul port.', default='8500')
     return parser

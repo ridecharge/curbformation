@@ -65,7 +65,7 @@ class Stack(object):
             version = cf.helpers.version(self)
         previous_version = cf.helpers.version(self)
         self.service.update_version_params(version, previous_version, self)
-        
+
         if not is_ab_deploying and previous_version == version:
             cf.helpers.add_serial_param(self.params)
 
