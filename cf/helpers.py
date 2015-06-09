@@ -191,6 +191,12 @@ def update_ab_deploy_params(stack):
             """Deployment currently in progress.
             Please use --commit or --rollback to continue.""")
         exit(1)
+    if not is_deploying and (stack.options.commit or stack.options.rollback):
+        print(
+            """Deployment is not currently in progress.
+            Please start a deployment before using --commit or --rollback""")
+        exit(1)
+
     stack.params += [('Deploying', not is_deploying)]
     if not is_deploying or stack.options.rollback:
         asg = next_deploy_asg(stack)
