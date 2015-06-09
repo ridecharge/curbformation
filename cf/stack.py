@@ -23,12 +23,15 @@ class Stack(object):
         self.params = self.service.params(self)
         self.topic_arn = cf.helpers.topic_arn(self.env, self.region, self.account_id)
         self.options = options
+        self.description = None
 
     def validate(self):
         return self.service.validate(self)
 
     def describe(self):
-        return self.service.describe(self.stack_name)
+        if not self.description:
+            self.description = self.service.describe(self.stack_name)
+        return self.description
 
     def delete(self):
         return self.service.delete(self.stack_name)
