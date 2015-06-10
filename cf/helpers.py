@@ -69,7 +69,7 @@ def previous_base_image_id(stack):
     for out in stack.describe().outputs:
         if out.key == 'PreviousBaseImageId':
             return out.value
-    print('Error: Could not find BaseImageId in outputs.')
+    print('Error: Could not find PreviousBaseImageId in outputs.')
     exit(1)
 
 
