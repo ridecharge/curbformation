@@ -59,7 +59,8 @@ class Stack(object):
         if is_ab_deploying:
             cf.helpers.update_ab_deploy_params(self)
 
-        if cf.helpers.deploying(self):
+        is_active_deploy = cf.helpers.deploying(self)
+        if is_active_deploy:
             version = cf.helpers.version(self)
             previous_version = cf.helpers.previous_version(self)
         elif self.options.version:
@@ -72,6 +73,16 @@ class Stack(object):
 
         if not is_ab_deploying and previous_version == version:
             cf.helpers.add_serial_param(self.params)
+
+        if cf.helpers.has_base_image_id(self):
+            if is_active_deploy:
+                image_id = cf.helpers.base_image_id(self)
+                cf.helpers.update_base_image_id(image_id, self)
+                previous_image_id = cf.helpers.previous_base_image_id(self)
+                cf.helpers.add_previous_base_image_id(previous_image_id, self.params)
+            else:
+                image_id = cf.helpers.base_image_id(self)
+                cf.helpers.add_previous_base_image_id(image_id, self.params)
 
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)

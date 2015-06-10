@@ -57,9 +57,35 @@ def previous_version(stack):
     exit(1)
 
 
+def base_image_id(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'BaseImageId':
+            return out.value
+    print('Error: Could not find BaseImageId in outputs.')
+    exit(1)
+
+
+def previous_base_image_id(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'PreviousBaseImageId':
+            return out.value
+    print('Error: Could not find BaseImageId in outputs.')
+    exit(1)
+
+
+def update_base_image_id(image_id, stack):
+    stack.params = [('BaseImageId', image_id) if list(param)[0] == 'BaseImageId' else param for
+                    param in
+                    stack.params]
+
+
 def next_deploy_asg(stack):
     asg = deploy_asg(stack)
     return 'B' if asg == 'A' else 'A'
+
+
+def add_previous_base_image_id(image_id, params):
+    params.append(('PreviousBaseImageId', image_id))
 
 
 def deploy_asg(stack):
@@ -81,6 +107,13 @@ def deploying(stack):
 def is_ab_deploying(stack):
     for out in stack.describe().outputs:
         if out.key == 'Deploying':
+            return True
+    return False
+
+
+def has_base_image_id(stack):
+    for out in stack.describe().outputs:
+        if out.key == 'BaseImageId':
             return True
     return False
 
@@ -153,22 +186,22 @@ def exit_if_docker_tag_not_exist(vers, name, https_conn, config):
 
 
 def load_config(consul_conn):
-        env_params = {}
-        for param in consul_conn.kv.get('cf/config/env_params', recurse=True)[1]:
-            key = param['Key'].split('/')[-1]
-            value = param['Value'].decode('utf-8')
-            env_params[key] = value
+    env_params = {}
+    for param in consul_conn.kv.get('cf/config/env_params', recurse=True)[1]:
+        key = param['Key'].split('/')[-1]
+        value = param['Value'].decode('utf-8')
+        env_params[key] = value
 
-        repository = {}
-        for param in consul_conn.kv.get('cf/config/repository', recurse=True)[1]:
-            key = param['Key'].split('/')[-1]
-            value = param['Value'].decode('utf-8')
-            repository[key] = value
+    repository = {}
+    for param in consul_conn.kv.get('cf/config/repository', recurse=True)[1]:
+        key = param['Key'].split('/')[-1]
+        value = param['Value'].decode('utf-8')
+        repository[key] = value
 
-        account_id = consul_conn.kv.get('cf/config/account_id')[1]['Value'].decode('utf-8')
-        environment = consul_conn.kv.get('cf/config/environment')[1]['Value'].decode('utf-8')
-        return {'environment': environment, 'account_id': account_id, 'env_params': env_params,
-                'repository': repository}
+    account_id = consul_conn.kv.get('cf/config/account_id')[1]['Value'].decode('utf-8')
+    environment = consul_conn.kv.get('cf/config/environment')[1]['Value'].decode('utf-8')
+    return {'environment': environment, 'account_id': account_id, 'env_params': env_params,
+            'repository': repository}
 
 
 def add_serial_param(params):
