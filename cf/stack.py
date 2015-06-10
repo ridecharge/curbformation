@@ -48,35 +48,42 @@ class Stack(object):
     def is_deployable(self):
         return self.describe().stack_status in Stack.VALID_DEPLOYMENT_STATES
 
-    def rollback(self):
-        cf.helpers.exit_when_not_deployable(self)
-        cf.helpers.exit_when_invalid(self)
-        version = cf.helpers.previous_version(self)
-        previous_version = cf.helpers.version(self)
-        self.service.update_version_params(version, previous_version,
-                                           self)
-        cf.helpers.sync_s3_bucket(self.bucket_name)
-        return self.service.update(self)
-
-    def redeploy(self):
-        cf.helpers.exit_when_not_deployable(self)
-        cf.helpers.exit_when_invalid(self)
-        if self.name != 'env':
-            cf.helpers.add_serial_param(self.params)
-            version = cf.helpers.version(self)
-            previous_version = cf.helpers.previous_version(self)
-            self.service.update_version_params(version, previous_version,
-                                               self)
-        cf.helpers.sync_s3_bucket(self.bucket_name)
-        return self.service.update(self)
-
     def deploy(self):
         cf.helpers.exit_when_not_deployable(self)
         cf.helpers.exit_when_invalid(self)
-        previous_version = cf.helpers.version(self)
-        version = self.options.version
-        self.service.update_version_params(version, previous_version,
-                                           self)
+
+        if self.name == 'env':
+            return self.service.update(self)
+
+        is_ab_deploying = cf.helpers.is_ab_deploying(self)
+        if is_ab_deploying:
+            cf.helpers.update_ab_deploy_params(self)
+
+        is_active_deploy = cf.helpers.deploying(self)
+        if is_active_deploy:
+            version = cf.helpers.version(self)
+            previous_version = cf.helpers.previous_version(self)
+        elif self.options.version:
+            version = self.options.version
+            previous_version = cf.helpers.version(self)
+        else:
+            version = cf.helpers.version(self)
+            previous_version = version
+        self.service.update_version_params(version, previous_version, self)
+
+        if not is_ab_deploying and previous_version == version:
+            cf.helpers.add_serial_param(self.params)
+
+        if cf.helpers.has_base_image_id(self):
+            if is_active_deploy:
+                image_id = cf.helpers.base_image_id(self)
+                cf.helpers.update_base_image_id(image_id, self)
+                previous_image_id = cf.helpers.previous_base_image_id(self)
+                cf.helpers.add_previous_base_image_id(previous_image_id, self.params)
+            else:
+                image_id = cf.helpers.base_image_id(self)
+                cf.helpers.add_previous_base_image_id(image_id, self.params)
+
         cf.helpers.sync_s3_bucket(self.bucket_name)
         return self.service.update(self)
 
@@ -126,15 +133,15 @@ class StackService(object):
 
     def __stack_policy(self, effect):
         return """{
-                  "Statement" : [
-                    {
-                      "Effect" : \"""" + effect + """\",
-                      "Action" : "Update:*",
-                      "Principal": "*",
-                      "Resource" : "*"
-                    }
-                  ]
-                }"""
+              "Statement" : [
+                {
+                  "Effect" : \"""" + effect + """\",
+                  "Action" : "Update:*",
+                  "Principal": "*",
+                  "Resource" : "*"
+                }
+              ]
+            }"""
 
     def unlock(self, stack_name):
         return self.cf_conn.set_stack_policy(stack_name, self.__stack_policy('Allow'))
