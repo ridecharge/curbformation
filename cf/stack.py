@@ -59,7 +59,7 @@ class Stack(object):
         if is_ab_deploying:
             cf.helpers.update_ab_deploy_params(self)
 
-        is_active_deploy = cf.helpers.deploying(self)
+        is_active_deploy = is_ab_deploying and cf.helpers.deploying(self)
         if is_active_deploy:
             version = cf.helpers.version(self)
             previous_version = cf.helpers.previous_version(self)
