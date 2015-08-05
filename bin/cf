@@ -3,6 +3,7 @@ import argparse
 import cf
 import cf.helpers
 from boto.exception import BotoServerError
+from consul import Consul
 
 
 def validate(options):
@@ -38,7 +39,9 @@ def cleanup(options):
 
 
 def describe(options):
-    stack_name = options.environment + "-" + options.name
+    consul_conn = Consul(options.host, options.port)
+    config = cf.helpers.load_config(consul_conn)
+    stack_name = config['environment'] + "-" + options.name
     return cf.helpers.describe_nested_stacks(stack_name, options.region)
 
 
