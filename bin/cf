@@ -76,13 +76,13 @@ def register_versioned_stack_subparser(subparsers, name, func):
 def register_stack_subparser(subparsers, name, func):
     parser = register_subparser(subparsers, name, func)
     parser.add_argument('-n', '--name', help='The stack name', required=True)
-    parser.add_argument('-H', '--host', help='The consul host.', default='consul')
-    parser.add_argument('-p', '--port', help='The consul port.', default='8500')
     return parser
 
 
 def register_subparser(subparsers, name, func):
     parser = subparsers.add_parser(name)
+    parser.add_argument('-H', '--host', help='The consul host.', default='consul')
+    parser.add_argument('-p', '--port', help='The consul port.', default='8500')
     parser.add_argument('-r', '--region', help='The AWS region to deploy this stack into.',
                         choices=['us-east-1', 'us-west-1'], default='us-east-1')
     parser.set_defaults(func=func)
