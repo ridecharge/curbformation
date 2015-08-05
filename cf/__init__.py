@@ -14,7 +14,8 @@ def new_environment(options):
     sns_conn = sns.connect_to_region(options.region)
     s3_conn = s3.connect_to_region(options.region)
     ec2_conn = ec2.connect_to_region(options.region)
-    environment_service = EnvironmentService(ec2_conn, s3_conn, sns_conn)
+    consul_conn = Consul(options.host, options.port)
+    environment_service = EnvironmentService(ec2_conn, s3_conn, sns_conn, consul_conn)
     return Environment(environment_service, options)
 
 
