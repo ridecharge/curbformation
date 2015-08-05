@@ -55,7 +55,7 @@ class EnvironmentService(object):
         print("Creating key pair:", env)
         try:
             key=self.ec2_conn.create_key_pair(env)
-	    print("key:\n{}".format(key))
+            print("key:\n{}".format(key))
         except:
             print("Warning: Key pair exists skipping.")
 
